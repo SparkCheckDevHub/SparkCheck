@@ -1,0 +1,37 @@
+services:
+  app:
+    build:
+      context: ./app
+    container_name: queuedating-app
+    ports:
+      - "5980:80"
+    depends_on:
+      - db
+    environment:
+      ASPNETCORE_ENVIRONMENT: Production
+    networks:
+      - queuedating-network
+    restart: unless-stopped
+
+  db:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: queuedating-db
+    ports:
+      - "127.0.0.1:1433:1433"
+    environment:
+      SA_PASSWORD: "${SA_PASSWORD}"
+      ACCEPT_EULA: "Y"
+    volumes:
+      - mssql-data:/var/opt/mssql
+      - ./db/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+      - ./db/init.sh:/usr/src/app/init.sh 
+    networks:
+      - queuedating-network
+    restart: unless-stopped
+    entrypoint: ["/bin/bash", "-c", "/usr/src/app/init.sh"]
+
+volumes:
+  mssql-data:
+
+networks:
+  queuedating-network:
