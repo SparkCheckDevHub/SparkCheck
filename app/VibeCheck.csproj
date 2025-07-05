@@ -7,9 +7,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Folder Include="Components\Chat\" />
-    <Folder Include="Components\Match\" />
-    <Folder Include="Components\Common\" />
+    <Folder Include="Shared\" />
     <Folder Include="wwwroot\img\" />
   </ItemGroup>
 

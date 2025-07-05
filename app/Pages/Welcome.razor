@@ -1,5 +1,8 @@
 ﻿@page "/"
+@page "/welcome"
+@rendermode InteractiveServer
 @layout MainLayout
+@inject NavigationManager Navigation
 
 <div class="welcome-container">
     <h1 class="welcome-title section-spacing">Welcome to VibeCheck</h1>
@@ -8,13 +11,17 @@
         Find your vibe. Log in with your phone number to get started.
     </p>
 
-    <a href="/phonelogin" class="welcome-button section-spacing">
+    <button class="welcome-button section-spacing" @onclick="NavigateToPhoneLogin">
         Continue with Phone Number
-    </a>
+    </button>
 
     <div class="account-prompt section-spacing">
         <span class="account-text">First time?</span>
-        <a href="/createaccount" class="account-link">Create Account</a>
+        <button type="button" class="account-link" @onclick="NavigateToCreateAccount">Create Account</button>
     </div>
-
 </div>
+
+@code {
+    private void NavigateToPhoneLogin() => Navigation.NavigateTo("/phonelogin");
+    private void NavigateToCreateAccount() => Navigation.NavigateTo("/createaccount");
+}
