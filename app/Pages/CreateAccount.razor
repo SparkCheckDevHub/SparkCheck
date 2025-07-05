@@ -1,8 +1,56 @@
-﻿@page "/CreateAccount"
+﻿@page "/createaccount"
 @layout MainLayout
+@inject NavigationManager Navigation
+@using VibeCheck.Models
 
-<h3>CreateAccount</h3>
+<div class="create-account-form">
+    <h2>Create Your Account</h2>
+
+    <div class="form-group">
+        <label for="username">Username</label>
+        <input id="username" class="form-input" type="text" @bind="Account.strUsername" />
+    </div>
+
+    <div class="form-group">
+        <label for="firstName">First Name</label>
+        <input id="firstName" class="form-input" type="text" @bind="Account.strFirstName" />
+    </div>
+
+    <div class="form-group">
+        <label for="lastName">Last Name</label>
+        <input id="lastName" class="form-input" type="text" @bind="Account.strLastName" />
+    </div>
+
+    <div class="form-group">
+        <label for="dob">Date of Birth</label>
+        <input id="dob" class="form-input" type="date" @bind="Account.dtmDateOfBirth" />
+    </div>
+
+    <div class="form-group">
+        <label for="phone">Phone Number</label>
+        <input id="phone" class="form-input" type="tel" @bind="Account.strPhoneNumber" />
+    </div>
+
+    <div class="form-group">
+        <label for="email">Email</label>
+        <input id="email" class="form-input" type="email" @bind="Account.strEmail" />
+    </div>
+
+    <div class="form-actions">
+        <button class="submit" @onclick="SubmitAccount">Submit</button>
+        <button class="cancel" @onclick="Cancel">Cancel</button>
+    </div>
+</div>
 
 @code {
+    private CreateAccountModel Account = new();
 
+    private void SubmitAccount() {
+        // TODO: Replace with actual logic
+        Console.WriteLine("Account Submitted!");
+    }
+
+    private void Cancel() {
+        Navigation.NavigateTo("/");
+    }
 }

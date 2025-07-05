@@ -1,4 +1,4 @@
 ﻿namespace VibeCheck.Models {
-	public class Preferences {
+	public class PreferencesModel {
 	}
 }
