@@ -1,25 +1,29 @@
 -- --------------------------------------------------------------------------------
 -- Name: Seth Niefield
--- Project: Queue-Based Dating App
--- Abstract: Queue-Based Dating App Database
+-- Project: SparkCheck
+-- Abstract: SparkCheck Database
 -- --------------------------------------------------------------------------------
 
 -- --------------------------------------------------------------------------------
 -- Create Database
 -- --------------------------------------------------------------------------------
-IF EXISTS (SELECT * FROM sys.databases WHERE name = 'dbQueueDatingApp')
+IF EXISTS (SELECT * FROM sys.databases WHERE name = 'dbSparkCheck')
 BEGIN
   THROW 50000, 'Database already exists', 1;
 END
 GO
 
-CREATE DATABASE dbQueueDatingApp;
+CREATE DATABASE dbSparkCheck;
+GO
 
 -- --------------------------------------------------------------------------------
 -- Options
 -- --------------------------------------------------------------------------------
-USE dbQueueDatingApp;
+USE dbSparkCheck;
+GO
+
 SET NOCOUNT ON;
+GO
 
 -- --------------------------------------------------------------------------------
 -- Drop Tables

@@ -52,3 +52,7 @@ printf '\nCertbot installed successfully\n\n'
 # Nginx
 sudo apt --yes --no-install-recommends install nginx
 printf '\nNginx installed successfully\n\n'
+
+# Socat
+sudo apt --yes --no-install-recommends install socat
+printf '\nSocat installed successfully\n\n'
