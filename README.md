@@ -13,7 +13,7 @@ The **public web root** for static assets.
 
 ---
 
-## 🧩 Components/
+## 🧩 Shared/
 
 Reusable UI components **organized by feature**.
 
@@ -29,7 +29,7 @@ Reusable UI components **organized by feature**.
 
 Database-related logic using **Entity Framework Core**.
 
-- `VibeCheckDbContext.cs` – DB context with DbSets for Users, Matches, etc.
+- `AppDbContext.cs` – DB context with DbSets for Users, Matches, etc.
 - `DbSeeder.cs` – (Optional) Seeds test data for local dev
 
 ---
@@ -46,7 +46,7 @@ Database-related logic using **Entity Framework Core**.
 
 All **data models (POCOs)** used across the app.
 
-- `User.cs`, `Match.cs`, `ChatMessage.cs`, `Preferences.cs`
+- `TUser.cs`, `Match.cs`, `ChatMessage.cs`, `Preferences.cs`
 - Used in the DB, services, UI, and API calls
 
 ---
