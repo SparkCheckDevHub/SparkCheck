@@ -171,15 +171,31 @@ input.input-validation-error {
 
 /* === Create Account Form === */
 .create-account-form {
-	max-width: 400px;
-	margin: auto;
-	padding: 2rem;
-	background-color: #fff;
-	border-radius: 12px;
-	box-shadow: 0 4px 12px rgba(0,0,0,0.1);
 	display: flex;
 	flex-direction: column;
 	gap: 1rem;
+}
+
+.welcome-container {
+	display: flex;
+	flex-direction: column;
+	padding: 20px;
+	padding-top: 25vh;
+	text-align: center;
+	min-height: 100vh;
+	background: linear-gradient(to bottom, var(--color-bg), #f3e9e3, #f0f3ed);
+	box-sizing: border-box;
+}
+
+.create-account-container {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	min-height: 100vh;
+	padding: 20px;
+	background: linear-gradient(to bottom, var(--color-bg), #f3e9e3, #f0f3ed);
+	box-sizing: border-box;
 }
 
 .create-account-form h2 {
@@ -243,3 +259,97 @@ input.input-validation-error {
 		padding: 3rem;
 	}
 }
+
+.validation-message {
+	color: red;
+	margin-bottom: 1rem;
+	padding-left: 1.25rem;
+	font-size: 0.9rem;
+}
+
+.validation-message li {
+	list-style-type: disc;
+}
+
+
+.error-message {
+	justify-content: center;
+	display: flex;
+	color: red;
+	margin-bottom: 1rem;
+	font-weight: bold;
+}
+
+.success-message {
+	justify-content: center;
+	display: flex;
+	color: var(--color-success);
+	margin-bottom: 1rem;
+	font-weight: bold;
+}
+
+.mud-input.mud-input-underline:before {
+
+	border-bottom: none !important; 
+	
+}
+
+.mud-input > input.mud-input-root, div.mud-input-slot.mud-input-root {
+	font: inherit;
+	color: currentColor;
+	width: 100%;
+	border: 0;
+	height: 1lh;
+	margin: 0;
+	display: block;
+	padding: 0px !important; 
+	min-width: 0;
+	background: none;
+	position: relative;
+	box-sizing: content-box;
+	-webkit-tap-highlight-color: rgba(0,0,0,0);
+}
+
+.mud-input {
+	background-color: white !important;
+	border-radius: 0.5rem !important;
+	padding: 0.5rem !important;
+	box-shadow: none !important;
+	border: 1px solid #ccc !important;
+	height: 50px !important;
+}
+
+.mud-input-control {
+
+	margin-top: 0 !important; 
+}
+.mud-picker-inline{
+	border: none !important;
+}
+.mud-input{
+	height: 50px !important;
+}
+/* === Force MudDatePicker to Match Input Width === */
+.mud-picker.form-input {
+	display: block;
+	width: 100% !important;
+	max-width: 100% !important;
+}
+
+.mud-picker.form-input .mud-input-control {
+	width: 100% !important;
+}
+
+.mud-picker.form-input .mud-input-control-input-container {
+	width: 100% !important;
+}
+
+.mud-picker.form-input .mud-input {
+	width: 100% !important;
+	padding: 0.75rem 1rem !important;
+	border-radius: 10px !important;
+	border: 1px solid #ccc !important;
+	box-shadow: none !important;
+	background-color: white !important;
+}
+
