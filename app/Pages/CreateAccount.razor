@@ -1,56 +1,93 @@
 ﻿@page "/createaccount"
 @layout MainLayout
 @inject NavigationManager Navigation
+@inject UserService UserService
+@using VibeCheck.Services
 @using VibeCheck.Models
+@using System.ComponentModel.DataAnnotations
 
-<div class="create-account-form">
-    <h2>Create Your Account</h2>
+<EditForm Model="Account" OnValidSubmit="HandleValidSubmit" OnInvalidSubmit="HandleInvalidSubmit">
+	<DataAnnotationsValidator />
+	<ValidationSummary />
+	<div class="create-account-container"
 
-    <div class="form-group">
-        <label for="username">Username</label>
-        <input id="username" class="form-input" type="text" @bind="Account.strUsername" />
-    </div>
+	<div class="create-account-form">
+		<h2>Create Your Account</h2>
 
-    <div class="form-group">
-        <label for="firstName">First Name</label>
-        <input id="firstName" class="form-input" type="text" @bind="Account.strFirstName" />
-    </div>
+		<ValidationSummary />
 
-    <div class="form-group">
-        <label for="lastName">Last Name</label>
-        <input id="lastName" class="form-input" type="text" @bind="Account.strLastName" />
-    </div>
+		@if (!string.IsNullOrEmpty(SuccessMessage)) {
+				<div class="success-message">@SuccessMessage</div>
+		}
 
-    <div class="form-group">
-        <label for="dob">Date of Birth</label>
-        <input id="dob" class="form-input" type="date" @bind="Account.dtmDateOfBirth" />
-    </div>
+		<div class="form-group">
+			<label for="username">Username</label>
+			<InputText id="username" class="form-input" @bind-Value="Account.strUsername" />
+			<ValidationMessage For="@(() => Account.strUsername)" />
+		</div>
 
-    <div class="form-group">
-        <label for="phone">Phone Number</label>
-        <input id="phone" class="form-input" type="tel" @bind="Account.strPhoneNumber" />
-    </div>
+		<div class="form-group">
+			<label for="firstName">First Name</label>
+			<InputText id="firstName" class="form-input" @bind-Value="Account.strFirstName" />
+			<ValidationMessage For="@(() => Account.strFirstName)" />
+		</div>
 
-    <div class="form-group">
-        <label for="email">Email</label>
-        <input id="email" class="form-input" type="email" @bind="Account.strEmail" />
-    </div>
+		<div class="form-group">
+			<label for="lastName">Last Name</label>
+			<InputText id="lastName" class="form-input" @bind-Value="Account.strLastName" />
+			<ValidationMessage For="@(() => Account.strLastName)" />
+		</div>
 
-    <div class="form-actions">
-        <button class="submit" @onclick="SubmitAccount">Submit</button>
-        <button class="cancel" @onclick="Cancel">Cancel</button>
-    </div>
-</div>
+		<div class="form-group">
+			<label>Date of Birth</label>
+			<MudDatePicker @bind-Date="Account.dtmDateOfBirth"
+						   InputVariant="Variant.Outlined"
+						   PickerVariant="PickerVariant.Inline"
+						   Class="form-input" />
+			@if (HasSubmitted && !Account.dtmDateOfBirth.HasValue) {
+					<div class="validation-message">Date of Birth is required.</div>
+			}
+		</div>
+
+		<div class="form-group">
+			<label for="phone">Phone Number</label>
+			<InputText id="phone" class="form-input" @bind-Value="Account.strPhoneNumber" />
+			<ValidationMessage For="@(() => Account.strPhoneNumber)" />
+		</div>
+
+		<div class="form-group">
+			<label for="email">Email</label>
+			<InputText id="email" class="form-input" @bind-Value="Account.strEmail" />
+			<ValidationMessage For="@(() => Account.strEmail)" />
+		</div>
+
+		<div class="form-actions">
+			<button type="submit" class="submit">Submit</button>
+			<button type="button" class="cancel" @onclick="Cancel">Cancel</button>
+		</div>
+	</div>
+
+	</div>
+</EditForm>
 
 @code {
-    private CreateAccountModel Account = new();
+	private CreateAccountModel Account = new();
+	private string? SuccessMessage;
+	private bool HasSubmitted = false;
 
-    private void SubmitAccount() {
-        // TODO: Replace with actual logic
-        Console.WriteLine("Account Submitted!");
-    }
+	private async Task HandleValidSubmit() {
+		var result = await UserService.CreateUserAsync(Account);
+		if (result.Success) {
+			SuccessMessage = "Account created successfully!";
+			await Task.Delay(2000);
+			Navigation.NavigateTo("/");
+		}
+	}
 
-    private void Cancel() {
-        Navigation.NavigateTo("/");
-    }
+	private void HandleInvalidSubmit(EditContext context) {
+		HasSubmitted = true;
+	}
+
+
+	private void Cancel() => Navigation.NavigateTo("/");
 }

@@ -1,10 +1,29 @@
-﻿namespace VibeCheck.Models {
-	public class CreateAccountModel {
-		public string strUsername { get; set; }
-		public string strFirstName { get; set; }
-		public string strLastName { get; set; }
-		public DateTime dtmDateOfBirth { get; set; } 
-		public string strPhoneNumber { get; set; }
-		public string strEmail { get; set; }
-	}
+﻿using System.ComponentModel.DataAnnotations;
+
+public class CreateAccountModel {
+	[Required]
+	[StringLength(20, MinimumLength = 8, ErrorMessage = "Username must be 8–20 characters.")]
+	[RegularExpression("^[a-zA-Z0-9]+$", ErrorMessage = "Username must be alphanumeric.")]
+	public string strUsername { get; set; } = "";
+
+	[Required]
+	[StringLength(20, ErrorMessage = "First name must be no more than 20 characters.")]
+	[RegularExpression("^[a-zA-Z]+$", ErrorMessage = "First name must contain only letters.")]
+	public string strFirstName { get; set; } = "";
+
+	[Required]
+	[StringLength(20, ErrorMessage = "Last name must be no more than 20 characters.")]
+	[RegularExpression("^[a-zA-Z]+$", ErrorMessage = "Last name must contain only letters.")]
+	public string strLastName { get; set; } = "";
+
+	[Required(ErrorMessage = "Date of Birth is required.")]
+	public DateTime? dtmDateOfBirth { get; set; }
+
+	[Required]
+	[RegularExpression(@"^\d{10}$", ErrorMessage = "Phone number must be 10 digits with no symbols.")]
+	public string strPhoneNumber { get; set; } = "";
+
+	[Required]
+	[EmailAddress(ErrorMessage = "Enter a valid email address.")]
+	public string strEmail { get; set; } = "";
 }
