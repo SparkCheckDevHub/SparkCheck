@@ -22,6 +22,7 @@ done
 # Run the initialization script, and the procedures script
 /opt/mssql-tools18/bin/sqlcmd -S localhost -U SA -P "$SA_PASSWORD" -i /usr/src/app/init.sql -C
 /opt/mssql-tools18/bin/sqlcmd -S localhost -U SA -P "$SA_PASSWORD" -i /usr/src/app/procedures.sql -C
+/opt/mssql-tools18/bin/sqlcmd -S localhost -U SA -P "$SA_PASSWORD" -i /usr/src/app/zipcodes.sql -C
 
 # Keep the container running
 wait
