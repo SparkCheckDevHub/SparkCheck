@@ -2,7 +2,7 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace VibeCheck.Models {
+namespace SparkCheck.Models {
 	[Table("TUsers")]
 	public class TUsers {
 		[Key]

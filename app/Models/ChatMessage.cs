@@ -1,4 +1,4 @@
-﻿namespace VibeCheck.Models {
+﻿namespace SparkCheck.Models {
 	public class ChatMessageModel {
 	}
 }

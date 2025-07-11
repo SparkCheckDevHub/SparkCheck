@@ -1,54 +1,107 @@
-﻿using VibeCheck.Data;
-using VibeCheck.Models;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.Extensions.Logging;
+using SparkCheck.Models;
 
-namespace VibeCheck.Services {
+namespace SparkCheck.Services {
 	public class UserService {
-		private readonly AppDbContext _db;
+		private readonly UserManager<ApplicationUser> _userManager;
+		private readonly ILogger<UserService> _logger;
 
-		public UserService(AppDbContext db) {
-			_db = db;
+		public UserService(UserManager<ApplicationUser> userManager, ILogger<UserService> logger) {
+			_userManager = userManager;
+			_logger = logger;
 		}
 
+		// Set phone number to be used for login or other purposes
+		public async Task SetPhoneNumberAsync(string userId, string phone) {
+			var user = await _userManager.FindByIdAsync(userId);
+			if (user != null) {
+				user.PhoneNumber = phone;
+				await _userManager.UpdateAsync(user);
+			}
+		}
+
+		public async Task<string> GetPhoneNumberAsync(string userId) {
+			var user = await _userManager.FindByIdAsync(userId);
+			return user?.PhoneNumber;
+		}
+
+		// Create a new user after validation
 		public async Task<ServiceResult> CreateUserAsync(CreateAccountModel account) {
 			try {
-
-				if (await _db.TUsers.AnyAsync(u => u.strUsername == account.strUsername))
-					return ServiceResult.Fail("Username already exists.");
-
-				if (await _db.TUsers.AnyAsync(u => u.strEmail == account.strEmail))
-					return ServiceResult.Fail("Email already exists.");
-
-				if (await _db.TUsers.AnyAsync(u => u.strPhone == account.strPhoneNumber))
-					return ServiceResult.Fail("Email already exists.");
-
-				var user = new TUsers {
-					strUsername = account.strUsername,
+				var user = new ApplicationUser {
+					UserName = account.strEmail,  // UserName is required for Identity
+					Email = account.strEmail,
 					strFirstName = account.strFirstName,
 					strLastName = account.strLastName,
-					dtmDateOfBirth = account.dtmDateOfBirth!.Value,
-					strPhone = account.strPhoneNumber,
-					strEmail = account.strEmail,
-					dtmCreatedDate = DateTime.UtcNow,
-					intGenderID = 1,
-					intZipCodeID = 1,
-					decLatitude = 0,
-					decLongitude = 0,
-					blnIsActive = true,
-					blnIsOnline = false,
-					blnInQueue = false
+					dtmDateOfBirth = account.dtmDateOfBirth,
+					PhoneNumber = account.strPhone
 				};
 
-				_db.TUsers.Add(user);
-				await _db.SaveChangesAsync();
+				var result = await _userManager.CreateAsync(user, "Password123!"); // You can generate a password here or take from input
+				if (result.Succeeded) {
+					return ServiceResult.Ok();
+				}
 
-				return ServiceResult.Ok();
-			}
-			catch (DbUpdateException dbEx) {
-				return ServiceResult.Fail($"A database error occurred: {dbEx.InnerException?.Message ?? dbEx.Message}");
+				foreach (var error in result.Errors) {
+					_logger.LogError(error.Description);
+				}
+				return ServiceResult.Fail("Error creating user.");
 			}
 			catch (Exception ex) {
-				return ServiceResult.Fail("An unexpected error occurred.");
+				_logger.LogError(ex, "Error while creating user.");
+				return ServiceResult.Fail($"Error: {ex.Message}");
+			}
+		}
+
+		public async Task<ServiceResult> UpdateUserStatusAsync(string userId, bool isOnline) {
+			try {
+				var user = await _userManager.FindByIdAsync(userId);
+				if (user == null) {
+					return ServiceResult.Fail("User not found.");
+				}
+
+				user.blnIsOnline = isOnline;
+				await _userManager.UpdateAsync(user);
+				return ServiceResult.Ok();
+			}
+			catch (Exception ex) {
+				_logger.LogError(ex, "Error while updating user status.");
+				return ServiceResult.Fail($"Error: {ex.Message}");
+			}
+		}
+
+		// For login attempt: you should leverage SignInManager or external services.
+		public async Task<ServiceResult> AttemptLoginAsync(string phone) {
+			try {
+				var user = await _userManager.FindByPhoneNumberAsync(phone);  // Use FindByPhoneNumberAsync for Identity users
+				if (user == null) {
+					return ServiceResult.Fail("Invalid phone number.");
+				}
+
+				// Here you can handle the verification code logic (e.g., send an OTP)
+				return ServiceResult.Ok();
+			}
+			catch (Exception ex) {
+				_logger.LogError(ex, "Error during login attempt.");
+				return ServiceResult.Fail($"Error: {ex.Message}");
+			}
+		}
+
+		// For verification process
+		public async Task<ServiceResult> VerifyPhoneAsync(string userId, string verificationCode) {
+			try {
+				var user = await _userManager.FindByIdAsync(userId);
+				if (user == null) {
+					return ServiceResult.Fail("User not found.");
+				}
+
+				// Add your logic to validate the verification code, maybe via OTP.
+				return ServiceResult.Ok();
+			}
+			catch (Exception ex) {
+				_logger.LogError(ex, "Error during phone verification.");
+				return ServiceResult.Fail($"Error: {ex.Message}");
 			}
 		}
 	}

@@ -1,5 +1,8 @@
 ﻿@using MudBlazor
+@using SparkCheck.Services
 @inherits LayoutComponentBase
+@inject UserService _userService
+@inject IJSRuntime JS
 
 <MudThemeProvider />
 <MudDialogProvider />
@@ -9,3 +12,21 @@
 <div class="main-layout">
     @Body
 </div>
+
+@code {
+    protected override async Task OnInitializedAsync() {
+        // Adding the event listener for the page unload event (beforeunload)
+        await JS.InvokeVoidAsync("window.addEventListener", "beforeunload", DotNetObjectReference.Create(this));
+    }
+
+    [JSInvokable]
+    public async Task SetUserOffline() {
+        var userId = GetCurrentUserId();  // Get the current user's ID dynamically
+        await _userService.SetUserOfflineAsync(userId);
+    }
+
+    private int GetCurrentUserId() {
+        // Replace with actual logic to retrieve the current user's ID
+        return 123;  // Just a placeholder for now, replace with real logic (e.g., from authentication)
+    }
+}

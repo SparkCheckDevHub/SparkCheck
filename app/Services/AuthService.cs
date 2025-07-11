@@ -1,4 +1,4 @@
-﻿namespace VibeCheck.Services {
+﻿namespace SparkCheck.Services {
 	public class AuthService {
 		public Task<bool> CheckPhoneNumberExistsAsync(string phoneNumber) {
 			// Simulate checking if the phone number exists in the database

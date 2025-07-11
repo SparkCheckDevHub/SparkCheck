@@ -1,4 +1,4 @@
-﻿@page "/phonelogin"
+﻿@page "/phoneauth"
 @layout MainLayout
 @inject NavigationManager Navigation
 @inject UserService UserService
@@ -6,11 +6,11 @@
 @using SparkCheck.Models
 
 <MudPaper Style="min-height: 100vh; padding: 1rem; display: flex; flex-direction: column; justify-content: center;">
-    <EditForm Model="_loginModel" OnValidSubmit="HandleLogin">
+    <EditForm Model="_authModel" OnValidSubmit="HandleVerify">
         <DataAnnotationsValidator />
 
         <MudStack AlignItems="AlignItems.Center" Spacing="1" Class="mb-4">
-            <MudText Typo="Typo.h5">Log In with Your Phone Number</MudText>
+            <MudText Typo="Typo.h5">Enter Verification Code</MudText>
 
             @if (!string.IsNullOrWhiteSpace(ErrorMessage)) {
                 <MudAlert Severity="Severity.Error" Variant="Variant.Filled" Dense="true">
@@ -19,8 +19,9 @@
             }
         </MudStack>
 
-        <MudTextField Label="Phone Number"
-                      @bind-Value="_loginModel.strPhone"
+        <MudTextField Label="Verification Code"
+                      @bind-Value="_authModel.VerificationCode"
+                      MaxLength="6"
                       Required="true"
                       Class="mb-2" />
 
@@ -35,10 +36,10 @@
             </MudItem>
             <MudItem xs="6">
                 <MudButton Variant="Variant.Filled"
-                           EndIcon="@Icons.Material.Filled.Login"
+                           EndIcon="@Icons.Material.Filled.Check"
                            ButtonType="ButtonType.Submit"
                            FullWidth="true">
-                    Log In
+                    Verify
                 </MudButton>
             </MudItem>
         </MudGrid>
@@ -46,26 +47,27 @@
 </MudPaper>
 
 @code {
-    private LoginModel _loginModel = new();
+    private AuthModel _authModel = new();
     private string? ErrorMessage;
 
-    private async Task HandleLogin() {
-        ErrorMessage = null; // Reset any previous error messages
+    private async Task HandleVerify() {
+        ErrorMessage = null;
 
-        var result = await UserService.AttemptLoginAsync(_loginModel.strPhone);
+        // Retrieve the phone number stored in UserService
+        var phone = UserService.GetPhoneNumber(); // Ensure you have set the phone number in UserService during login
+
+        // Call the service method, which will handle verification
+        var result = await UserService.VerifyPhoneAsync(phone, _authModel.VerificationCode);
 
         if (result.Success) {
-            // If successful, navigate to PhoneAuth page
-            Navigation.NavigateTo("/phoneauth");
+            var userId = result.Result;  // Assuming the result contains the user ID
+            await UserService.UpdateUserStatusAsync(userId, true);
+            Navigation.NavigateTo("/dashboard");
         }
         else {
-            // If login fails, show an error message
-            ErrorMessage = result.ErrorMessage ?? "Login failed. Try again.";
+            ErrorMessage = result.ErrorMessage ?? "Invalid verification code. Please try again.";
         }
     }
 
-    private void Cancel() {
-        // Navigate back to Welcome page if the user cancels the login attempt
-        Navigation.NavigateTo("/welcome");
-    }
+    private void Cancel() => Navigation.NavigateTo("/phonelogin");
 }

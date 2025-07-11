@@ -1,4 +1,4 @@
-﻿namespace VibeCheck.Services {
+﻿namespace SparkCheck.Services {
 	public class ChatService {
 	}
 }
