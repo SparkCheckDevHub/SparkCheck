@@ -1,9 +1,13 @@
 ﻿@page "/phoneauth"
+@using SparkCheck.Services
+@using SparkCheck.Models
+@using MudBlazor
+@using System.ComponentModel.DataAnnotations
 @layout MainLayout
 @inject NavigationManager Navigation
 @inject UserService UserService
-@using SparkCheck.Services
-@using SparkCheck.Models
+@inject UserSessionService UserSession
+
 
 <MudPaper Style="min-height: 100vh; padding: 1rem; display: flex; flex-direction: column; justify-content: center;">
     <EditForm Model="_authModel" OnValidSubmit="HandleVerify">
@@ -50,22 +54,31 @@
     private AuthModel _authModel = new();
     private string? ErrorMessage;
 
-    private async Task HandleVerify() {
+    private async Task HandleVerify()
+    {
         ErrorMessage = null;
 
-        // Retrieve the phone number stored in UserService
-        var phone = UserService.GetPhoneNumber(); // Ensure you have set the phone number in UserService during login
+        var phone = UserSession.strPhone;
+        var userId = UserSession.intUserID;
 
-        // Call the service method, which will handle verification
-        var result = await UserService.VerifyPhoneAsync(phone, _authModel.VerificationCode);
+        if (userId == null)
+        {
+            ErrorMessage = "Your session has expired. Please log in again.";
+            Navigation.NavigateTo("/phonelogin");
+            return;
+        }
 
-        if (result.Success) {
-            var userId = result.Result;  // Assuming the result contains the user ID
-            await UserService.UpdateUserStatusAsync(userId, true);
+        var result = await UserService.VerifyPhoneLoginAsync(phone, _authModel.VerificationCode, userId.Value);
+
+        if (result.blnSuccess)
+        {
+            UserSession.blnIsOnline = true;
+            await UserService.UpdateUserStatusAsync(userId.Value, true);
             Navigation.NavigateTo("/dashboard");
         }
-        else {
-            ErrorMessage = result.ErrorMessage ?? "Invalid verification code. Please try again.";
+        else
+        {
+            ErrorMessage = result.strErrorMessage ?? "Invalid verification code. Please try again.";
         }
     }
 

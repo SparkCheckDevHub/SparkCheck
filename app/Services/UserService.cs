@@ -1,52 +1,42 @@
-﻿using Microsoft.AspNetCore.Identity;
-using Microsoft.Extensions.Logging;
+﻿using Microsoft.EntityFrameworkCore;
 using SparkCheck.Models;
-
+using SparkCheck.Data;
 namespace SparkCheck.Services {
 	public class UserService {
-		private readonly UserManager<ApplicationUser> _userManager;
+		private readonly AppDbContext _context;
 		private readonly ILogger<UserService> _logger;
 
-		public UserService(UserManager<ApplicationUser> userManager, ILogger<UserService> logger) {
-			_userManager = userManager;
+		public UserService(AppDbContext context, ILogger<UserService> logger) {
+			_context = context;
 			_logger = logger;
 		}
 
-		// Set phone number to be used for login or other purposes
-		public async Task SetPhoneNumberAsync(string userId, string phone) {
-			var user = await _userManager.FindByIdAsync(userId);
+		// Get user by phone number
+		public async Task<TUsers?> GetUserByPhoneAsync(string phone)
+		{
+			return await _context.TUsers.FirstOrDefaultAsync(u => u.strPhone == phone);
+		}
+		// Set phone number for a user
+		public async Task SetPhoneNumberAsync(int userId, string phone) {
+			var user = await _context.TUsers.FindAsync(userId);
 			if (user != null) {
-				user.PhoneNumber = phone;
-				await _userManager.UpdateAsync(user);
+				user.strPhone = phone;
+				await _context.SaveChangesAsync();
 			}
 		}
 
-		public async Task<string> GetPhoneNumberAsync(string userId) {
-			var user = await _userManager.FindByIdAsync(userId);
-			return user?.PhoneNumber;
+		public async Task<string?> GetPhoneNumberAsync(int userId) {
+			var user = await _context.TUsers.FindAsync(userId);
+			return user?.strPhone;
 		}
 
+
 		// Create a new user after validation
-		public async Task<ServiceResult> CreateUserAsync(CreateAccountModel account) {
+		public async Task<ServiceResult> CreateUserAsync(TUsers user) {
 			try {
-				var user = new ApplicationUser {
-					UserName = account.strEmail,  // UserName is required for Identity
-					Email = account.strEmail,
-					strFirstName = account.strFirstName,
-					strLastName = account.strLastName,
-					dtmDateOfBirth = account.dtmDateOfBirth,
-					PhoneNumber = account.strPhone
-				};
-
-				var result = await _userManager.CreateAsync(user, "Password123!"); // You can generate a password here or take from input
-				if (result.Succeeded) {
-					return ServiceResult.Ok();
-				}
-
-				foreach (var error in result.Errors) {
-					_logger.LogError(error.Description);
-				}
-				return ServiceResult.Fail("Error creating user.");
+				_context.TUsers.Add(user);
+				await _context.SaveChangesAsync();
+				return ServiceResult.Ok();
 			}
 			catch (Exception ex) {
 				_logger.LogError(ex, "Error while creating user.");
@@ -54,44 +44,104 @@ namespace SparkCheck.Services {
 			}
 		}
 
-		public async Task<ServiceResult> UpdateUserStatusAsync(string userId, bool isOnline) {
-			try {
-				var user = await _userManager.FindByIdAsync(userId);
-				if (user == null) {
+
+		// Verifies a login attempt by phone, code, and user ID
+		public async Task<ServiceResult> VerifyPhoneLoginAsync(string? strPhone, string verificationCode, int? intUserID)
+		{
+			if (string.IsNullOrWhiteSpace(strPhone) || string.IsNullOrWhiteSpace(verificationCode) || intUserID == null)
+				return ServiceResult.Fail("Missing verification information.");
+
+			try
+			{
+				var attempt = await _context.TLoginAttempts
+					.FirstOrDefaultAsync(a => a.strPhone == strPhone &&
+											 a.strVerificationCode == verificationCode &&
+											 a.intUserID == intUserID &&
+											 a.blnIsActive);
+				if (attempt == null)
+					return ServiceResult.Fail("Invalid verification code or phone number.");
+
+				return ServiceResult.Ok();
+			}
+			catch (Exception ex)
+			{
+				_logger.LogError(ex, "Error during phone verification.");
+				return ServiceResult.Fail($"Error: {ex.Message}");
+			}
+		}
+
+
+		public async Task<ServiceResult> UpdateUserStatusAsync(int userId, bool isOnline)
+		{
+			try
+			{
+				var user = await _context.TUsers.FindAsync(userId);
+				if (user == null)
+				{
 					return ServiceResult.Fail("User not found.");
 				}
 
 				user.blnIsOnline = isOnline;
-				await _userManager.UpdateAsync(user);
+				await _context.SaveChangesAsync();
 				return ServiceResult.Ok();
 			}
-			catch (Exception ex) {
+			catch (Exception ex)
+			{
 				_logger.LogError(ex, "Error while updating user status.");
 				return ServiceResult.Fail($"Error: {ex.Message}");
 			}
 		}
 
-		// For login attempt: you should leverage SignInManager or external services.
-		public async Task<ServiceResult> AttemptLoginAsync(string phone) {
-			try {
-				var user = await _userManager.FindByPhoneNumberAsync(phone);  // Use FindByPhoneNumberAsync for Identity users
-				if (user == null) {
-					return ServiceResult.Fail("Invalid phone number.");
-				}
 
-				// Here you can handle the verification code logic (e.g., send an OTP)
-				return ServiceResult.Ok();
-			}
-			catch (Exception ex) {
-				_logger.LogError(ex, "Error during login attempt.");
-				return ServiceResult.Fail($"Error: {ex.Message}");
-			}
-		}
+        // For login attempt: check TUsers for phone
+        public async Task<LoginResult> AttemptLoginAsync(string phone)
+        {
+            try
+            {
+                if (string.IsNullOrWhiteSpace(phone))
+                    return LoginResult.Fail("Phone number is required.");
 
-		// For verification process
-		public async Task<ServiceResult> VerifyPhoneAsync(string userId, string verificationCode) {
+                var normalizedPhone = new string(phone.Where(char.IsDigit).ToArray());
+
+                var user = await _context.TUsers.FirstOrDefaultAsync(u => u.strPhone == normalizedPhone);
+
+                if (user == null)
+                {
+                    // Optional: log failure
+                    await _context.TLoginAttempts.AddAsync(new TLoginAttempts
+                    {
+                        strPhone = normalizedPhone,
+                        blnIsActive = false,
+                        dtmLoginDate = DateTime.UtcNow
+                    });
+                    await _context.SaveChangesAsync();
+
+                    return LoginResult.Fail("No user found with that phone number.");
+                }
+
+                // Optional: log success
+                await _context.TLoginAttempts.AddAsync(new TLoginAttempts
+                {
+                    intUserID = user.intUserID,
+                    strPhone = normalizedPhone,
+                    blnIsActive = true,
+                    dtmLoginDate = DateTime.UtcNow
+                });
+                await _context.SaveChangesAsync();
+
+                return LoginResult.Ok(user);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Login failed.");
+                return LoginResult.Fail("An error occurred during login.");
+            }
+        }
+
+        // For verification process (legacy, can be removed if not needed)
+        public async Task<ServiceResult> VerifyPhoneAsync(int userId, string verificationCode) {
 			try {
-				var user = await _userManager.FindByIdAsync(userId);
+				var user = await _context.TUsers.FindAsync(userId);
 				if (user == null) {
 					return ServiceResult.Fail("User not found.");
 				}

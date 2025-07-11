@@ -1,9 +1,13 @@
 ﻿@page "/createaccount"
 @layout MainLayout
-@inject NavigationManager Navigation
-@inject UserService UserService
+@using MudBlazor
 @using SparkCheck.Services
 @using SparkCheck.Models
+@using System.Globalization
+
+@inject NavigationManager Navigation
+@inject UserService UserService
+
 
 <MudPaper Style="min-height: 100vh; padding: 1rem; display: flex; flex-direction: column; justify-content: center;">
 	<EditForm Model="Account" OnValidSubmit="HandleValidSubmit" OnInvalidSubmit="HandleInvalidSubmit">
@@ -12,7 +16,8 @@
 		<MudStack AlignItems="AlignItems.Center" Spacing="1" Class="mb-4">
 			<MudText Typo="Typo.h5">Create Your Account</MudText>
 
-			@if (!string.IsNullOrWhiteSpace(SuccessMessage)) {
+			@if (!string.IsNullOrWhiteSpace(SuccessMessage))
+			{
 				<MudAlert Severity="Severity.Success" Variant="Variant.Filled" Dense="true">
 					@SuccessMessage
 				</MudAlert>
@@ -20,58 +25,68 @@
 		</MudStack>
 
 
-		<MudTextField Label="Username"
-					  For="@(() => Account.strUsername)"
-					  @bind-Value="Account.strUsername"
-					  Required="true"
-					  Class="mb-2" />
+		<MudTextField Label="Username" For="@(() => Account.strUsername)" @bind-Value="Account.strUsername"
+			Required="true" Class="mb-2" />
 
-		<MudTextField Label="First Name"
-					  For="@(() => Account.strFirstName)"
-					  @bind-Value="Account.strFirstName"
-					  Required="true"
-					  Class="mb-2" />
+		<MudTextField Label="First Name" For="@(() => Account.strFirstName)" @bind-Value="Account.strFirstName"
+			Required="true" Class="mb-2" />
 
-		<MudTextField Label="Last Name"
-					  For="@(() => Account.strLastName)"
-					  @bind-Value="Account.strLastName"
-					  Required="true"
-					  Class="mb-2" />
+		<MudTextField Label="Last Name" For="@(() => Account.strLastName)" @bind-Value="Account.strLastName"
+			Required="true" Class="mb-2" />
 
-		<MudDatePicker Label="Date of Birth"
-					   @bind-Date="Account.dtmDateOfBirth"
-					   DateFormat="MM/dd/yyyy"
-					   MaxDate="@DateTime.Today"
-					   Required="true"
-					   Editable="true"
-					   Class="mb-1" />
 
-		<MudTextField Label="Phone Number"
-					  For="@(() => Account.strPhone)"
-					  @bind-Value="Account.strPhone"
-					  Required="true"
-					  Class="mb-2" />
 
-		<MudTextField Label="Email Address"
-					  For="@(() => Account.strEmail)"
-					  @bind-Value="Account.strEmail"
-					  Required="true"
-					  Class="mb-2" />
+		<MudDatePicker Label="Date of Birth" Value="@Account.dtmDateOfBirth"
+			ValueChanged="@((DateTime d) => Account.dtmDateOfBirth = d)" DateFormat="MM/dd/yyyy"
+			MaxDate="@DateTime.Today" Required="true" Editable="true" Class="mb-1" />
+
+		<MudTextField Label="Phone Number" For="@(() => Account.strPhone)" @bind-Value="Account.strPhone"
+			Required="true" Class="mb-2" />
+
+		<MudTextField Label="Email Address" For="@(() => Account.strEmail)" @bind-Value="Account.strEmail"
+			Required="true" Class="mb-2" />
+		<MudRadioGroup T="int" @bind-SelectedOption="Account.intGenderID" Required="true" Class="mb-2"
+			Style="width:100%;">
+			<MudStack Direction="Row" JustifyContent="JustifyContent.SpaceEvenly" AlignItems="AlignItems.Center"
+				Spacing="2">
+				<MudRadio T="int" Option="2">
+					<ChildContent>
+						<MudButton Variant="Variant.Outlined"
+							Style="min-width:64px; min-height:64px; border-radius:50%;">
+							<MudIcon Icon="@Icons.Material.Filled.Male" Size="Size.Large" />
+						</MudButton>
+					</ChildContent>
+				</MudRadio>
+				<MudRadio T="int" Option="3">
+					<ChildContent>
+						<MudButton Variant="Variant.Outlined"
+							Style="min-width:64px; min-height:64px; border-radius:50%;">
+							<MudIcon Icon="@Icons.Material.Filled.Female" Size="Size.Large" />
+						</MudButton>
+					</ChildContent>
+				</MudRadio>
+				<MudRadio T="int" Option="4">
+					<ChildContent>
+						<MudButton Variant="Variant.Outlined"
+							Style="min-width:64px; min-height:64px; border-radius:50%;">
+							<MudIcon Icon="@Icons.Material.Filled.Transgender" Size="Size.Large" />
+						</MudButton>
+					</ChildContent>
+				</MudRadio>
+			</MudStack>
+		</MudRadioGroup>
+
 
 		<MudGrid Class="mt-4">
 			<MudItem xs="6">
-				<MudButton Variant="Variant.Filled"
-						   StartIcon="@Icons.Material.Filled.ArrowBack"
-						   FullWidth="true"
-						   OnClick="Cancel">
+				<MudButton Variant="Variant.Filled" StartIcon="@Icons.Material.Filled.ArrowBack" FullWidth="true"
+					OnClick="Cancel">
 					Back
 				</MudButton>
 			</MudItem>
 			<MudItem xs="6">
-				<MudButton Variant="Variant.Filled"
-						   EndIcon="@Icons.Material.Filled.Check"
-						   FullWidth="true"
-						   ButtonType="ButtonType.Submit">
+				<MudButton Variant="Variant.Filled" EndIcon="@Icons.Material.Filled.Check" FullWidth="true"
+					ButtonType="ButtonType.Submit">
 					Create
 				</MudButton>
 			</MudItem>
@@ -80,18 +95,44 @@
 </MudPaper>
 
 @code {
-	private CreateAccountModel Account = new();
+	private TUsers Account = new()
+	{
+		dtmDateOfBirth = DateTime.Today,
+		intGenderID = 1
+	};
 	private string? SuccessMessage;
 	private string? ErrorMessage;
 
-	private async Task HandleValidSubmit() {
+	private async Task HandleValidSubmit()
+	{
 		Console.WriteLine($"About to save phone: {Account.strPhone}");
-		Console.WriteLine($"DOB: {Account.dtmDateOfBirth?.ToShortDateString() ?? "null"}");
+		Console.WriteLine($"DOB: {Account.dtmDateOfBirth.ToShortDateString()}");
 
-		var result = await UserService.CreateUserAsync(Account);
-		if (result.Success) {
+		// Set all required fields, using safe defaults for those not collected in the form
+		var user = new TUsers
+		{
+			strUsername = Account.strUsername,
+			strFirstName = Account.strFirstName,
+			strLastName = Account.strLastName,
+			dtmDateOfBirth = Account.dtmDateOfBirth,
+			strPhone = Account.strPhone,
+			strEmail = Account.strEmail,
+			intGenderID = Account.intGenderID,
+			decLatitude = 0,
+			decLongitude = 0,
+			intZipCodeID = 1, // Default ZipCodeID, ensure 1 exists in your DB
+			blnIsActive = false,
+			blnIsOnline = false,
+			blnInQueue = false,
+			dtmCreatedDate = DateTime.Now,
+			dtmQueuedDate = null,
+			strUserToken = null
+		};
+		var result = await UserService.CreateUserAsync(user);
+		if (result.Success)
+		{
 			SuccessMessage = "Account created successfully!";
-			Account = new CreateAccountModel(); // Reset the form
+			Account = new TUsers { dtmDateOfBirth = DateTime.Today, intGenderID = 1 }; // Reset the form
 
 			// Force re-render
 			StateHasChanged();
@@ -100,12 +141,14 @@
 
 			Navigation.NavigateTo("/"); // Redirect after success
 		}
-		else {
+		else
+		{
 			ErrorMessage = result.ErrorMessage; // Show error message if the result fails
 		}
 	}
 
-	private void HandleInvalidSubmit(EditContext context) {
+	private void HandleInvalidSubmit(EditContext context)
+	{
 		Console.WriteLine("Form submission was invalid. Errors:");
 		foreach (var error in context.GetValidationMessages())
 			Console.WriteLine($" - {error}");

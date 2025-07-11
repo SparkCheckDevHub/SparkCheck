@@ -5,10 +5,13 @@ using System.ComponentModel.DataAnnotations.Schema;
 namespace SparkCheck.Models {
 	[Table("TUsers")]
 	public class TUsers {
-		[Key]
-		public int intUserID { get; set; }
 
-		[MaxLength(250)]
+        [Key]
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+        public int intUserID { get; set; }
+
+
+        [MaxLength(250)]
 		public string? strEmail { get; set; }
 
 		[MaxLength(250)]

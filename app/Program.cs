@@ -1,4 +1,3 @@
-using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using MudBlazor.Services;
@@ -7,6 +6,7 @@ using SparkCheck;
 using SparkCheck.Data;
 using SparkCheck.Models;
 using SparkCheck.Services;
+using MudBlazor;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -21,15 +21,11 @@ builder.Services.AddScoped<MatchService>();
 builder.Services.AddScoped<ChatService>();
 builder.Services.AddScoped<UserService>();  // UserService is scoped correctly
 builder.Services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>(); // IHttpContextAccessor
-
+builder.Services.AddScoped<UserSessionService>();
 // Register AppDbContext with the connection string from appsettings.json
 builder.Services.AddDbContext<AppDbContext>(options =>
 	options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-// Add Identity for user management
-builder.Services.AddIdentity<ApplicationUser, IdentityRole>()
-	.AddEntityFrameworkStores<AppDbContext>()
-	.AddDefaultTokenProviders();
 
 // Configure MudBlazor
 builder.Services.AddRazorComponents().AddInteractiveServerComponents();
