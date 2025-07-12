@@ -10,7 +10,7 @@
 
 
 <MudPaper Style="min-height: 100vh; padding: 1rem; display: flex; flex-direction: column; justify-content: center;">
-    <EditForm Model="_authModel" OnValidSubmit="HandleVerify">
+    <EditForm OnValidSubmit="HandleVerify">
         <DataAnnotationsValidator />
 
         <MudStack AlignItems="AlignItems.Center" Spacing="1" Class="mb-4">
@@ -24,7 +24,7 @@
         </MudStack>
 
         <MudTextField Label="Verification Code"
-                      @bind-Value="_authModel.VerificationCode"
+                      @bind-Value="strVerificationCode"
                       MaxLength="6"
                       Required="true"
                       Class="mb-2" />
@@ -51,36 +51,56 @@
 </MudPaper>
 
 @code {
-    private AuthModel _authModel = new();
+    private string strVerificationCode = "";
     private string? ErrorMessage;
 
-    private async Task HandleVerify()
-    {
-        ErrorMessage = null;
+	private async Task HandleVerify() {
+		ErrorMessage = null;
 
-        var phone = UserSession.strPhone;
-        var userId = UserSession.intUserID;
+		var phone = UserSession.strPhone;
+		var userId = UserSession.intUserID;
 
-        if (userId == null)
-        {
-            ErrorMessage = "Your session has expired. Please log in again.";
-            Navigation.NavigateTo("/phonelogin");
-            return;
-        }
+		if (userId == null || string.IsNullOrWhiteSpace(phone)) {
+			ErrorMessage = "Your session has expired. Please log in again.";
+			Navigation.NavigateTo("/phonelogin");
+			return;
+		}
 
-        var result = await UserService.VerifyPhoneLoginAsync(phone, _authModel.VerificationCode, userId.Value);
+		try {
+			Console.WriteLine($"[VERIFY] Attempting verification for Phone: {phone}, UserID: {userId}, Code: {strVerificationCode}");
 
-        if (result.blnSuccess)
-        {
-            UserSession.blnIsOnline = true;
-            await UserService.UpdateUserStatusAsync(userId.Value, true);
-            Navigation.NavigateTo("/dashboard");
-        }
-        else
-        {
-            ErrorMessage = result.strErrorMessage ?? "Invalid verification code. Please try again.";
-        }
-    }
+			var result = await UserService.VerifyPhoneLoginAsync(phone, strVerificationCode, userId.Value);
+
+			if (result.blnSuccess) {
+				UserSession.blnIsAuthenticated = true;
+				var user = await UserService.GetUserById(userId.Value);
+
+				if (user is not null) {
+					UserSession.strUsername = user.strUsername;
+					UserSession.strFirstName = user.strFirstName;
+					UserSession.strLastName = user.strLastName;
+					UserSession.dtmDateOfBirth = user.dtmDateOfBirth;
+					UserSession.intGenderID = user.intGenderID;
+					UserSession.blnIsActive = user.blnIsActive;
+					UserSession.blnIsOnline = user.blnIsOnline;
+				}
+
+				UserSession.blnIsOnline = true;
+				await UserService.UpdateUserStatusAsync(userId.Value, true);
+
+				Console.WriteLine("[SUCCESS] Verification passed, navigating to dashboard.");
+				Navigation.NavigateTo("/dashboard");
+			}
+			else {
+				ErrorMessage = result.strErrorMessage ?? "Invalid verification code. Please try again.";
+				Console.WriteLine($"[FAILURE] Verification failed: {ErrorMessage}");
+			}
+		}
+		catch (Exception ex) {
+			ErrorMessage = "An unexpected error occurred. Please try again.";
+			Console.WriteLine($"[EXCEPTION] Phone verification error: {ex.Message}");
+		}
+	}
 
     private void Cancel() => Navigation.NavigateTo("/phonelogin");
 }

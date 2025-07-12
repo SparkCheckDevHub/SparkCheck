@@ -17,26 +17,5 @@
 	<script src="_content/MudBlazor/MudBlazor.min.js"></script>
 	<script src="_framework/blazor.web.js"></script>
 
-	<script>
-		// When the user is about to leave the page or close the browser
-		window.addEventListener("beforeunload", function () {
-			// Call the Blazor method to set the user offline when the page is being closed or refreshed
-			DotNet.invokeMethodAsync("SparkCheck", "SetUserOffline")
-				.then(() => {
-					console.log("User status set to offline");
-				})
-				.catch(err => console.error("Failed to set user offline:", err));
-		});
-
-		// When the window loses focus (user switches to another tab or app)
-		window.addEventListener("blur", function () {
-			// Call the Blazor method to set the user offline
-			DotNet.invokeMethodAsync("SparkCheck", "SetUserOffline")
-				.then(() => {
-					console.log("User status set to offline due to tab blur");
-				})
-				.catch(err => console.error("Failed to set user offline:", err));
-		});
-	</script>
 </body>
 </html>

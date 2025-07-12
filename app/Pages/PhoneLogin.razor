@@ -9,7 +9,7 @@
 @inject UserSessionService UserSession
 
 <MudPaper Style="min-height: 100vh; padding: 1rem; display: flex; flex-direction: column; justify-content: center;">
-    <EditForm Model="_loginModel" OnValidSubmit="HandleLogin">
+    <EditForm OnValidSubmit="HandleLogin">
         <DataAnnotationsValidator />
 
         <MudStack AlignItems="AlignItems.Center" Spacing="1" Class="mb-4">
@@ -23,7 +23,7 @@
             }
         </MudStack>
 
-        <MudTextField Label="Phone Number" @bind-Value="_loginModel.strPhone" Required="true" Class="mb-2" />
+        <MudTextField Label="Phone Number" @bind-Value="strPhone" Required="true" Class="mb-2" />
 
         <MudGrid Class="mt-4">
             <MudItem xs="6">
@@ -44,40 +44,36 @@
 </MudPaper>
 
 @code {
-    private LoginModel _loginModel = new();
+    private string strPhone = "";
     private string? ErrorMessage;
 
-    private async Task HandleLogin()
-    {
-        ErrorMessage = null;
+    private async Task HandleLogin() {
+        try {
+            ErrorMessage = null;
 
-        var result = await UserService.AttemptLoginAsync(_loginModel.strPhone);
+            var result = await UserService.AttemptLoginAsync(strPhone);
 
-        if (result.blnSuccess && result.User is not null)
-        {
-            UserSession.intUserID = result.User.intUserID;
-            UserSession.strPhone = result.User.strPhone;
-            UserSession.strUsername = result.User.strUsername;
-            UserSession.strFirstName = result.User.strFirstName;
-            UserSession.strLastName = result.User.strLastName;
-            UserSession.dtmDateOfBirth = result.User.dtmDateOfBirth;
-            UserSession.intGenderID = result.User.intGenderID;
-            UserSession.intZipCodeID = result.User.intZipCodeID;
-            UserSession.blnIsActive = result.User.blnIsActive;
-            UserSession.blnIsOnline = result.User.blnIsOnline;
-            UserSession.blnInQueue = result.User.blnInQueue;
-            UserSession.dtmQueuedDate = result.User.dtmQueuedDate;
+            if (result.blnSuccess && result.User is not null) {
+                UserSession.intUserID = result.User.intUserID;
+                UserSession.strPhone = result.User.strPhone;
 
-            Navigation.NavigateTo("/phoneauth");
+                Console.WriteLine($"[SUCCESS] Login initiated for {strPhone} (UserID: {result.User.intUserID})");
+
+                Navigation.NavigateTo("/phoneauth");
+            }
+            else {
+                ErrorMessage = result.strErrorMessage ?? "Login failed. Try again.";
+                Console.WriteLine($"[ERROR] Login failed for {strPhone}: {ErrorMessage}");
+            }
         }
-        else
-        {
-            ErrorMessage = result.strErrorMessage ?? "Login failed. Try again.";
+        catch (Exception ex) {
+            ErrorMessage = "An unexpected error occurred during login.";
+            Console.WriteLine($"[EXCEPTION] Login error for {strPhone}: {ex.Message}");
         }
     }
 
     private void Cancel()
     {
-        Navigation.NavigateTo("/welcome");
+        Navigation.NavigateTo("/");
     }
 }

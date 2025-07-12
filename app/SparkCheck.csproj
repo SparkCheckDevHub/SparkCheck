@@ -8,13 +8,16 @@
 
   <ItemGroup>
     <Compile Remove="Components\**" />
+    <Compile Remove="Logs\**" />
     <Content Remove="Components\**" />
+    <Content Remove="Logs\**" />
     <EmbeddedResource Remove="Components\**" />
+    <EmbeddedResource Remove="Logs\**" />
     <None Remove="Components\**" />
+    <None Remove="Logs\**" />
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Logs\" />
     <Folder Include="wwwroot\img\" />
   </ItemGroup>
 

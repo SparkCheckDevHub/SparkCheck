@@ -4,10 +4,12 @@ using System.ComponentModel.DataAnnotations.Schema;
 [Table("TLoginAttempts")]
 public class TLoginAttempts {
 	[Key]
+	[DatabaseGenerated(DatabaseGeneratedOption.Identity)]
 	public int intLoginAttemptID { get; set; }
 
+	[Required]
 	[MaxLength(20)]
-	public string? strPhone { get; set; }
+	public string strPhone { get; set; } = "";
 
 	[Required]
 	[MaxLength(20)]
@@ -16,17 +18,19 @@ public class TLoginAttempts {
 	[Required]
 	public DateTime dtmLoginDate { get; set; }
 
-	[Required]
 	[MaxLength(250)]
-	public string strIPAddress { get; set; } = "";
+	public string? strIPAddress { get; set; }
 
-	[Required]
 	[MaxLength(250)]
-	public string strUserAgent { get; set; } = "";
+	public string? strUserAgent { get; set; }
 
 	[Required]
 	public int intUserID { get; set; }
 
 	[Required]
 	public bool blnIsActive { get; set; }
+
+	[Required]
+	public int intAttempts { get; set; } = 0;
+
 }

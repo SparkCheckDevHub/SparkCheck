@@ -16,59 +16,62 @@
 		<MudStack AlignItems="AlignItems.Center" Spacing="1" Class="mb-4">
 			<MudText Typo="Typo.h5">Create Your Account</MudText>
 
-			@if (!string.IsNullOrWhiteSpace(SuccessMessage))
-			{
+			@if (!string.IsNullOrWhiteSpace(SuccessMessage)) {
 				<MudAlert Severity="Severity.Success" Variant="Variant.Filled" Dense="true">
 					@SuccessMessage
 				</MudAlert>
 			}
+			@if (!string.IsNullOrWhiteSpace(ErrorMessage)) {
+				<MudAlert Severity="Severity.Error" Variant="Variant.Filled" Dense="true">
+					@ErrorMessage
+				</MudAlert>
+			}
 		</MudStack>
 
-
 		<MudTextField Label="Username" For="@(() => Account.strUsername)" @bind-Value="Account.strUsername"
-			Required="true" Class="mb-2" />
+					  Required="true" Class="mb-2" />
 
 		<MudTextField Label="First Name" For="@(() => Account.strFirstName)" @bind-Value="Account.strFirstName"
-			Required="true" Class="mb-2" />
+					  Required="true" Class="mb-2" />
 
 		<MudTextField Label="Last Name" For="@(() => Account.strLastName)" @bind-Value="Account.strLastName"
-			Required="true" Class="mb-2" />
+					  Required="true" Class="mb-2" />
 
-
-
-		<MudDatePicker Label="Date of Birth" Value="@Account.dtmDateOfBirth"
-			ValueChanged="@((DateTime d) => Account.dtmDateOfBirth = d)" DateFormat="MM/dd/yyyy"
-			MaxDate="@DateTime.Today" Required="true" Editable="true" Class="mb-1" />
+		<MudDatePicker @bind-Date="Account.dtmDateOfBirth"
+					   DateFormat="MM/dd/yyyy"
+					   MaxDate="@DateTime.Today"
+					   Required="true"
+					   Editable="true"
+					   Class="mb-1" />
 
 		<MudTextField Label="Phone Number" For="@(() => Account.strPhone)" @bind-Value="Account.strPhone"
-			Required="true" Class="mb-2" />
+					  Required="true" Class="mb-2" />
 
 		<MudTextField Label="Email Address" For="@(() => Account.strEmail)" @bind-Value="Account.strEmail"
-			Required="true" Class="mb-2" />
-		<MudRadioGroup T="int" @bind-SelectedOption="Account.intGenderID" Required="true" Class="mb-2"
-			Style="width:100%;">
-			<MudStack Direction="Row" JustifyContent="JustifyContent.SpaceEvenly" AlignItems="AlignItems.Center"
-				Spacing="2">
-				<MudRadio T="int" Option="2">
+					  Required="true" Class="mb-2" />
+
+		<MudRadioGroup T="int" @bind-SelectedOption="Account.intGenderID" Required="true" Class="mb-2" Style="width:100%;">
+			<MudStack AlignItems="AlignItems.Center" Spacing="2">
+				<MudRadio T="int" Value="2">
 					<ChildContent>
 						<MudButton Variant="Variant.Outlined"
-							Style="min-width:64px; min-height:64px; border-radius:50%;">
+								   Style="min-width:64px; min-height:64px; border-radius:50%;">
 							<MudIcon Icon="@Icons.Material.Filled.Male" Size="Size.Large" />
 						</MudButton>
 					</ChildContent>
 				</MudRadio>
-				<MudRadio T="int" Option="3">
+				<MudRadio T="int" Value="3">
 					<ChildContent>
 						<MudButton Variant="Variant.Outlined"
-							Style="min-width:64px; min-height:64px; border-radius:50%;">
+								   Style="min-width:64px; min-height:64px; border-radius:50%;">
 							<MudIcon Icon="@Icons.Material.Filled.Female" Size="Size.Large" />
 						</MudButton>
 					</ChildContent>
 				</MudRadio>
-				<MudRadio T="int" Option="4">
+				<MudRadio T="int" Value="4">
 					<ChildContent>
 						<MudButton Variant="Variant.Outlined"
-							Style="min-width:64px; min-height:64px; border-radius:50%;">
+								   Style="min-width:64px; min-height:64px; border-radius:50%;">
 							<MudIcon Icon="@Icons.Material.Filled.Transgender" Size="Size.Large" />
 						</MudButton>
 					</ChildContent>
@@ -76,17 +79,16 @@
 			</MudStack>
 		</MudRadioGroup>
 
-
 		<MudGrid Class="mt-4">
 			<MudItem xs="6">
 				<MudButton Variant="Variant.Filled" StartIcon="@Icons.Material.Filled.ArrowBack" FullWidth="true"
-					OnClick="Cancel">
+						   OnClick="Cancel">
 					Back
 				</MudButton>
 			</MudItem>
 			<MudItem xs="6">
 				<MudButton Variant="Variant.Filled" EndIcon="@Icons.Material.Filled.Check" FullWidth="true"
-					ButtonType="ButtonType.Submit">
+						   ButtonType="ButtonType.Submit">
 					Create
 				</MudButton>
 			</MudItem>
@@ -95,64 +97,46 @@
 </MudPaper>
 
 @code {
-	private TUsers Account = new()
-	{
-		dtmDateOfBirth = DateTime.Today,
-		intGenderID = 1
+	private TUsers Account = new() {
+		dtmDateOfBirth = DateTime.Today
 	};
+
 	private string? SuccessMessage;
 	private string? ErrorMessage;
 
-	private async Task HandleValidSubmit()
-	{
-		Console.WriteLine($"About to save phone: {Account.strPhone}");
-		Console.WriteLine($"DOB: {Account.dtmDateOfBirth.ToShortDateString()}");
+	private async Task HandleValidSubmit() {
+		try {
+			Account.dtmCreatedDate = DateTime.Now;
+			Account.blnIsActive = true;
 
-		// Set all required fields, using safe defaults for those not collected in the form
-		var user = new TUsers
-		{
-			strUsername = Account.strUsername,
-			strFirstName = Account.strFirstName,
-			strLastName = Account.strLastName,
-			dtmDateOfBirth = Account.dtmDateOfBirth,
-			strPhone = Account.strPhone,
-			strEmail = Account.strEmail,
-			intGenderID = Account.intGenderID,
-			decLatitude = 0,
-			decLongitude = 0,
-			intZipCodeID = 1, // Default ZipCodeID, ensure 1 exists in your DB
-			blnIsActive = false,
-			blnIsOnline = false,
-			blnInQueue = false,
-			dtmCreatedDate = DateTime.Now,
-			dtmQueuedDate = null,
-			strUserToken = null
-		};
-		var result = await UserService.CreateUserAsync(user);
-		if (result.Success)
-		{
-			SuccessMessage = "Account created successfully!";
-			Account = new TUsers { dtmDateOfBirth = DateTime.Today, intGenderID = 1 }; // Reset the form
+			var result = await UserService.CreateUserAsync(Account);
 
-			// Force re-render
-			StateHasChanged();
-
-			await Task.Delay(2000); // Give user time to see the success message
-
-			Navigation.NavigateTo("/"); // Redirect after success
+			if (result.blnSuccess) {
+				SuccessMessage = "Account created successfully!";
+				ErrorMessage = null;
+				Account = new TUsers { dtmDateOfBirth = DateTime.Today };
+				StateHasChanged();
+				await Task.Delay(2000);
+				Navigation.NavigateTo("/");
+			}
+			else {
+				ErrorMessage = result.strErrorMessage ?? "Failed to create account.";
+				SuccessMessage = null;
+				Console.WriteLine($"[ERROR] Account creation failed: {ErrorMessage}");
+			}
 		}
-		else
-		{
-			ErrorMessage = result.ErrorMessage; // Show error message if the result fails
+		catch (Exception ex) {
+			ErrorMessage = "An unexpected error occurred. Please try again later.";
+			SuccessMessage = null;
+			Console.WriteLine($"[EXCEPTION] Account creation: {ex.Message}");
 		}
 	}
 
-	private void HandleInvalidSubmit(EditContext context)
-	{
+	private void HandleInvalidSubmit(EditContext context) {
 		Console.WriteLine("Form submission was invalid. Errors:");
 		foreach (var error in context.GetValidationMessages())
 			Console.WriteLine($" - {error}");
 	}
 
-	private void Cancel() => Navigation.NavigateTo("/"); // Navigate to the previous page
+	private void Cancel() => Navigation.NavigateTo("/");
 }
