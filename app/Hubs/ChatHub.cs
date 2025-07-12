@@ -1,4 +1,4 @@
-﻿namespace VibeCheck.Hubs {
+﻿namespace SparkCheck.Hubs {
 	public class ChatHub {
 	}
 }

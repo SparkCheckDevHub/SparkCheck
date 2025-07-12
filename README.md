@@ -1,6 +1,6 @@
-# 🧭 VibeCheck Project Structure Guide
+# 🧭 SparkCheck Project Structure Guide
 
-Welcome to the VibeCheck project! This guide explains how the solution is organized so you can confidently contribute without breaking anything.
+Welcome to the SparkCheck project! This guide explains how the solution is organized so you can confidently contribute without breaking anything.
 
 ---
 
@@ -85,7 +85,7 @@ This keeps logic **separate from the UI**.
 | `Program.cs`             | App startup and service registration          |
 | `Routes.razor`           | Blazor routing configuration                  |
 | `appsettings.json`       | Configs like connection strings, secrets      |
-| `VibeCheck.sln`          | Visual Studio solution file                   |
+| `SparkCheck.sln`          | Visual Studio solution file                   |
 
 ---
 
@@ -103,9 +103,9 @@ This **feature-first, clean architecture** helps:
 ## 🚀 Getting Started for New Devs
 
 1. Clone the repo:  
-   `git clone https://github.com/VibeCheckDevHub/VibeCheck.git`
+   `git clone https://github.com/SparkCheckDevHub/SparkCheck.git`
 
-2. Open `VibeCheck.sln` in Visual Studio
+2. Open `SparkCheck.sln` in Visual Studio
 
 3. Run the app from `Welcome.razor`
 

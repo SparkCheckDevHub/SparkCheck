@@ -1,8 +1,79 @@
-﻿@page "/PhoneLogin"
+﻿@page "/phonelogin"
+@using SparkCheck.Services
+@using SparkCheck.Models
+@using MudBlazor
+@using System.ComponentModel.DataAnnotations
 @layout MainLayout
+@inject NavigationManager Navigation
+@inject UserService UserService
+@inject UserSessionService UserSession
 
-<h3>PhoneLogin</h3>
+<MudPaper Style="min-height: 100vh; padding: 1rem; display: flex; flex-direction: column; justify-content: center;">
+    <EditForm OnValidSubmit="HandleLogin">
+        <DataAnnotationsValidator />
+
+        <MudStack AlignItems="AlignItems.Center" Spacing="1" Class="mb-4">
+            <MudText Typo="Typo.h5">Log In with Your Phone Number</MudText>
+
+            @if (!string.IsNullOrWhiteSpace(ErrorMessage))
+            {
+                <MudAlert Severity="Severity.Error" Variant="Variant.Filled" Dense="true">
+                    @ErrorMessage
+                </MudAlert>
+            }
+        </MudStack>
+
+        <MudTextField Label="Phone Number" @bind-Value="strPhone" Required="true" Class="mb-2" />
+
+        <MudGrid Class="mt-4">
+            <MudItem xs="6">
+                <MudButton Variant="Variant.Filled" StartIcon="@Icons.Material.Filled.ArrowBack" FullWidth="true"
+                    OnClick="Cancel">
+                    Cancel
+                </MudButton>
+            </MudItem>
+
+            <MudItem xs="6">
+                <MudButton Variant="Variant.Filled" EndIcon="@Icons.Material.Filled.Login"
+                    ButtonType="ButtonType.Submit" FullWidth="true">
+                    Log In
+                </MudButton>
+            </MudItem>
+        </MudGrid>
+    </EditForm>
+</MudPaper>
 
 @code {
+    private string strPhone = "";
+    private string? ErrorMessage;
 
+    private async Task HandleLogin() {
+        try {
+            ErrorMessage = null;
+
+            var result = await UserService.AttemptLoginAsync(strPhone);
+
+            if (result.blnSuccess && result.User is not null) {
+                UserSession.intUserID = result.User.intUserID;
+                UserSession.strPhone = result.User.strPhone;
+
+                Console.WriteLine($"[SUCCESS] Login initiated for {strPhone} (UserID: {result.User.intUserID})");
+
+                Navigation.NavigateTo("/phoneauth");
+            }
+            else {
+                ErrorMessage = result.strErrorMessage ?? "Login failed. Try again.";
+                Console.WriteLine($"[ERROR] Login failed for {strPhone}: {ErrorMessage}");
+            }
+        }
+        catch (Exception ex) {
+            ErrorMessage = "An unexpected error occurred during login.";
+            Console.WriteLine($"[EXCEPTION] Login error for {strPhone}: {ex.Message}");
+        }
+    }
+
+    private void Cancel()
+    {
+        Navigation.NavigateTo("/");
+    }
 }

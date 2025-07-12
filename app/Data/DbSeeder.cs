@@ -1,4 +1,4 @@
-﻿namespace VibeCheck.Data {
+﻿namespace SparkCheck.Data {
 	public class DbSeeder {
 	}
 }

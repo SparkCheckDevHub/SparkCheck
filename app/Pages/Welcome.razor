@@ -3,22 +3,34 @@
 @layout MainLayout
 @inject NavigationManager Navigation
 
-<div class="welcome-container">
-    <h1 class="welcome-title section-spacing">Welcome to VibeCheck</h1>
+<MudPaper Style="min-height: 100vh; padding: 1rem; display: flex; flex-direction: column; justify-content: center;">
+    <MudStack Spacing="3" AlignItems="AlignItems.Center">
 
-    <p class="welcome-subtext section-spacing">
-        Find your vibe. Log in with your phone number to get started.
-    </p>
+        <MudText Typo="Typo.h4" Align="Align.Center">
+            Welcome to SparkCheck
+        </MudText>
 
-    <button class="welcome-button section-spacing" @onclick="NavigateToPhoneLogin">
-        Continue with Phone Number
-    </button>
+        <MudText Typo="Typo.subtitle1" Align="Align.Center">
+            Find your Spark. Log in with your phone number to get started.
+        </MudText>
 
-    <div class="account-prompt section-spacing">
-        <span class="account-text">First time?</span>
-        <button type="button" class="account-link" @onclick="NavigateToCreateAccount">Create Account</button>
-    </div>
-</div>
+        <MudButton Variant="Variant.Filled"
+                   StartIcon="@Icons.Material.Filled.PermPhoneMsg"
+                   OnClick="NavigateToPhoneLogin"
+                   FullWidth="true">
+            Continue with Phone Number
+        </MudButton>
+
+        <MudStack AlignItems="AlignItems.Center" Spacing="1">
+            <MudText Typo="Typo.body2">First time?</MudText>
+            <MudButton Variant="Variant.Text"
+                       OnClick="NavigateToCreateAccount">
+                Create Account
+            </MudButton>
+        </MudStack>
+
+    </MudStack>
+</MudPaper>
 
 @code {
     private void NavigateToPhoneLogin() => Navigation.NavigateTo("/phonelogin");

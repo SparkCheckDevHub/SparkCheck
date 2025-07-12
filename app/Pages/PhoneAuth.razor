@@ -1,0 +1,106 @@
+﻿@page "/phoneauth"
+@using SparkCheck.Services
+@using SparkCheck.Models
+@using MudBlazor
+@using System.ComponentModel.DataAnnotations
+@layout MainLayout
+@inject NavigationManager Navigation
+@inject UserService UserService
+@inject UserSessionService UserSession
+
+
+<MudPaper Style="min-height: 100vh; padding: 1rem; display: flex; flex-direction: column; justify-content: center;">
+    <EditForm OnValidSubmit="HandleVerify">
+        <DataAnnotationsValidator />
+
+        <MudStack AlignItems="AlignItems.Center" Spacing="1" Class="mb-4">
+            <MudText Typo="Typo.h5">Enter Verification Code</MudText>
+
+            @if (!string.IsNullOrWhiteSpace(ErrorMessage)) {
+                <MudAlert Severity="Severity.Error" Variant="Variant.Filled" Dense="true">
+                    @ErrorMessage
+                </MudAlert>
+            }
+        </MudStack>
+
+        <MudTextField Label="Verification Code"
+                      @bind-Value="strVerificationCode"
+                      MaxLength="6"
+                      Required="true"
+                      Class="mb-2" />
+
+        <MudGrid Class="mt-4">
+            <MudItem xs="6">
+                <MudButton Variant="Variant.Filled"
+                           StartIcon="@Icons.Material.Filled.ArrowBack"
+                           FullWidth="true"
+                           OnClick="Cancel">
+                    Cancel
+                </MudButton>
+            </MudItem>
+            <MudItem xs="6">
+                <MudButton Variant="Variant.Filled"
+                           EndIcon="@Icons.Material.Filled.Check"
+                           ButtonType="ButtonType.Submit"
+                           FullWidth="true">
+                    Verify
+                </MudButton>
+            </MudItem>
+        </MudGrid>
+    </EditForm>
+</MudPaper>
+
+@code {
+    private string strVerificationCode = "";
+    private string? ErrorMessage;
+
+	private async Task HandleVerify() {
+		ErrorMessage = null;
+
+		var phone = UserSession.strPhone;
+		var userId = UserSession.intUserID;
+
+		if (userId == null || string.IsNullOrWhiteSpace(phone)) {
+			ErrorMessage = "Your session has expired. Please log in again.";
+			Navigation.NavigateTo("/phonelogin");
+			return;
+		}
+
+		try {
+			Console.WriteLine($"[VERIFY] Attempting verification for Phone: {phone}, UserID: {userId}, Code: {strVerificationCode}");
+
+			var result = await UserService.VerifyPhoneLoginAsync(phone, strVerificationCode, userId.Value);
+
+			if (result.blnSuccess) {
+				UserSession.blnIsAuthenticated = true;
+				var user = await UserService.GetUserById(userId.Value);
+
+				if (user is not null) {
+					UserSession.strUsername = user.strUsername;
+					UserSession.strFirstName = user.strFirstName;
+					UserSession.strLastName = user.strLastName;
+					UserSession.dtmDateOfBirth = user.dtmDateOfBirth;
+					UserSession.intGenderID = user.intGenderID;
+					UserSession.blnIsActive = user.blnIsActive;
+					UserSession.blnIsOnline = user.blnIsOnline;
+				}
+
+				UserSession.blnIsOnline = true;
+				await UserService.UpdateUserStatusAsync(userId.Value, true);
+
+				Console.WriteLine("[SUCCESS] Verification passed, navigating to dashboard.");
+				Navigation.NavigateTo("/dashboard");
+			}
+			else {
+				ErrorMessage = result.strErrorMessage ?? "Invalid verification code. Please try again.";
+				Console.WriteLine($"[FAILURE] Verification failed: {ErrorMessage}");
+			}
+		}
+		catch (Exception ex) {
+			ErrorMessage = "An unexpected error occurred. Please try again.";
+			Console.WriteLine($"[EXCEPTION] Phone verification error: {ex.Message}");
+		}
+	}
+
+    private void Cancel() => Navigation.NavigateTo("/phonelogin");
+}
