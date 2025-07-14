@@ -40,7 +40,7 @@ namespace SparkCheck.Services {
 				return ServiceResult.Ok();
 			}
 			catch (Exception ex) {
-				Console.WriteLine($"[EXCEPTION] CreateUserAsync: {ex.Message}");
+				Console.WriteLine($"[EXCEPTION] CreateUserAsync: {ex.ToString()}");
 				return ServiceResult.Fail("Failed to create account. Please try again later.");
 			}
 		}

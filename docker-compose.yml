@@ -9,6 +9,7 @@ services:
       - db
     environment:
       ASPNETCORE_ENVIRONMENT: Production
+      ConnectionStrings__DefaultConnection: "Server=db,1433;Database=dbSparkCheck;User Id=sa;Password=${SA_PASSWORD};TrustServerCertificate=True;"
     networks:
       - sparkcheck-network
     restart: unless-stopped

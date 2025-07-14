@@ -9,6 +9,7 @@ USER root
 COPY init.sh /usr/src/app/init.sh
 COPY init.sql /usr/src/app/init.sql
 COPY procedures.sql /usr/src/app/procedures.sql
+COPY zipcodes.sql /usr/src/app/zipcodes.sql
 
 # Make the scripts executable and run
 RUN chmod +x /usr/src/app/init.sh

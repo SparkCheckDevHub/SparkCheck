@@ -99,6 +99,16 @@ BEGIN
 	WAITFOR DELAY '00:00:05'
 END
 
+-- Exit if tables are already populated
+IF EXISTS (SELECT 1 FROM dbo.TCities)
+    THROW 50000, 'TCities table already populated', 1;
+
+IF EXISTS (SELECT 1 FROM dbo.TStates)
+    THROW 50001, 'TStates table already populated', 1;
+
+IF EXISTS (SELECT 1 FROM dbo.TZipCodes)
+    THROW 50002, 'TZipCodes table already populated', 1;
+
 -- --------------------------------------------------------------------------------
 -- Insert Values
 -- --------------------------------------------------------------------------------

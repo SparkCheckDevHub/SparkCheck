@@ -15,7 +15,12 @@
 <body>
 	<Routes @rendermode="InteractiveServer" />
 	<script src="_content/MudBlazor/MudBlazor.min.js"></script>
-	<script src="_framework/blazor.web.js"></script>
+	<script src="_framework/blazor.server.js" autostart="false"></script>
+	<script>
+			Blazor.start().catch(err => {
+					console.error('Blazor failure:', err);
+			});
+	</script>
 
 </body>
 </html>

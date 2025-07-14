@@ -40,9 +40,9 @@ namespace SparkCheck.Models {
 		[Display(Name = "Gender")]
 		public int intGenderID { get; set; } = 1;
 
-		public decimal decLatitude { get; set; } = 0;
-		public decimal decLongitude { get; set; } = 0;
-		public int intZipCodeID { get; set; } = 1;
+		public decimal? decLatitude { get; set; }
+		public decimal? decLongitude { get; set; }
+		public int? intZipCodeID { get; set; }
 		public bool blnIsActive { get; set; } = true;
 		public bool blnIsOnline { get; set; } = false;
 		public bool blnInQueue { get; set; } = false;

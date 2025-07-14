@@ -64,9 +64,9 @@ CREATE TABLE TUsers (
   strLastName         VARCHAR(250)  NOT NULL,
   dtmDateOfBirth      DATE          NOT NULL,
   intGenderID         INTEGER       NOT NULL,
-  decLatitude         DECIMAL(9,6)  NOT NULL,
-  decLongitude        DECIMAL(9,6)  NOT NULL,
-  intZipCodeID        INTEGER       NOT NULL,
+  decLatitude         DECIMAL(9,6)  NULL,
+  decLongitude        DECIMAL(9,6)  NULL,
+  intZipCodeID        INTEGER       NULL,
   blnIsActive         BIT           NOT NULL,
   blnIsOnline         BIT           NOT NULL,
   blnInQueue          BIT           NOT NULL,
@@ -76,7 +76,7 @@ CREATE TABLE TUsers (
   CONSTRAINT TUsers_PK PRIMARY KEY (intUserID),
   CONSTRAINT TUsers_UQ_Username UNIQUE (strUsername),
   CONSTRAINT TUsers_UQ_Email UNIQUE (strEmail),
-  CONSTRAINT TUsers_UQ_Phone UNIQUE (strUserToken)
+  CONSTRAINT TUsers_UQ_Phone UNIQUE (strPhone)
 );
 
 CREATE TABLE TZipCodes (
@@ -134,10 +134,11 @@ CREATE TABLE TLoginAttempts (
   strPhone              VARCHAR(20)  NOT NULL,
   strVerificationCode   VARCHAR(20)  NOT NULL,
   dtmLoginDate          DATETIME     NOT NULL,
-  strIPAddress          VARCHAR(250) NOT NULL,
-  strUserAgent          VARCHAR(250) NOT NULL,
+  strIPAddress          VARCHAR(250) NULL,
+  strUserAgent          VARCHAR(250) NULL,
   intUserID             INTEGER      NOT NULL,
   blnIsActive           BIT          NOT NULL,
+  intAttempts           INTEGER      NOT NULL,
   CONSTRAINT TLoginAttempts_PK PRIMARY KEY (intLoginAttemptID)
 );
 
@@ -400,11 +401,7 @@ FOREIGN KEY ( intReportReasonID ) REFERENCES TReportReasons ( intReportReasonID 
 -- --------------------------------------------------------------------------------
 
 INSERT INTO TGenders ( strGender )
-VALUES ( 'Unspecified', 'Male', 'Female', 'Non-Binary' )
-
--- --------------------------------------------------------------------------------
--- Add Records into Genders
--- --------------------------------------------------------------------------------
-
-INSERT INTO TGenders ( strGender )
-VALUES ( 'Unspecified', 'Male', 'Female', 'Non-Binary' )
+VALUES ( 'Unspecified' )
+	  ,( 'Male' )
+	  ,( 'Female' )
+	  ,( 'Non-Binary' )
