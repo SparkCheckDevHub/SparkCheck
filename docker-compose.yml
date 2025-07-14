@@ -2,7 +2,7 @@ services:
   app:
     build:
       context: ./app
-    container_name: queuedating-app
+    container_name: sparkcheck-app
     ports:
       - "5980:80"
     depends_on:
@@ -10,12 +10,14 @@ services:
     environment:
       ASPNETCORE_ENVIRONMENT: Production
     networks:
-      - queuedating-network
+      - sparkcheck-network
     restart: unless-stopped
 
   db:
-    image: mcr.microsoft.com/mssql/server:2022-latest
-    container_name: queuedating-db
+    build:
+      context: ./db
+      dockerfile: Dockerfile
+    container_name: sparkcheck-db
     ports:
       - "127.0.0.1:1433:1433"
     environment:
@@ -23,15 +25,13 @@ services:
       ACCEPT_EULA: "Y"
     volumes:
       - mssql-data:/var/opt/mssql
-      - ./db/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
-      - ./db/init.sh:/usr/src/app/init.sh 
     networks:
-      - queuedating-network
+      - sparkcheck-network
     restart: unless-stopped
-    entrypoint: ["/bin/bash", "-c", "/usr/src/app/init.sh"]
+    entrypoint: ["/bin/bash", "/usr/src/app/init.sh"]
 
 volumes:
   mssql-data:
 
 networks:
-  queuedating-network:
+  sparkcheck-network:

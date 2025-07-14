@@ -1,25 +1,29 @@
 -- --------------------------------------------------------------------------------
 -- Name: Seth Niefield
--- Project: Queue-Based Dating App
--- Abstract: Queue-Based Dating App Database
+-- Project: SparkCheck
+-- Abstract: SparkCheck Database
 -- --------------------------------------------------------------------------------
 
 -- --------------------------------------------------------------------------------
 -- Create Database
 -- --------------------------------------------------------------------------------
-IF EXISTS (SELECT * FROM sys.databases WHERE name = 'dbQueueDatingApp')
+IF EXISTS (SELECT * FROM sys.databases WHERE name = 'dbSparkCheck')
 BEGIN
   THROW 50000, 'Database already exists', 1;
 END
 GO
 
-CREATE DATABASE dbQueueDatingApp;
+CREATE DATABASE dbSparkCheck;
+GO
 
 -- --------------------------------------------------------------------------------
 -- Options
 -- --------------------------------------------------------------------------------
-USE dbQueueDatingApp;
+USE dbSparkCheck;
+GO
+
 SET NOCOUNT ON;
+GO
 
 -- --------------------------------------------------------------------------------
 -- Drop Tables
@@ -52,23 +56,23 @@ IF OBJECT_ID('TGenders') IS NOT NULL DROP TABLE TGenders;
 -- Establish Tables
 -- --------------------------------------------------------------------------------
 CREATE TABLE TUsers (
-  intUserID           INTEGER       NOT NULL,
-  strEmail            VARCHAR(250),
-  strPhone            VARCHAR(250),
+  intUserID           INTEGER IDENTITY(1,1) NOT NULL,
+  strEmail            VARCHAR(250)  NOT NULL,
+  strPhone            VARCHAR(250)  NOT NULL,
   strUsername         VARCHAR(250)  NOT NULL,
   strFirstName        VARCHAR(250)  NOT NULL,
   strLastName         VARCHAR(250)  NOT NULL,
   dtmDateOfBirth      DATE          NOT NULL,
   intGenderID         INTEGER       NOT NULL,
-  decLatitude         DECIMAL       NOT NULL,
-  decLongitude        DECIMAL       NOT NULL,
+  decLatitude         DECIMAL(9,6)  NOT NULL,
+  decLongitude        DECIMAL(9,6)  NOT NULL,
   intZipCodeID        INTEGER       NOT NULL,
   blnIsActive         BIT           NOT NULL,
   blnIsOnline         BIT           NOT NULL,
   blnInQueue          BIT           NOT NULL,
   dtmCreatedDate      DATE          NOT NULL,
-  dtmQueuedDate       DATE,
-  strUserToken        VARCHAR(250),
+  dtmQueuedDate       DATE          NULL,
+  strUserToken        VARCHAR(250)  NULL,
   CONSTRAINT TUsers_PK PRIMARY KEY (intUserID),
   CONSTRAINT TUsers_UQ_Username UNIQUE (strUsername),
   CONSTRAINT TUsers_UQ_Email UNIQUE (strEmail),
@@ -76,11 +80,11 @@ CREATE TABLE TUsers (
 );
 
 CREATE TABLE TZipCodes (
-  intZipCodeID  INTEGER      NOT NULL,
-  strZipCode    VARCHAR(15)  NOT NULL,
-  intCityID     INTEGER      NOT NULL,
-  decLatitude   DECIMAL      NOT NULL,
-  decLongitude  DECIMAL      NOT NULL,
+  intZipCodeID  INTEGER IDENTITY(1,1) NOT NULL,
+  strZipCode    VARCHAR(15)   NOT NULL,
+  intCityID     INTEGER       NOT NULL,
+  decLatitude   DECIMAL(9,6)  NOT NULL,
+  decLongitude  DECIMAL(9,6)  NOT NULL,
   CONSTRAINT TZipCodes_PK PRIMARY KEY (intZipCodeID)
 );
 
@@ -99,13 +103,13 @@ CREATE TABLE TCities (
 );
 
 CREATE TABLE TGenders (
-  intGenderID  INTEGER      NOT NULL,
+  intGenderID  INTEGER IDENTITY(1,1) NOT NULL,
   strGender    VARCHAR(250) NOT NULL,
   CONSTRAINT TGenders_PK PRIMARY KEY (intGenderID)
 );
 
 CREATE TABLE TMatches (
-  intMatchID            INTEGER     NOT NULL,
+  intMatchID            INTEGER IDENTITY(1,1) NOT NULL,
   intMatchRequestID     INTEGER     NOT NULL,
   blnFirstUserDeleted   BIT         NOT NULL,
   blnSecondUserDeleted  BIT         NOT NULL,
@@ -121,14 +125,13 @@ CREATE TABLE TMatchRequests (
   blnFirstUserDeclined  BIT         NOT NULL,
   blnSecondUserDeclined BIT         NOT NULL,
   dtmRequestStarted     DATETIME    NOT NULL,
-  dtmRequestEnded       DATETIME,
+  dtmRequestEnded       DATETIME    NULL,
   CONSTRAINT TMatchRequests_PK PRIMARY KEY (intMatchRequestID)
 );
 
 CREATE TABLE TLoginAttempts (
-  intLoginAttemptID     INTEGER      NOT NULL,
-  strEmail              VARCHAR(250),
-  strPhone              VARCHAR(20),
+  intLoginAttemptID     INTEGER IDENTITY(1,1) NOT NULL,
+  strPhone              VARCHAR(20)  NOT NULL,
   strVerificationCode   VARCHAR(20)  NOT NULL,
   dtmLoginDate          DATETIME     NOT NULL,
   strIPAddress          VARCHAR(250) NOT NULL,
@@ -139,25 +142,25 @@ CREATE TABLE TLoginAttempts (
 );
 
 CREATE TABLE TUserLogs (
-  intUserLogID      INTEGER      NOT NULL,
-  intUserID         INTEGER      NOT NULL,
-  intUserLogTypeID  INTEGER      NOT NULL,
-  dtmLoginDate      DATETIME     NOT NULL,
-  strIPAddress      VARCHAR(250) NOT NULL,
-  strUserAgent      VARCHAR(250) NOT NULL,
-  strComment        VARCHAR(1000),
-  intAttributeName  INTEGER      NOT NULL,
+  intUserLogID      INTEGER IDENTITY(1,1) NOT NULL,
+  intUserID         INTEGER       NOT NULL,
+  intUserLogTypeID  INTEGER       NOT NULL,
+  dtmLoginDate      DATETIME      NOT NULL,
+  strIPAddress      VARCHAR(250)  NOT NULL,
+  strUserAgent      VARCHAR(250)  NOT NULL,
+  strComment        VARCHAR(1000) NULL,
+  intAttributeName  INTEGER       NOT NULL,
   CONSTRAINT TUserLogs_PK PRIMARY KEY (intUserLogID)
 );
 
 CREATE TABLE TUserLogTypes (
-  intUserLogTypeID  INTEGER      NOT NULL,
+  intUserLogTypeID  INTEGER IDENTITY(1,1) NOT NULL,
   strUserLogType    VARCHAR(250) NOT NULL,
   CONSTRAINT TUserLogTypes_PK PRIMARY KEY (intUserLogTypeID)
 );
 
 CREATE TABLE TReports (
-  intReportID        INTEGER      NOT NULL,
+  intReportID        INTEGER IDENTITY(1,1) NOT NULL,
   intMatchID         INTEGER      NOT NULL,
   intUserID          INTEGER      NOT NULL,
   intMatchRequestID  INTEGER      NOT NULL,
@@ -168,15 +171,15 @@ CREATE TABLE TReports (
 );
 
 CREATE TABLE TReportReasons (
-  intReportReasonID  INTEGER      NOT NULL,
+  intReportReasonID  INTEGER IDENTITY(1,1) NOT NULL,
   strReportReason    VARCHAR(250) NOT NULL,
   CONSTRAINT TReportReasons_PK PRIMARY KEY (intReportReasonID)
 );
 
 CREATE TABLE TChatMessages (
-  intChatMessageID  INTEGER       NOT NULL,
+  intChatMessageID  INTEGER IDENTITY(1,1) NOT NULL,
   intSenderUserID   INTEGER       NOT NULL,
-  intUserMediaID    INTEGER,
+  intUserMediaID    INTEGER       NULL,
   intMatchID        INTEGER       NOT NULL,
   strMessageText    VARCHAR(1000) NOT NULL,
   dtmSentAt         DATETIME      NOT NULL,
@@ -185,7 +188,7 @@ CREATE TABLE TChatMessages (
 );
 
 CREATE TABLE TUserMedia (
-  intUserMediaID  INTEGER      NOT NULL,
+  intUserMediaID  INTEGER IDENTITY(1,1) NOT NULL,
   intUserID       INTEGER      NOT NULL,
   strMediaURL     VARCHAR(250) NOT NULL,
   blnOnProfile    BIT          NOT NULL,
@@ -213,7 +216,7 @@ CREATE TABLE TUserAppSettings (
 );
 
 CREATE TABLE TChatEvents (
-  intChatEventID       INTEGER      NOT NULL,
+  intChatEventID       INTEGER IDENTITY(1,1) NOT NULL,
   intMatchID           INTEGER      NOT NULL,
   intUserID            INTEGER      NOT NULL,
   intChatEventTypeID   INTEGER      NOT NULL,
@@ -222,13 +225,13 @@ CREATE TABLE TChatEvents (
 );
 
 CREATE TABLE TChatEventTypes (
-  intChatEventTypeID  INTEGER      NOT NULL,
+  intChatEventTypeID  INTEGER IDENTITY(1,1) NOT NULL,
   strChatEvent        VARCHAR(250) NOT NULL,
   CONSTRAINT TChatEventTypes_PK PRIMARY KEY (intChatEventTypeID)
 );
 
 CREATE TABLE TInterests (
-  intInterestID             INTEGER      NOT NULL,
+  intInterestID             INTEGER IDENTITY(1,1) NOT NULL,
   strInterest               VARCHAR(250) NOT NULL,
   intInterestCategoryID     INTEGER      NOT NULL,
   intInterestSubCategoryID  INTEGER,
@@ -236,30 +239,29 @@ CREATE TABLE TInterests (
 );
 
 CREATE TABLE TInterestCategories (
-  intInterestCategoryID  INTEGER      NOT NULL,
+  intInterestCategoryID  INTEGER IDENTITY(1,1) NOT NULL,
   strInterestCategory    VARCHAR(250) NOT NULL,
   CONSTRAINT TInterestCategories_PK PRIMARY KEY (intInterestCategoryID)
 );
 
 CREATE TABLE TInterestSubCategories (
-  intInterestSubCategoryID  INTEGER      NOT NULL,
+  intInterestSubCategoryID  INTEGER IDENTITY(1,1) NOT NULL,
   strInterestSubCategory    VARCHAR(250) NOT NULL,
   CONSTRAINT TInterestSubCategories_PK PRIMARY KEY (intInterestSubCategoryID)
 );
 
 CREATE TABLE TUserInterests (
-  intUserInterestID  INTEGER NOT NULL,
+  intUserInterestID  INTEGER IDENTITY(1,1) NOT NULL,
   intUserID          INTEGER NOT NULL,
   intInterestID      INTEGER NOT NULL,
   CONSTRAINT TUserInterests_PK PRIMARY KEY (intUserInterestID)
 );
 
 CREATE TABLE TAppUsageTypes (
-  intAppUsageTypeID  INTEGER      NOT NULL,
+  intAppUsageTypeID  INTEGER IDENTITY(1,1) NOT NULL,
   strAppUsageType    VARCHAR(250) NOT NULL,
   CONSTRAINT TAppUsageTypes_PK PRIMARY KEY (intAppUsageTypeID)
 );
-
 
 -- --------------------------------------------------------------------------------
 -- Step #1.2: Identify and Create Foreign Keys
@@ -393,15 +395,16 @@ FOREIGN KEY ( intUserID ) REFERENCES TUsers ( intUserID );
 ALTER TABLE TReports ADD CONSTRAINT TReports_TReportReasons_FK
 FOREIGN KEY ( intReportReasonID ) REFERENCES TReportReasons ( intReportReasonID );
 
-
-
 -- --------------------------------------------------------------------------------
--- Add Records into States
--- TODO: Use the cities500 JSON file to add records.
+-- Add Records into Genders
 -- --------------------------------------------------------------------------------
 
-INSERT INTO TStates ( intStateID, strStateCode, strState )
-VALUES	 ( 1, 'OH','Ohio' )
-		,( 2, 'KY', 'Kentucky' )
-		,( 3, 'IN', 'Indiana' )
-		,( 4, 'PN', 'Pennsylvania')
+INSERT INTO TGenders ( strGender )
+VALUES ( 'Unspecified', 'Male', 'Female', 'Non-Binary' )
+
+-- --------------------------------------------------------------------------------
+-- Add Records into Genders
+-- --------------------------------------------------------------------------------
+
+INSERT INTO TGenders ( strGender )
+VALUES ( 'Unspecified', 'Male', 'Female', 'Non-Binary' )
