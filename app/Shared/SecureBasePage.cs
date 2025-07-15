@@ -11,8 +11,8 @@ namespace SparkCheck.Shared {
 		protected override Task OnAfterRenderAsync(bool firstRender) {
 			if (firstRender && !UserSession.blnIsAuthenticated && !hasRedirected) {
 				hasRedirected = true;
-				Console.WriteLine("[SECURITY] Unauthorized access. Redirecting to /phonelogin...");
-				Navigation.NavigateTo("/phonelogin", forceLoad: true);
+				Console.WriteLine("[SECURITY] Unauthorized access. Redirecting to Welcome.razor...");
+				Navigation.NavigateTo("/", forceLoad: true);
 			}
 
 			return Task.CompletedTask;
