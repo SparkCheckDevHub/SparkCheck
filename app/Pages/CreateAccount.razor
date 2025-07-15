@@ -96,7 +96,7 @@
 	</EditForm>
 </MudPaper>
 
-@code {
+@* @code {
 	private TUsers Account = new() {
 		dtmDateOfBirth = DateTime.Today
 	};
@@ -139,4 +139,64 @@
 	}
 
 	private void Cancel() => Navigation.NavigateTo("/");
+} *@
+@code {
+	private TUsers Account = new() {
+		dtmDateOfBirth = DateTime.Today
+	};
+
+	private string? SuccessMessage;
+	private string? ErrorMessage;
+
+	private async Task HandleValidSubmit() {
+		try {
+			Console.WriteLine("[CREATE ACCOUNT] Form submitted with valid data.");
+			Console.WriteLine($" - Username: {Account.strUsername}");
+			Console.WriteLine($" - First Name: {Account.strFirstName}");
+			Console.WriteLine($" - Last Name: {Account.strLastName}");
+			Console.WriteLine($" - DOB: {Account.dtmDateOfBirth?.ToShortDateString()}");
+			Console.WriteLine($" - Phone: {Account.strPhone}");
+			Console.WriteLine($" - Email: {Account.strEmail}");
+			Console.WriteLine($" - Gender ID: {Account.intGenderID}");
+
+			Account.dtmCreatedDate = DateTime.Now;
+			Account.blnIsActive = true;
+
+			var result = await UserService.CreateUserAsync(Account);
+
+			if (result.blnSuccess) {
+				SuccessMessage = "Account created successfully!";
+				ErrorMessage = null;
+				Console.WriteLine("[SUCCESS] Account creation succeeded.");
+
+				Account = new TUsers { dtmDateOfBirth = DateTime.Today };
+				StateHasChanged();
+
+				await Task.Delay(2000);
+				Console.WriteLine("[REDIRECT] Navigating to /");
+				Navigation.NavigateTo("/");
+			}
+			else {
+				ErrorMessage = result.strErrorMessage ?? "Failed to create account.";
+				SuccessMessage = null;
+				Console.WriteLine($"[ERROR] Account creation failed: {ErrorMessage}");
+			}
+		}
+		catch (Exception ex) {
+			ErrorMessage = "An unexpected error occurred. Please try again later.";
+			SuccessMessage = null;
+			Console.WriteLine($"[EXCEPTION] Account creation threw an error: {ex.Message}");
+		}
+	}
+
+	private void HandleInvalidSubmit(EditContext context) {
+		Console.WriteLine("[VALIDATION] Form submission was invalid. Errors:");
+		foreach (var error in context.GetValidationMessages())
+			Console.WriteLine($" - {error}");
+	}
+
+	private void Cancel() {
+		Console.WriteLine("[CANCEL] User cancelled account creation.");
+		Navigation.NavigateTo("/");
+	}
 }
