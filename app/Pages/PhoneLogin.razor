@@ -1,41 +1,47 @@
 ﻿@page "/phonelogin"
 @using SparkCheck.Services
-@using SparkCheck.Models
+@using SparkCheck.Models.ViewModels
 @using MudBlazor
-@using System.ComponentModel.DataAnnotations
 @layout MainLayout
 @inject NavigationManager Navigation
 @inject UserService UserService
 @inject UserSessionService UserSession
 
 <MudPaper Style="min-height: 100vh; padding: 1rem; display: flex; flex-direction: column; justify-content: center;">
-    <EditForm EditContext="editContext" OnValidSubmit="HandleLogin">
+    <EditForm Model="model" OnValidSubmit="HandleLogin">
         <DataAnnotationsValidator />
 
         <MudStack AlignItems="AlignItems.Center" Spacing="1" Class="mb-4">
             <MudText Typo="Typo.h5">Log In with Your Phone Number</MudText>
 
-            @if (!string.IsNullOrWhiteSpace(ErrorMessage))
-            {
+            @if (!string.IsNullOrWhiteSpace(ErrorMessage)) {
                 <MudAlert Severity="Severity.Error" Variant="Variant.Filled" Dense="true">
                     @ErrorMessage
                 </MudAlert>
             }
         </MudStack>
 
-        <MudTextField Label="Phone Number" @bind-Value="strPhone" Required="true" Class="mb-2" />
+        <MudTextField Label="Phone Number"
+                      @bind-Value="model.strPhone"
+                      Required="true"
+                      Immediate="true"
+                      Class="mb-2" />
 
         <MudGrid Class="mt-4">
             <MudItem xs="6">
-                <MudButton Variant="Variant.Filled" StartIcon="@Icons.Material.Filled.ArrowBack" FullWidth="true"
-                    OnClick="Cancel">
+                <MudButton Variant="Variant.Filled"
+                           StartIcon="@Icons.Material.Filled.ArrowBack"
+                           FullWidth="true"
+                           OnClick="Cancel">
                     Cancel
                 </MudButton>
             </MudItem>
 
             <MudItem xs="6">
-                <MudButton Variant="Variant.Filled" EndIcon="@Icons.Material.Filled.Login"
-                    ButtonType="ButtonType.Submit" FullWidth="true">
+                <MudButton Variant="Variant.Filled"
+                           EndIcon="@Icons.Material.Filled.Login"
+                           ButtonType="ButtonType.Submit"
+                           FullWidth="true">
                     Log In
                 </MudButton>
             </MudItem>
@@ -43,45 +49,79 @@
     </EditForm>
 </MudPaper>
 
-@code {
-    private EditContext editContext;
-    private string strPhone = "";
+@* @code {
+    private PhoneLoginModel model = new();
     private string? ErrorMessage;
 
-    protected override void OnInitialized()
-    {
-        editContext = new EditContext(this);
-    }
-
     private async Task HandleLogin() {
-        Console.WriteLine("YES.");
         try {
             ErrorMessage = null;
 
-            Console.WriteLine("NO");
-            var result = await UserService.AttemptLoginAsync(strPhone);
+            var result = await UserService.AttemptLoginAsync(model.strPhone);
 
             if (result.blnSuccess && result.User is not null) {
                 UserSession.intUserID = result.User.intUserID;
                 UserSession.strPhone = result.User.strPhone;
 
-                Console.WriteLine($"[SUCCESS] Login initiated for {strPhone} (UserID: {result.User.intUserID})");
-
+                Console.WriteLine($"[SUCCESS] Login initiated for {model.strPhone} (UserID: {result.User.intUserID})");
                 Navigation.NavigateTo("/phoneauth");
             }
             else {
                 ErrorMessage = result.strErrorMessage ?? "Login failed. Try again.";
-                Console.WriteLine($"[ERROR] Login failed for {strPhone}: {ErrorMessage}");
+                Console.WriteLine($"[ERROR] Login failed for {model.strPhone}: {ErrorMessage}");
             }
         }
         catch (Exception ex) {
             ErrorMessage = "An unexpected error occurred during login.";
-            Console.WriteLine($"[EXCEPTION] Login error for {strPhone}: {ex.ToString()}");
+            Console.WriteLine($"[EXCEPTION] Login error for {model.strPhone}: {ex}");
         }
     }
 
-    private void Cancel()
-    {
+    private void Cancel() {
+        Navigation.NavigateTo("/");
+    }
+} *@
+@code {
+    private PhoneLoginModel model = new();
+    private string? ErrorMessage;
+
+    private async Task HandleLogin() {
+        Console.WriteLine($"[LOGIN FORM] Submit triggered. Entered phone: {model.strPhone}");
+
+        try {
+            ErrorMessage = null;
+
+            var result = await UserService.AttemptLoginAsync(model.strPhone);
+
+            if (result.blnSuccess && result.User is not null) {
+                Console.WriteLine("[LOGIN SUCCESS] Login attempt returned success from service.");
+                Console.WriteLine($" - UserID: {result.User.intUserID}");
+                Console.WriteLine($" - Phone: {result.User.strPhone}");
+
+                // Set session values
+                UserSession.intUserID = result.User.intUserID;
+                UserSession.strPhone = result.User.strPhone;
+
+                Console.WriteLine($"[SESSION] UserSessionService updated:");
+                Console.WriteLine($" - intUserID: {UserSession.intUserID}");
+                Console.WriteLine($" - strPhone: {UserSession.strPhone}");
+
+                Console.WriteLine("[NAVIGATION] Redirecting to /phoneauth");
+                Navigation.NavigateTo("/phoneauth");
+            }
+            else {
+                ErrorMessage = result.strErrorMessage ?? "Login failed. Try again.";
+                Console.WriteLine($"[LOGIN FAIL] {ErrorMessage}");
+            }
+        }
+        catch (Exception ex) {
+            ErrorMessage = "An unexpected error occurred during login.";
+            Console.WriteLine($"[EXCEPTION] Login error for {model.strPhone}: {ex}");
+        }
+    }
+
+    private void Cancel() {
+        Console.WriteLine("[CANCEL] User canceled login. Navigating to home.");
         Navigation.NavigateTo("/");
     }
 }

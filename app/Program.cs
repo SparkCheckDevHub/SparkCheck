@@ -1,12 +1,13 @@
+using Microsoft.AspNetCore.Components.Server.Circuits;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using MudBlazor;
 using MudBlazor.Services;
 using Serilog;
 using SparkCheck;
 using SparkCheck.Data;
 using SparkCheck.Models;
 using SparkCheck.Services;
-using MudBlazor;
 
 var builder = WebApplication.CreateBuilder(args);
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection")
@@ -23,6 +24,7 @@ Log.Logger = new LoggerConfiguration()
 builder.Services.AddScoped<ValidationService>();
 builder.Services.AddScoped<UserService>();  // UserService is scoped correctly
 builder.Services.AddScoped<UserSessionService>();
+builder.Services.AddScoped<CircuitHandler, TrackingCircuitHandler>();
 
 builder.Services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>(); // IHttpContextAccessor
 

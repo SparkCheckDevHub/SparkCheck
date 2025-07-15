@@ -1,10 +1,5 @@
 ﻿@page "/dashboard"
-@inject NavigationManager Navigation
-@inject UserService UserService
-@using SparkCheck.Services
+@layout MainLayout
+@inherits SparkCheck.Shared.SecureBasePage
 
-<h3>You successfully made it to the dashboard.</h3>
-
-@code {
-
-}
+<h3>Welcome</h3>
