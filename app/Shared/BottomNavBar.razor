@@ -1,0 +1,29 @@
+﻿@using MudBlazor
+@inject NavigationManager Navigation
+
+<MudPaper Elevation="6" Class="bottom-nav" Square="true">
+    <MudGrid GutterSize="0" AlignItems="Center" Justify="Justify.SpaceAround">
+        <MudItem xs="2">
+            <MudIconButton Icon="@Icons.Material.Filled.Favorite" OnClick="@(() => Navigate("/Match"))" />
+        </MudItem>
+        <MudItem xs="2">
+            <MudIconButton Icon="@Icons.Material.Filled.Link" OnClick="@(() => Navigate("/MatchQueue"))" />
+        </MudItem>
+        <MudItem xs="2">
+            <MudIconButton Icon="@Icons.Material.Filled.Person" OnClick="@(() => Navigate("/Profile"))" />
+        </MudItem>
+        <MudItem xs="2">
+            <MudIconButton Icon="@Icons.Material.Filled.Tune" OnClick="@(() => Navigate("/Preferences"))" />
+        </MudItem>
+        <MudItem xs="2">
+            <MudIconButton Icon="@Icons.Material.Filled.Settings" OnClick="@(() => Navigate("/Settings"))" />
+        </MudItem>
+    </MudGrid>
+</MudPaper>
+
+@code {
+
+    private void Navigate(string url) {
+        Navigation.NavigateTo(url);
+    }
+}

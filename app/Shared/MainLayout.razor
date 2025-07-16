@@ -2,6 +2,7 @@
 @using SparkCheck.Services
 @inherits LayoutComponentBase
 @inject UserService _userService
+@inject UserSessionService UserSession
 @inject IJSRuntime JS
 
 <MudThemeProvider />
@@ -9,10 +10,20 @@
 <MudSnackbarProvider />
 <MudPopoverProvider />
 
-<div class="main-layout">
-    @Body
+<div class="layout-container">
+    <div class="layout-body">
+        @Body
+    </div>
+
+    @if (_renderNavBar) {
+        <BottomNavBar />
+    }
 </div>
 
 @code {
-    
+    private bool _renderNavBar = false;
+
+    protected override void OnParametersSet() {
+        _renderNavBar = UserSession.blnIsAuthenticated;
+    }
 }
