@@ -353,3 +353,25 @@ button:focus {
 	background-color: white !important;
 }*/
 
+.bottom-nav {
+	align-content: center;
+	height: 80px;
+	position: fixed;
+	bottom: 0;
+	left: 0;
+	right: 0;
+	z-index: 1000;
+	background-color: white;
+}
+
+.layout-container {
+	display: flex;
+	flex-direction: column;
+	min-height: 100vh;
+	position: relative;
+}
+
+.layout-body {
+	flex: 1;
+	padding-bottom: 64px; 
+}
