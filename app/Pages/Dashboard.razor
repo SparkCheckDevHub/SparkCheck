@@ -1,10 +1,7 @@
-﻿@page "/"
+﻿@page "/dashboard"
 @layout MainLayout
-@* @inherits SparkCheck.Shared.SecureBasePage *@
-@inject UserSessionService UserSession
-@inject NavigationManager Navigation
+@inherits SparkCheck.Shared.SecureBasePage
 
-<h3>Welcome</h3>
 
 <MudContainer MaxWidth="MaxWidth.False" Class="d-flex flex-column min-vh-100">
 
@@ -46,5 +43,23 @@
 @code {
     private void NavigateTo(string url) {
         Navigation.NavigateTo(url);
+    }
+
+    protected override void OnInitialized() {
+        Console.WriteLine("==== [DASHBOARD LOADED] ====");
+        Console.WriteLine($"UserID: {UserSession.intUserID}");
+        Console.WriteLine($"Username: {UserSession.strUsername}");
+        Console.WriteLine($"First Name: {UserSession.strFirstName}");
+        Console.WriteLine($"Last Name: {UserSession.strLastName}");
+        Console.WriteLine($"Phone: {UserSession.strPhone}");
+        Console.WriteLine($"DOB: {UserSession.dtmDateOfBirth}");
+        Console.WriteLine($"GenderID: {UserSession.intGenderID}");
+        Console.WriteLine($"ZipCodeID: {UserSession.intZipCodeID}");
+        Console.WriteLine($"IsAuthenticated: {UserSession.blnIsAuthenticated}");
+        Console.WriteLine($"IsActive: {UserSession.blnIsActive}");
+        Console.WriteLine($"IsOnline: {UserSession.blnIsOnline}");
+        Console.WriteLine($"InQueue: {UserSession.blnInQueue}");
+        Console.WriteLine($"QueuedDate: {UserSession.dtmQueuedDate}");
+        Console.WriteLine("==============================");
     }
 }

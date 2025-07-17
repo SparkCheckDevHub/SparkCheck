@@ -1,0 +1,24 @@
+﻿@page "/logout"
+@layout MainLayout
+@inherits SparkCheck.Shared.SecureBasePage
+
+<MudContainer MaxWidth="MaxWidth.False" Class="d-flex flex-column min-vh-100 justify-center align-center px-4">
+    <MudText Typo="Typo.h5" Class="mb-2 text-center">
+        Are you sure you want to log out?
+    </MudText>
+
+    <MudStack Direction="Row" Spacing="2" Justify="Justify.Center">
+        <MudButton Variant="Variant.Filled" OnClick="Cancel">Cancel</MudButton>
+        <MudButton Variant="Variant.Filled" OnClick="ConfirmLogout">Log Out</MudButton>
+    </MudStack>
+</MudContainer>
+
+@code {
+    private void Cancel() {
+        Navigation.NavigateTo("/dashboard");
+    }
+
+    private void ConfirmLogout() {
+        Navigation.NavigateTo("/logoutconfirmation");
+    }
+}
