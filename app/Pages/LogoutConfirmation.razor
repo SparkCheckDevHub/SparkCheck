@@ -1,0 +1,27 @@
+﻿@page "/logoutconfirmation"
+@layout MainLayout
+@inherits SparkCheck.Shared.SecureBasePage
+@inject UserService UserService
+
+<MudContainer MaxWidth="MaxWidth.False" Class="d-flex flex-column min-vh-100 justify-center align-center px-4">
+    <MudText Typo="Typo.h5" Class="mb-2 text-center">
+        You've been logged out, @UserSession.strUsername.
+    </MudText>
+    <MudText Typo="Typo.body1" Class="mb-4 text-center">
+        Redirecting to welcome screen...
+    </MudText>
+</MudContainer>
+
+@code {
+    protected override async Task OnInitializedAsync() {
+        Console.WriteLine("[LOGOUT CONFIRMATION] User logging out...");
+        if (UserSession.intUserID is not null && !string.IsNullOrWhiteSpace(UserSession.strPhone)) {
+            await UserService.UpdateUserStatusAsync(UserSession.intUserID.Value, false);
+            Console.WriteLine("[LOGOUT CONFIRMATION] User marked offline.");
+        }
+
+        UserSession.Clear();
+        await Task.Delay(3000);
+        Navigation.NavigateTo("/");
+    }
+}

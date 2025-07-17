@@ -1,0 +1,33 @@
+﻿@page "/deleteaccount"
+@layout MainLayout
+@inherits SparkCheck.Shared.SecureBasePage
+
+<MudContainer MaxWidth="MaxWidth.False" Class="d-flex flex-column min-vh-100 justify-center align-center px-4">
+    <MudText Typo="Typo.h5" Class="mb-2 text-center">
+        Are you sure you want to delete your account?
+    </MudText>
+
+    <MudText Typo="Typo.body1" Class="mb-4 text-center">
+        We recommend taking a break and thinking it over. This action is permanent.
+    </MudText>
+
+    <MudStack Row="true" Spacing="2" Justify="Justify.Center">
+        <MudButton Variant="Variant.Outlined" OnClick="@Cancel">
+            Cancel
+        </MudButton>
+
+        <MudButton Variant="Variant.Filled" OnClick="@ConfirmDelete">
+            Delete Account
+        </MudButton>
+    </MudStack>
+</MudContainer>
+
+@code {
+    private void Cancel() {
+        Navigation.NavigateTo("/dashboard");
+    }
+
+    private void ConfirmDelete() {
+        Navigation.NavigateTo("/deleteconfirmation");
+    }
+}

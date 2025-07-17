@@ -45,56 +45,6 @@
     </EditForm>
 </MudPaper>
 
-@* @code {
-    private string strVerificationCode = "";
-    private string? ErrorMessage;
-
-    private async Task HandleVerify() {
-        ErrorMessage = null;
-
-        var phone = UserSession.strPhone;
-        var userId = UserSession.intUserID;
-
-        if (userId == null || string.IsNullOrWhiteSpace(phone)) {
-            ErrorMessage = "Your session has expired. Please log in again.";
-            Navigation.NavigateTo("/phonelogin");
-            return;
-        }
-
-        try {
-            Console.WriteLine($"[VERIFY] Verifying code {strVerificationCode} for {phone} (UserID: {userId})");
-
-            var result = await UserService.VerifyPhoneLoginAsync(phone, strVerificationCode, userId.Value);
-
-            if (result.blnSuccess) {
-                UserSession.blnIsAuthenticated = true;
-
-                var user = await UserService.GetUserById(userId.Value);
-                if (user is not null) {
-                    UserSession.strUsername = user.strUsername;
-                    UserSession.strFirstName = user.strFirstName;
-                    UserSession.strLastName = user.strLastName;
-                    UserSession.dtmDateOfBirth = user.dtmDateOfBirth;
-                    UserSession.intGenderID = user.intGenderID;
-                    UserSession.blnIsActive = user.blnIsActive;
-                    UserSession.blnIsOnline = true;
-                }
-
-                await UserService.UpdateUserStatusAsync(userId.Value, true);
-                Navigation.NavigateTo("/dashboard");
-            }
-            else {
-                ErrorMessage = result.strErrorMessage ?? "Invalid verification code. Please try again.";
-            }
-        }
-        catch (Exception ex) {
-            ErrorMessage = "An unexpected error occurred. Please try again.";
-            Console.WriteLine($"[EXCEPTION] Phone verification error: {ex}");
-        }
-    }
-
-    private void Cancel() => Navigation.NavigateTo("/phonelogin");
-} *@
 @code {
     private PhoneAuthModel model = new();
     private string? ErrorMessage;

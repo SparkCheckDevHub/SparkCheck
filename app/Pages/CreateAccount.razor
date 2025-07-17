@@ -96,50 +96,6 @@
 	</EditForm>
 </MudPaper>
 
-@* @code {
-	private TUsers Account = new() {
-		dtmDateOfBirth = DateTime.Today
-	};
-
-	private string? SuccessMessage;
-	private string? ErrorMessage;
-
-	private async Task HandleValidSubmit() {
-		try {
-			Account.dtmCreatedDate = DateTime.Now;
-			Account.blnIsActive = true;
-
-			var result = await UserService.CreateUserAsync(Account);
-
-			if (result.blnSuccess) {
-				SuccessMessage = "Account created successfully!";
-				ErrorMessage = null;
-				Account = new TUsers { dtmDateOfBirth = DateTime.Today };
-				StateHasChanged();
-				await Task.Delay(2000);
-				Navigation.NavigateTo("/");
-			}
-			else {
-				ErrorMessage = result.strErrorMessage ?? "Failed to create account.";
-				SuccessMessage = null;
-				Console.WriteLine($"[ERROR] Account creation failed: {ErrorMessage}");
-			}
-		}
-		catch (Exception ex) {
-			ErrorMessage = "An unexpected error occurred. Please try again later.";
-			SuccessMessage = null;
-			Console.WriteLine($"[EXCEPTION] Account creation: {ex.Message}");
-		}
-	}
-
-	private void HandleInvalidSubmit(EditContext context) {
-		Console.WriteLine("Form submission was invalid. Errors:");
-		foreach (var error in context.GetValidationMessages())
-			Console.WriteLine($" - {error}");
-	}
-
-	private void Cancel() => Navigation.NavigateTo("/");
-} *@
 @code {
 	private TUsers Account = new() {
 		dtmDateOfBirth = DateTime.Today

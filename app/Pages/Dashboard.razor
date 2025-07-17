@@ -2,18 +2,64 @@
 @layout MainLayout
 @inherits SparkCheck.Shared.SecureBasePage
 
-<h3>Welcome</h3>
 
 <MudContainer MaxWidth="MaxWidth.False" Class="d-flex flex-column min-vh-100">
 
 
-    <MudSpacer />
+    <MudText Typo="Typo.h5" Class="mb-2">
+        Welcome, @UserSession.strUsername!
+    </MudText>
 
+    <MudText Typo="Typo.body1" Class="mb-4">
+        Before we can spark meaningful connections, let's take care of a few quick steps:
+    </MudText>
+
+    <MudPaper Class="p-4 mb-4">
+        <MudList T="string" Dense="true">
+
+            <MudListItem T="string" OnClick="@(() => NavigateTo("/profile"))">
+                <MudIcon Icon="@Icons.Material.Filled.Person" Class="me-2" />
+                Complete your profile so others can get to know the real you.
+            </MudListItem>
+
+            <MudListItem T="string" OnClick="@(() => NavigateTo("/preferences"))">
+                <MudIcon Icon="@Icons.Material.Filled.Tune" Class="me-2" />
+                Set your preferences so we can help find your ideal match.
+            </MudListItem>
+
+            <MudListItem T="string" OnClick="@(() => NavigateTo("/matchqueue"))">
+                <MudIcon Icon="@Icons.Material.Filled.Favorite" Class="me-2" />
+                Join the Match Queue when you're ready to meet someone special.
+            </MudListItem>
+
+        </MudList>
+    </MudPaper>
+
+    <MudSpacer />
     <BottomNavBar />
 
 </MudContainer>
 
-
 @code {
+    private void NavigateTo(string url) {
+        Navigation.NavigateTo(url);
+    }
 
+    protected override void OnInitialized() {
+        Console.WriteLine("==== [DASHBOARD LOADED] ====");
+        Console.WriteLine($"UserID: {UserSession.intUserID}");
+        Console.WriteLine($"Username: {UserSession.strUsername}");
+        Console.WriteLine($"First Name: {UserSession.strFirstName}");
+        Console.WriteLine($"Last Name: {UserSession.strLastName}");
+        Console.WriteLine($"Phone: {UserSession.strPhone}");
+        Console.WriteLine($"DOB: {UserSession.dtmDateOfBirth}");
+        Console.WriteLine($"GenderID: {UserSession.intGenderID}");
+        Console.WriteLine($"ZipCodeID: {UserSession.intZipCodeID}");
+        Console.WriteLine($"IsAuthenticated: {UserSession.blnIsAuthenticated}");
+        Console.WriteLine($"IsActive: {UserSession.blnIsActive}");
+        Console.WriteLine($"IsOnline: {UserSession.blnIsOnline}");
+        Console.WriteLine($"InQueue: {UserSession.blnInQueue}");
+        Console.WriteLine($"QueuedDate: {UserSession.dtmQueuedDate}");
+        Console.WriteLine("==============================");
+    }
 }

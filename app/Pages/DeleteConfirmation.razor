@@ -1,0 +1,52 @@
+﻿@page "/deleteconfirmation"
+@inject UserService UserService
+@inject UserSessionService UserSession
+@inject NavigationManager Navigation
+
+<MudContainer MaxWidth="MaxWidth.False" Class="d-flex flex-column min-vh-100 justify-center align-center text-center">
+
+    <MudText Typo="Typo.h4" Class="mb-2">
+        We're sorry to see you go, @UserSession.strUsername.
+    </MudText>
+
+    <MudText Typo="Typo.body1" Class="mb-4">
+        Your account has been deleted. We'll miss you.
+    </MudText>
+
+    <MudProgressCircular Indeterminate="true" Size="Size.Medium" Class="mb-2" />
+    <MudText Typo="Typo.caption" Class="mb-4">
+        Redirecting to home in @_secondsLeft seconds...
+    </MudText>
+
+</MudContainer>
+
+@code {
+    private int _secondsLeft = 3;
+    private System.Timers.Timer? _timer;
+
+    protected override async Task OnInitializedAsync() {
+        Console.WriteLine($"[ACCOUNT DELETE] Deactivating account for UserID: {UserSession.intUserID}, Phone: {UserSession.strPhone}");
+
+        bool success = await UserService.DeactivateUserAccountAsync(UserSession.intUserID!.Value, UserSession.strPhone!);
+
+        if (success)
+            Console.WriteLine("[ACCOUNT DELETE] Account marked inactive.");
+        else
+            Console.WriteLine("[ACCOUNT DELETE ERROR] Failed to mark account inactive.");
+
+        _timer = new System.Timers.Timer(1000);
+        _timer.Elapsed += async (_, _) => {
+            _secondsLeft--;
+            if (_secondsLeft <= 0) {
+                _timer.Dispose();
+                await InvokeAsync(() => Navigation.NavigateTo("/"));
+            }
+            await InvokeAsync(StateHasChanged);
+        };
+        _timer.Start();
+    }
+
+    public void Dispose() {
+        _timer?.Dispose();
+    }
+}

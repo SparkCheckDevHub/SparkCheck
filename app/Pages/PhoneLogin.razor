@@ -49,38 +49,6 @@
     </EditForm>
 </MudPaper>
 
-@* @code {
-    private PhoneLoginModel model = new();
-    private string? ErrorMessage;
-
-    private async Task HandleLogin() {
-        try {
-            ErrorMessage = null;
-
-            var result = await UserService.AttemptLoginAsync(model.strPhone);
-
-            if (result.blnSuccess && result.User is not null) {
-                UserSession.intUserID = result.User.intUserID;
-                UserSession.strPhone = result.User.strPhone;
-
-                Console.WriteLine($"[SUCCESS] Login initiated for {model.strPhone} (UserID: {result.User.intUserID})");
-                Navigation.NavigateTo("/phoneauth");
-            }
-            else {
-                ErrorMessage = result.strErrorMessage ?? "Login failed. Try again.";
-                Console.WriteLine($"[ERROR] Login failed for {model.strPhone}: {ErrorMessage}");
-            }
-        }
-        catch (Exception ex) {
-            ErrorMessage = "An unexpected error occurred during login.";
-            Console.WriteLine($"[EXCEPTION] Login error for {model.strPhone}: {ex}");
-        }
-    }
-
-    private void Cancel() {
-        Navigation.NavigateTo("/");
-    }
-} *@
 @code {
     private PhoneLoginModel model = new();
     private string? ErrorMessage;
