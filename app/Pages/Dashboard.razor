@@ -1,19 +1,50 @@
-﻿@page "/dashboard"
+﻿@page "/"
 @layout MainLayout
-@inherits SparkCheck.Shared.SecureBasePage
+@* @inherits SparkCheck.Shared.SecureBasePage *@
+@inject UserSessionService UserSession
+@inject NavigationManager Navigation
 
 <h3>Welcome</h3>
 
 <MudContainer MaxWidth="MaxWidth.False" Class="d-flex flex-column min-vh-100">
 
 
-    <MudSpacer />
+    <MudText Typo="Typo.h5" Class="mb-2">
+        Welcome, @UserSession.strUsername!
+    </MudText>
 
+    <MudText Typo="Typo.body1" Class="mb-4">
+        Before we can spark meaningful connections, let's take care of a few quick steps:
+    </MudText>
+
+    <MudPaper Class="p-4 mb-4">
+        <MudList T="string" Dense="true">
+
+            <MudListItem T="string" OnClick="@(() => NavigateTo("/profile"))">
+                <MudIcon Icon="@Icons.Material.Filled.Person" Class="me-2" />
+                Complete your profile so others can get to know the real you.
+            </MudListItem>
+
+            <MudListItem T="string" OnClick="@(() => NavigateTo("/preferences"))">
+                <MudIcon Icon="@Icons.Material.Filled.Tune" Class="me-2" />
+                Set your preferences so we can help find your ideal match.
+            </MudListItem>
+
+            <MudListItem T="string" OnClick="@(() => NavigateTo("/matchqueue"))">
+                <MudIcon Icon="@Icons.Material.Filled.Favorite" Class="me-2" />
+                Join the Match Queue when you're ready to meet someone special.
+            </MudListItem>
+
+        </MudList>
+    </MudPaper>
+
+    <MudSpacer />
     <BottomNavBar />
 
 </MudContainer>
 
-
 @code {
-
+    private void NavigateTo(string url) {
+        Navigation.NavigateTo(url);
+    }
 }
