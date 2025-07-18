@@ -402,6 +402,6 @@ FOREIGN KEY ( intReportReasonID ) REFERENCES TReportReasons ( intReportReasonID 
 
 INSERT INTO TGenders ( strGender )
 VALUES ( 'Unspecified' )
-	  ,( 'Male' )
-	  ,( 'Female' )
-	  ,( 'Non-Binary' )
+      ,( 'Male' )
+      ,( 'Female' )
+      ,( 'Non-Binary' )
