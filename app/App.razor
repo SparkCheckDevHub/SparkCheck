@@ -1,26 +1,36 @@
-﻿@using Microsoft.AspNetCore.Components.Web
+﻿@* App.razor *@
+@using Microsoft.AspNetCore.Components.Web
 @namespace SparkCheck
 
 <!DOCTYPE html>
 <html lang="en">
 <head>
 	<meta charset="utf-8" />
-	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
 	<base href="/" />
+
 	<link rel="stylesheet" href="css/app.css" />
 	<link href="_content/MudBlazor/MudBlazor.min.css" rel="stylesheet" />
+
+	<!-- PWA manifest and icons (for future mobile install support) -->
+	<link rel="manifest" href="manifest.json" />
+	<link rel="icon" type="image/x-icon" href="favicon.ico" />
+	<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;600&family=Poppins:wght@600;700&display=swap" rel="stylesheet">
+
+	@* <meta name="theme-color" content="#ffffff" /> *@
+
 	<HeadOutlet @rendermode="InteractiveServer" />
 </head>
 
-<body>
+<body style="margin: 0; padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);">
 	<Routes @rendermode="InteractiveServer" />
+
 	<script src="_content/MudBlazor/MudBlazor.min.js"></script>
 	<script src="_framework/blazor.server.js" autostart="false"></script>
 	<script>
-			Blazor.start().catch(err => {
-					console.error('Blazor failure:', err);
-			});
+		Blazor.start().catch(err => {
+			console.error('Blazor failure:', err);
+		});
 	</script>
-
 </body>
 </html>

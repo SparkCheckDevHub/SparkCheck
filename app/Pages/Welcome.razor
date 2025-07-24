@@ -3,36 +3,40 @@
 @layout MainLayout
 @inject NavigationManager Navigation
 
-<MudPaper Style="min-height: 100vh; padding: 1rem; display: flex; flex-direction: column; justify-content: center;">
-    <MudStack Spacing="3" AlignItems="AlignItems.Center">
+<div class="welcome-screen">
+	<MudStack Spacing="5" AlignItems="AlignItems.Center">
 
-        <MudText Typo="Typo.h4" Align="Align.Center">
-            Welcome to SparkCheck
-        </MudText>
+		<div class="welcome-logo-container">
+			<img src="images/logo.png" alt="SparkCheck logo" class="welcome-logo" />
+		</div>
 
-        <MudText Typo="Typo.subtitle1" Align="Align.Center">
-            Find your Spark. Log in with your phone number to get started.
-        </MudText>
+		<MudText Class="welcome-subtitle" Align="Align.Center">
+			Find your spark.
+		</MudText>
 
-        <MudButton Variant="Variant.Filled"
-                   StartIcon="@Icons.Material.Filled.PermPhoneMsg"
-                   OnClick="NavigateToPhoneLogin"
-                   FullWidth="true">
-            Continue with Phone Number
-        </MudButton>
 
-        <MudStack AlignItems="AlignItems.Center" Spacing="1">
-            <MudText Typo="Typo.body2">First time?</MudText>
-            <MudButton Variant="Variant.Text"
-                       OnClick="NavigateToCreateAccount">
-                Create Account
-            </MudButton>
-        </MudStack>
+		<MudStack Spacing="2" AlignItems="AlignItems.Center" Class="welcome-button-stack">
+			<MudButton Variant="Variant.Filled"
+					   Class="primary-button"
+					   OnClick="NavigateToPhoneLogin">
+				Sign In
+			</MudButton>
 
-    </MudStack>
-</MudPaper>
+			<MudButton Variant="Variant.Outlined"
+					   Class="secondary-button"
+					   OnClick="NavigateToCreateAccount">
+				Sign Up
+			</MudButton>
+		</MudStack>
+
+		<MudText Class="welcome-footer" Align="Align.Center">
+			© 2025 SparkCheck | Cortanix™
+		</MudText>
+
+	</MudStack>
+</div>
 
 @code {
-    private void NavigateToPhoneLogin() => Navigation.NavigateTo("/phonelogin");
-    private void NavigateToCreateAccount() => Navigation.NavigateTo("/createaccount");
+	private void NavigateToPhoneLogin() => Navigation.NavigateTo("/phonelogin");
+	private void NavigateToCreateAccount() => Navigation.NavigateTo("/createaccount");
 }

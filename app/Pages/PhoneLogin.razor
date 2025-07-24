@@ -7,47 +7,47 @@
 @inject UserService UserService
 @inject UserSessionService UserSession
 
-<MudPaper Style="min-height: 100vh; padding: 1rem; display: flex; flex-direction: column; justify-content: center;">
-    <EditForm Model="model" OnValidSubmit="HandleLogin">
+<div class="login-screen">
+    <EditForm Model="model" OnValidSubmit="HandleLogin" class="form-wrapper">
         <DataAnnotationsValidator />
 
-        <MudStack AlignItems="AlignItems.Center" Spacing="1" Class="mb-4">
-            <MudText Typo="Typo.h5">Log In with Your Phone Number</MudText>
+        <MudStack AlignItems="AlignItems.Center" Spacing="5">
+
+			<div class="login-logo-container">
+				<img src="images/logo.png" alt="SparkCheck logo" class="welcome-logo" />
+			</div>
+
+			<MudText Class="welcome-subtitle" Align="Align.Center">
+				Login using your Phone Number
+			</MudText>
 
             @if (!string.IsNullOrWhiteSpace(ErrorMessage)) {
                 <MudAlert Severity="Severity.Error" Variant="Variant.Filled" Dense="true">
                     @ErrorMessage
                 </MudAlert>
             }
+
+			<div class="login-form-fields">
+				<MudTextField ShrinkLabel Label="Phone Number" @bind-Value="model.strPhone" Required="true" Immediate="true" Variant="Variant.Outlined" Class="form-input" />
+			</div>
+
+			<div class="login-form-button-row">
+				<MudButton Class="login-back-button" OnClick="Cancel">
+					Back
+				</MudButton>
+				<MudButton Class="login-create-button" ButtonType="ButtonType.Submit">
+					Log In
+				</MudButton>
+			</div>
+
+			<MudText Class="login-footer" Align="Align.Center">
+				© 2025 SparkCheck | Cortanix™
+			</MudText>
+
         </MudStack>
 
-        <MudTextField Label="Phone Number"
-                      @bind-Value="model.strPhone"
-                      Required="true"
-                      Immediate="true"
-                      Class="mb-2" />
-
-        <MudGrid Class="mt-4">
-            <MudItem xs="6">
-                <MudButton Variant="Variant.Filled"
-                           StartIcon="@Icons.Material.Filled.ArrowBack"
-                           FullWidth="true"
-                           OnClick="Cancel">
-                    Cancel
-                </MudButton>
-            </MudItem>
-
-            <MudItem xs="6">
-                <MudButton Variant="Variant.Filled"
-                           EndIcon="@Icons.Material.Filled.Login"
-                           ButtonType="ButtonType.Submit"
-                           FullWidth="true">
-                    Log In
-                </MudButton>
-            </MudItem>
-        </MudGrid>
     </EditForm>
-</MudPaper>
+</div>
 
 @code {
     private PhoneLoginModel model = new();
