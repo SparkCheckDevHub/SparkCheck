@@ -9,92 +9,43 @@
 @inject UserService UserService
 
 
-<MudPaper Style="min-height: 100vh; padding: 1rem; display: flex; flex-direction: column; justify-content: center;">
-	<EditForm Model="Account" OnValidSubmit="HandleValidSubmit" OnInvalidSubmit="HandleInvalidSubmit">
+<div class="create-account-screen">
+	<EditForm Model="Account" OnValidSubmit="HandleValidSubmit" OnInvalidSubmit="HandleInvalidSubmit" class="create-account-form-wrapper">
 		<DataAnnotationsValidator />
 
-		<MudStack AlignItems="AlignItems.Center" Spacing="1" Class="mb-4">
-			<MudText Typo="Typo.h5">Create Your Account</MudText>
+		<MudStack AlignItems="AlignItems.Center">
 
-			@if (!string.IsNullOrWhiteSpace(SuccessMessage)) {
-				<MudAlert Severity="Severity.Success" Variant="Variant.Filled" Dense="true">
-					@SuccessMessage
-				</MudAlert>
-			}
-			@if (!string.IsNullOrWhiteSpace(ErrorMessage)) {
-				<MudAlert Severity="Severity.Error" Variant="Variant.Filled" Dense="true">
-					@ErrorMessage
-				</MudAlert>
-			}
+			<div class="create-account-logo-container">
+				<img src="images/logo.png" alt="SparkCheck logo" class="welcome-logo" />
+			</div>
+
+			<div class="create-account-form-fields">
+				<MudTextField ShrinkLabel Label="Username" @bind-Value="Account.strUsername" Required="true" Class="form-input" Variant="Variant.Outlined" Margin="Margin.Dense" />
+				<MudTextField ShrinkLabel Label="First Name" @bind-Value="Account.strFirstName" Required="true" Class="form-input" Variant="Variant.Outlined" Margin="Margin.Dense" />
+				<MudTextField ShrinkLabel Label="Last Name" @bind-Value="Account.strLastName" Required="true" Class="form-input" Variant="Variant.Outlined" Margin="Margin.Dense" />
+				<MudDatePicker Label="Date Of Birth" @bind-Date="Account.dtmDateOfBirth" DateFormat="MM/dd/yyyy" MaxDate="@DateTime.Today" Required="true" Class="form-input" Variant="Variant.Outlined" Margin="Margin.Dense" />
+				<MudTextField ShrinkLabel Label="Phone Number" @bind-Value="Account.strPhone" Required="true" Class="form-input" Variant="Variant.Outlined" Margin="Margin.Dense" />
+				<MudTextField ShrinkLabel Label="Email Address" @bind-Value="Account.strEmail" Required="true" Class="form-input" Variant="Variant.Outlined" Margin="Margin.Dense" />
+
+				<MudSelect T="int" Label="Gender" @bind-Value="Account.intGenderID" Required="true" Class="form-input" Variant="Variant.Outlined" Margin="Margin.Dense">
+					<MudSelectItem T="int" Disabled="true" Value="0">Select your gender</MudSelectItem>
+					@foreach (var gender in GenderOptions) {
+						<MudSelectItem T="int" Value="@gender.intGenderID">@gender.strGender</MudSelectItem>
+					}
+				</MudSelect>
+			</div>
+			<div class="create-account-button-row">
+				<MudButton Class="create-back-button" OnClick="Cancel">Back</MudButton>
+				<MudButton Class="create-create-button create-button" ButtonType="ButtonType.Submit">Create</MudButton>
+			</div>
+
+			<MudText Class="create-account-footer" Align="Align.Center">
+				© 2025 SparkCheck | Cortanix™
+			</MudText>
+
 		</MudStack>
-
-		<MudTextField Label="Username" For="@(() => Account.strUsername)" @bind-Value="Account.strUsername"
-					  Required="true" Class="mb-2" />
-
-		<MudTextField Label="First Name" For="@(() => Account.strFirstName)" @bind-Value="Account.strFirstName"
-					  Required="true" Class="mb-2" />
-
-		<MudTextField Label="Last Name" For="@(() => Account.strLastName)" @bind-Value="Account.strLastName"
-					  Required="true" Class="mb-2" />
-
-		<MudDatePicker @bind-Date="Account.dtmDateOfBirth"
-					   DateFormat="MM/dd/yyyy"
-					   MaxDate="@DateTime.Today"
-					   Required="true"
-					   Editable="true"
-					   Class="mb-1" />
-
-		<MudTextField Label="Phone Number" For="@(() => Account.strPhone)" @bind-Value="Account.strPhone"
-					  Required="true" Class="mb-2" />
-
-		<MudTextField Label="Email Address" For="@(() => Account.strEmail)" @bind-Value="Account.strEmail"
-					  Required="true" Class="mb-2" />
-
-		<MudRadioGroup T="int" @bind-SelectedOption="Account.intGenderID" Required="true" Class="mb-2" Style="width:100%;">
-			<MudStack AlignItems="AlignItems.Center" Spacing="2">
-				<MudRadio T="int" Value="2">
-					<ChildContent>
-						<MudButton Variant="Variant.Outlined"
-								   Style="min-width:64px; min-height:64px; border-radius:50%;">
-							<MudIcon Icon="@Icons.Material.Filled.Male" Size="Size.Large" />
-						</MudButton>
-					</ChildContent>
-				</MudRadio>
-				<MudRadio T="int" Value="3">
-					<ChildContent>
-						<MudButton Variant="Variant.Outlined"
-								   Style="min-width:64px; min-height:64px; border-radius:50%;">
-							<MudIcon Icon="@Icons.Material.Filled.Female" Size="Size.Large" />
-						</MudButton>
-					</ChildContent>
-				</MudRadio>
-				<MudRadio T="int" Value="4">
-					<ChildContent>
-						<MudButton Variant="Variant.Outlined"
-								   Style="min-width:64px; min-height:64px; border-radius:50%;">
-							<MudIcon Icon="@Icons.Material.Filled.Transgender" Size="Size.Large" />
-						</MudButton>
-					</ChildContent>
-				</MudRadio>
-			</MudStack>
-		</MudRadioGroup>
-
-		<MudGrid Class="mt-4">
-			<MudItem xs="6">
-				<MudButton Variant="Variant.Filled" StartIcon="@Icons.Material.Filled.ArrowBack" FullWidth="true"
-						   OnClick="Cancel">
-					Back
-				</MudButton>
-			</MudItem>
-			<MudItem xs="6">
-				<MudButton Variant="Variant.Filled" EndIcon="@Icons.Material.Filled.Check" FullWidth="true"
-						   ButtonType="ButtonType.Submit">
-					Create
-				</MudButton>
-			</MudItem>
-		</MudGrid>
 	</EditForm>
-</MudPaper>
+</div>
 
 @code {
 	private TUsers Account = new() {
@@ -103,6 +54,11 @@
 
 	private string? SuccessMessage;
 	private string? ErrorMessage;
+	private List<TGenders> GenderOptions = new();
+
+	protected override async Task OnInitializedAsync() {
+		GenderOptions = await UserService.GetAllGendersAsync();
+	}
 
 	private async Task HandleValidSubmit() {
 		try {

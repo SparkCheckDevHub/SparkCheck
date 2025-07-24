@@ -37,8 +37,9 @@ namespace SparkCheck.Models {
 		[Display(Name = "Date of Birth")]
 		public DateTime? dtmDateOfBirth { get; set; }
 
+		[Range(1, int.MaxValue, ErrorMessage = "Please select a gender.")]
 		[Display(Name = "Gender")]
-		public int intGenderID { get; set; } = 1;
+		public int intGenderID { get; set; } = 0;
 
 		public decimal? decLatitude { get; set; }
 		public decimal? decLongitude { get; set; }

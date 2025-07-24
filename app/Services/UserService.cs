@@ -212,6 +212,13 @@ namespace SparkCheck.Services {
 				return false;
 			}
 		}
+		// ===================================================================================
+		// Populating the TGenders Dropdown
+		// ===================================================================================
+		public async Task<List<TGenders>> GetAllGendersAsync() {
+			return await _context.TGenders.OrderBy(g => g.intGenderID).ToListAsync();
+		}
+
 
 	}
 }

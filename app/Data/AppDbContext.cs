@@ -9,5 +9,6 @@ namespace SparkCheck.Data {
 
 		public DbSet<TUsers> TUsers { get; set; }
 		public DbSet<TLoginAttempts> TLoginAttempts { get; set; }
+		public DbSet<TGenders> TGenders { get; set; }
 	}
 }

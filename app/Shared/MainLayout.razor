@@ -1,4 +1,5 @@
-﻿@using MudBlazor
+﻿@* MainLayout.razor *@
+@using MudBlazor
 @using SparkCheck.Services
 @inherits LayoutComponentBase
 @inject UserService _userService
@@ -10,15 +11,19 @@
 <MudSnackbarProvider />
 <MudPopoverProvider />
 
-<div class="layout-container">
-    <div class="layout-body">
-        @Body
-    </div>
+<MudLayout AppBar="false" Class="full-height-layout">
+
+    <MudMainContent>
+        <div class="full-height-container">
+            @Body
+        </div>
+    </MudMainContent>
 
     @if (_renderNavBar) {
         <BottomNavBar />
     }
-</div>
+
+</MudLayout>
 
 @code {
     private bool _renderNavBar = false;
