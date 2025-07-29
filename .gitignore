@@ -62,3 +62,6 @@ nunit-*.xml
 
 # The .env file for storing DB password
 .env
+
+# Ignore python cache
+__pycache__/
