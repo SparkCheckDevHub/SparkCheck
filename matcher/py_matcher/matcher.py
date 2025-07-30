@@ -102,14 +102,12 @@ def find_match(db, user: TUsers):
                 "match_request_id": match_request.intMatchRequestID
             }
             user_updates[user.intUserID][0].set()
-            logger.info(f"HEHEHEHEHE")
         if current_match.intUserID in user_updates:
             user_updates[current_match.intUserID][1] = {
                 "success": True,
                 "match_request_id": match_request.intMatchRequestID
             }
             user_updates[current_match.intUserID][0].set()
-            logger.info(f"HEHEHEHEHE")
     return match_request
 
 

@@ -31,6 +31,20 @@ services:
     restart: unless-stopped
     entrypoint: ["/bin/bash", "/usr/src/app/init.sh"]
 
+  matcher:
+    build:
+      context: ./matcher
+    container_name: sparkcheck-matcher
+    command: uvicorn main:app --host 0.0.0.0 --port 9988
+    ports:
+      - "9988:9988"
+    networks:
+      - sparkcheck-network
+    restart: unless-stopped
+    depends_on:
+      - db
+    environment:
+      SC_MATCHER_CONN: "mssql+pyodbc://sa:${SA_PASSWORD}@db:1433/dbSparkCheck?driver=ODBC+Driver+18+for+SQL+Server&TrustServerCertificate=yes"
 volumes:
   mssql-data:
 

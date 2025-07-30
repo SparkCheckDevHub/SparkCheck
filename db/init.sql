@@ -200,15 +200,15 @@ CREATE TABLE TUserMedia (
 );
 
 CREATE TABLE TUserPreferences (
-  intUserID          INTEGER      NOT NULL,
-  intMatchGenderID   INTEGER,
-  intMatchDistance   INTEGER,
-  intMinAge          INTEGER,
-  intMaxAge          INTEGER,
-  blnReceiveEmails   BIT          NOT NULL,
-  blnShowProfile     BIT          NOT NULL,
-  strBio             VARCHAR(350) NOT NULL,
-  intAppUsageTypeID  INTEGER      NOT NULL
+  intUserID             INTEGER      NOT NULL,
+  intGenderPreferenceID INTEGER,
+  intMatchDistance      INTEGER,
+  intMinAge             INTEGER,
+  intMaxAge             INTEGER,
+  blnReceiveEmails      BIT          NOT NULL,
+  blnShowProfile        BIT          NOT NULL,
+  strBio                VARCHAR(350) NOT NULL,
+  intAppUsageTypeID     INTEGER      NOT NULL
 );
 
 CREATE TABLE TUserAppSettings (

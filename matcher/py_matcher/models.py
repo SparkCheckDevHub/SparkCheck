@@ -346,7 +346,9 @@ t_TUserPreferences = Table(
     Column('blnShowProfile', Boolean, nullable=False),
     Column('strBio', String(350, 'SQL_Latin1_General_CP1_CI_AS'), nullable=False),
     Column('intAppUsageTypeID', Integer, nullable=False),
-    ForeignKeyConstraint(['intAppUsageTypeID'], ['TAppUsageTypes.intAppUsageTypeID'], name='TUserPreferences_TAppUsageTypes_FK'),
+    Column('intGenderPreferenceID', Integer, nullable=False),
+    ForeignKeyConstraint(['intAppUsageTypeID'], ['TAppUsageTypes.intAppUsageTypeID'], name='TUserPreferences_TGenders_FK'),
+    ForeignKeyConstraint(['intGenderPreferenceID'], ['TGenders.intGenderPreferenceID'], name='TUserPreferences_TAppUsageTypes_FK'),
     ForeignKeyConstraint(['intUserID'], ['TUsers.intUserID'], name='TUserPreferences_TUsers_FK')
 )
 
