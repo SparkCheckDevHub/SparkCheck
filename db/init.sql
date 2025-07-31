@@ -119,7 +119,7 @@ CREATE TABLE TMatches (
 );
 
 CREATE TABLE TMatchRequests (
-  intMatchRequestID     INTEGER     NOT NULL,
+  intMatchRequestID     INTEGER IDENTITY(1,1) NOT NULL,
   intFirstUserID        INTEGER     NOT NULL,
   intSecondUserID       INTEGER     NOT NULL,
   blnFirstUserDeclined  BIT         NOT NULL,
@@ -208,7 +208,8 @@ CREATE TABLE TUserPreferences (
   blnReceiveEmails      BIT          NOT NULL,
   blnShowProfile        BIT          NOT NULL,
   strBio                VARCHAR(350) NOT NULL,
-  intAppUsageTypeID     INTEGER      NOT NULL
+  intAppUsageTypeID     INTEGER      NOT NULL,  
+  CONSTRAINT TUserPreferences_PK PRIMARY KEY (intUserID)
 );
 
 CREATE TABLE TUserAppSettings (
@@ -411,3 +412,14 @@ VALUES ( 'Unspecified' )
       ,( 'Male' )
       ,( 'Female' )
       ,( 'Non-Binary' )
+
+-- --------------------------------------------------------------------------------
+-- Add Records into App Usage Types
+-- --------------------------------------------------------------------------------
+
+INSERT INTO TAppUsageTypes ( strAppUsageType )
+VALUES ( 'Long-Term Relationship' )
+      ,( 'Dates' )
+      ,( 'Intimacy' )
+      ,( 'Casual' )
+      ,( 'Friends' )
