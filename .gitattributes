@@ -1,2 +1,4 @@
 # .gitattributes
 *.sh text eol=lf
+db/interests.sql linguist-vendored
+db/zipcodes.sql linguist-vendored
