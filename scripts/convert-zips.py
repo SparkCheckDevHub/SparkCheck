@@ -15,25 +15,72 @@ cities = {}
 
 # Define state code to state name translations
 state_names = {
-    "AL": "Alabama", "AK": "Alaska", "AZ": "Arizona", "AR": "Arkansas",
-    "CA": "California", "CO": "Colorado", "CT": "Connecticut", "DE": "Delaware",
-    "FL": "Florida", "GA": "Georgia", "HI": "Hawaii", "ID": "Idaho",
-    "IL": "Illinois", "IN": "Indiana", "IA": "Iowa", "KS": "Kansas",
-    "KY": "Kentucky", "LA": "Louisiana", "ME": "Maine", "MD": "Maryland",
-    "MA": "Massachusetts", "MI": "Michigan", "MN": "Minnesota", "MS": "Mississippi",
-    "MO": "Missouri", "MT": "Montana", "NE": "Nebraska", "NV": "Nevada",
-    "NH": "New Hampshire", "NJ": "New Jersey", "NM": "New Mexico", "NY": "New York",
-    "NC": "North Carolina", "ND": "North Dakota", "OH": "Ohio", "OK": "Oklahoma",
-    "OR": "Oregon", "PA": "Pennsylvania", "RI": "Rhode Island", "SC": "South Carolina",
-    "SD": "South Dakota", "TN": "Tennessee", "TX": "Texas", "UT": "Utah",
-    "VT": "Vermont", "VA": "Virginia", "WA": "Washington", "WV": "West Virginia",
-    "WI": "Wisconsin", "WY": "Wyoming", "DC": "District of Columbia", "AS": "American Samoa",
-    "GU": "Guam", "MP": "Northern Mariana Islands", "PR": "Puerto Rico",
-    "VI": "U.S. Virgin Islands", "UM": "U.S. Minor Outlying Islands",
-    "AE": "U.S. Armed Forces - Europe", "AP": "U.S. Armed Forces - Pacific",
-    "AA": "U.S. Armed Forces - Americas", "PW": "Palau", "CZ": "Panama Canal Zone",
-    "PI": "Philippine Islands", "TT": "Trust Territory of the Pacific Islands",
-    "FM": "Micronesia", "MH": "Marshall Islands"
+    "AL": "Alabama",
+    "AK": "Alaska",
+    "AZ": "Arizona",
+    "AR": "Arkansas",
+    "CA": "California",
+    "CO": "Colorado",
+    "CT": "Connecticut",
+    "DE": "Delaware",
+    "FL": "Florida",
+    "GA": "Georgia",
+    "HI": "Hawaii",
+    "ID": "Idaho",
+    "IL": "Illinois",
+    "IN": "Indiana",
+    "IA": "Iowa",
+    "KS": "Kansas",
+    "KY": "Kentucky",
+    "LA": "Louisiana",
+    "ME": "Maine",
+    "MD": "Maryland",
+    "MA": "Massachusetts",
+    "MI": "Michigan",
+    "MN": "Minnesota",
+    "MS": "Mississippi",
+    "MO": "Missouri",
+    "MT": "Montana",
+    "NE": "Nebraska",
+    "NV": "Nevada",
+    "NH": "New Hampshire",
+    "NJ": "New Jersey",
+    "NM": "New Mexico",
+    "NY": "New York",
+    "NC": "North Carolina",
+    "ND": "North Dakota",
+    "OH": "Ohio",
+    "OK": "Oklahoma",
+    "OR": "Oregon",
+    "PA": "Pennsylvania",
+    "RI": "Rhode Island",
+    "SC": "South Carolina",
+    "SD": "South Dakota",
+    "TN": "Tennessee",
+    "TX": "Texas",
+    "UT": "Utah",
+    "VT": "Vermont",
+    "VA": "Virginia",
+    "WA": "Washington",
+    "WV": "West Virginia",
+    "WI": "Wisconsin",
+    "WY": "Wyoming",
+    "DC": "District of Columbia",
+    "AS": "American Samoa",
+    "GU": "Guam",
+    "MP": "Northern Mariana Islands",
+    "PR": "Puerto Rico",
+    "VI": "U.S. Virgin Islands",
+    "UM": "U.S. Minor Outlying Islands",
+    "AE": "U.S. Armed Forces - Europe",
+    "AP": "U.S. Armed Forces - Pacific",
+    "AA": "U.S. Armed Forces - Americas",
+    "PW": "Palau",
+    "CZ": "Panama Canal Zone",
+    "PI": "Philippine Islands",
+    "TT": "Trust Territory of the Pacific Islands",
+    "FM": "Micronesia",
+    "MH": "Marshall Islands",
 }
 
 # Ensure state is added to TStates
@@ -49,6 +96,7 @@ def ensure_state(f, state_code):
         state_index += 1
     return states[state_code]
 
+
 # Ensure city is added to TCities
 def ensure_city(f, state_id, city):
     global city_index
@@ -63,10 +111,12 @@ def ensure_city(f, state_id, city):
         city_index += 1
     return cities[state_id][city]
 
+
 # Generate the db/zipcodes.sql file
 with open("../db/zipcodes.sql", "w", encoding="utf-8") as f:
     # Write header comment and options for SQL file
-    f.write('''-- --------------------------------------------------------------------------------
+    f.write(
+        """-- --------------------------------------------------------------------------------
 -- Name: Auto-Generated (https://github.com/millbj92/US-Zip-Codes-JSON)
 -- Project: SparkCheck
 -- Abstract: SparkCheck ZipCodes list
@@ -112,14 +162,15 @@ IF EXISTS (SELECT 1 FROM dbo.TZipCodes)
 -- --------------------------------------------------------------------------------
 -- Insert Values
 -- --------------------------------------------------------------------------------
-''')
+"""
+    )
 
     # Loop through entire list of zip codes to format as SQL
     for i, zip_code in enumerate(zip_codes):
         state_id = ensure_state(f, zip_code["state"])
         city_id = ensure_city(f, state_id, zip_code["city"])
-        lat = float(zip_code.get('latitude') or 0)
-        lon = float(zip_code.get('longitude') or 0)
+        lat = float(zip_code.get("latitude") or 0)
+        lon = float(zip_code.get("longitude") or 0)
         f.write(
             f"INSERT INTO TZipCodes ( strZipCode, intCityID, decLatitude, decLongitude ) VALUES ( '{zip_code['zip_code']}', {city_id}, {lat}, {lon} )\n"
         )

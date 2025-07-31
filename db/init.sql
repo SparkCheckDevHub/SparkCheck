@@ -200,14 +200,15 @@ CREATE TABLE TUserMedia (
 );
 
 CREATE TABLE TUserPreferences (
-  intUserID          INTEGER      NOT NULL,
-  intMatchDistance   INTEGER,
-  intMinAge          INTEGER,
-  intMaxAge          INTEGER,
-  blnReceiveEmails   BIT          NOT NULL,
-  blnShowProfile     BIT          NOT NULL,
-  strBio             VARCHAR(350) NOT NULL,
-  intAppUsageTypeID  INTEGER      NOT NULL
+  intUserID             INTEGER      NOT NULL,
+  intGenderPreferenceID INTEGER,
+  intMatchDistance      INTEGER,
+  intMinAge             INTEGER,
+  intMaxAge             INTEGER,
+  blnReceiveEmails      BIT          NOT NULL,
+  blnShowProfile        BIT          NOT NULL,
+  strBio                VARCHAR(350) NOT NULL,
+  intAppUsageTypeID     INTEGER      NOT NULL
 );
 
 CREATE TABLE TUserAppSettings (
@@ -295,6 +296,11 @@ CREATE TABLE TAppUsageTypes (
 -- 22	  TCities									TStates							    intStateID
 -- 23	  TZipCodes								TCities							    intCityID
 -- 24	  TUser										TGenders						    intGenderID
+-- 25	  TUserPreferences				TGenders						    intGenderPreferenceID
+
+-- #25
+ALTER TABLE TUserPreferences ADD CONSTRAINT TUserPreferences_TGenders_FK
+FOREIGN KEY ( intGenderPreferenceID ) REFERENCES TGenders ( intGenderID );
 
 -- #24
 ALTER TABLE TUsers ADD CONSTRAINT TUsers_TGenders_FK
@@ -402,6 +408,6 @@ FOREIGN KEY ( intReportReasonID ) REFERENCES TReportReasons ( intReportReasonID 
 
 INSERT INTO TGenders ( strGender )
 VALUES ( 'Unspecified' )
-	  ,( 'Male' )
-	  ,( 'Female' )
-	  ,( 'Non-Binary' )
+      ,( 'Male' )
+      ,( 'Female' )
+      ,( 'Non-Binary' )
