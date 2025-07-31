@@ -36,6 +36,8 @@ class TAppUsageTypes(Base):
     intAppUsageTypeID: Mapped[int] = mapped_column(Integer, Identity(start=1, increment=1), primary_key=True)
     strAppUsageType: Mapped[str] = mapped_column(String(250, 'SQL_Latin1_General_CP1_CI_AS'))
 
+    TUserPreferences: Mapped[List['TUserPreferences']] = relationship('TUserPreferences', back_populates='TAppUsageTypes_')
+
 
 class TChatEventTypes(Base):
     __tablename__ = 'TChatEventTypes'
@@ -59,6 +61,7 @@ class TGenders(Base):
     strGender: Mapped[str] = mapped_column(String(250, 'SQL_Latin1_General_CP1_CI_AS'))
 
     TUsers: Mapped[List['TUsers']] = relationship('TUsers', back_populates='TGenders_')
+    TUserPreferences: Mapped[List['TUserPreferences']] = relationship('TUserPreferences', back_populates='TGenders_', foreign_keys='TUserPreferences.intGenderPreferenceID')
 
 
 class TInterestCategories(Base):
@@ -240,7 +243,7 @@ class TMatchRequests(Base):
         PrimaryKeyConstraint('intMatchRequestID', name='TMatchRequests_PK')
     )
 
-    intMatchRequestID: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=False)
+    intMatchRequestID: Mapped[int] = mapped_column(Integer, Identity(start=1, increment=1), primary_key=True)
     intFirstUserID: Mapped[int] = mapped_column(Integer)
     intSecondUserID: Mapped[int] = mapped_column(Integer)
     blnFirstUserDeclined: Mapped[bool] = mapped_column(Boolean)
@@ -336,21 +339,27 @@ class TUserMedia(Base):
     TUsers_: Mapped['TUsers'] = relationship('TUsers', back_populates='TUserMedia')
 
 
-t_TUserPreferences = Table(
-    'TUserPreferences', Base.metadata,
-    Column('intUserID', Integer, nullable=False),
-    Column('intMatchDistance', Integer),
-    Column('intMinAge', Integer),
-    Column('intMaxAge', Integer),
-    Column('blnReceiveEmails', Boolean, nullable=False),
-    Column('blnShowProfile', Boolean, nullable=False),
-    Column('strBio', String(350, 'SQL_Latin1_General_CP1_CI_AS'), nullable=False),
-    Column('intAppUsageTypeID', Integer, nullable=False),
-    Column('intGenderPreferenceID', Integer, nullable=False),
-    ForeignKeyConstraint(['intAppUsageTypeID'], ['TAppUsageTypes.intAppUsageTypeID'], name='TUserPreferences_TGenders_FK'),
-    ForeignKeyConstraint(['intGenderPreferenceID'], ['TGenders.intGenderPreferenceID'], name='TUserPreferences_TAppUsageTypes_FK'),
-    ForeignKeyConstraint(['intUserID'], ['TUsers.intUserID'], name='TUserPreferences_TUsers_FK')
-)
+class TUserPreferences(TUsers):
+    __tablename__ = 'TUserPreferences'
+    __table_args__ = (
+        ForeignKeyConstraint(['intAppUsageTypeID'], ['TAppUsageTypes.intAppUsageTypeID'], name='TUserPreferences_TAppUsageTypes_FK'),
+        ForeignKeyConstraint(['intGenderPreferenceID'], ['TGenders.intGenderID'], name='TUserPreferences_TGenders_FK'),
+        ForeignKeyConstraint(['intUserID'], ['TUsers.intUserID'], name='TUserPreferences_TUsers_FK'),
+        PrimaryKeyConstraint('intUserID', name='TUserPreferences_PK')
+    )
+
+    intUserID: Mapped[int] = mapped_column(Integer, primary_key=True)
+    blnReceiveEmails: Mapped[bool] = mapped_column(Boolean)
+    blnShowProfile: Mapped[bool] = mapped_column(Boolean)
+    strBio: Mapped[str] = mapped_column(String(350, 'SQL_Latin1_General_CP1_CI_AS'))
+    intAppUsageTypeID: Mapped[int] = mapped_column(Integer)
+    intGenderPreferenceID: Mapped[Optional[int]] = mapped_column(Integer)
+    intMatchDistance: Mapped[Optional[int]] = mapped_column(Integer)
+    intMinAge: Mapped[Optional[int]] = mapped_column(Integer)
+    intMaxAge: Mapped[Optional[int]] = mapped_column(Integer)
+
+    TAppUsageTypes_: Mapped['TAppUsageTypes'] = relationship('TAppUsageTypes', back_populates='TUserPreferences')
+    TGenders_: Mapped[Optional['TGenders']] = relationship('TGenders', back_populates='TUserPreferences', foreign_keys=[intGenderPreferenceID])
 
 
 class TMatches(Base):
