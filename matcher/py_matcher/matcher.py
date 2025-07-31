@@ -21,15 +21,35 @@ from .models import TUsers, TMatchRequests, TMatches
 
 logger = logging.getLogger("uvicorn")
 router = APIRouter()
+
 connection_string = os.getenv("SC_MATCHER_CONN")
 if not connection_string:
     raise ValueError("SC_MATCHER_CONN environment variable is not set")
-engine = create_engine(connection_string)
-SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+
 user_updates_lock = Lock()
 user_updates = {}
 queue_remover_lock = Lock()
 queue_remover = {}
+
+def wait_for_connection():
+    """
+    Waits for a database connection to be available.
+    """
+    logger.info("Waiting for database connection...")
+    engine = create_engine(connection_string)
+    while True:
+        try:
+            with engine.connect() as conn:
+                # Check for TUsers table
+                conn.execute(select(TUsers))
+                logger.info("Connected to database successfully.")
+                return engine
+        except SQLAlchemyError:
+            time.sleep(1)
+            
+
+engine = wait_for_connection()
+SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 
 def match_score(db, user1: TUsers, user2: TUsers):
