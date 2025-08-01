@@ -51,7 +51,7 @@
 	private TUsers Account = new() {
 		dtmDateOfBirth = DateTime.Today
 	};
-
+	private TUserPreferences UserPreferences = new();
 	private string? SuccessMessage;
 	private string? ErrorMessage;
 	private List<TGenders> GenderOptions = new();
@@ -74,7 +74,7 @@
 			Account.dtmCreatedDate = DateTime.Now;
 			Account.blnIsActive = true;
 
-			var result = await UserService.CreateUserAsync(Account);
+			var result = await UserService.CreateUserAsync(Account, UserPreferences);
 
 			if (result.blnSuccess) {
 				SuccessMessage = "Account created successfully!";
