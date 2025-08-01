@@ -1,0 +1,495 @@
+﻿/* =====================================================================================
+   Root Variables
+===================================================================================== */
+/*:root {
+	--font-heading: 'Poppins', sans-serif !important;
+	--font-body: 'DM Sans', sans-serif !important;
+	--color-primary: #C7AE6A;
+	--color-primary-dark: #b99a45;
+	--color-secondary: #d5c28f;
+	--color-bg: #e3d6b4;
+	--color-text-primary: #000000;
+	--color-text-secondary: #1a1a1a;
+	--color-accent: #070707;
+	--mud-palette-primary: #C7AE6A !important;
+	--mud-palette-surface: #e3d6b4 !important;
+}*/
+
+/* =====================================================================================
+   Typography Enforcement for MudBlazor Components
+===================================================================================== */
+/*.mud-typography,
+.mud-button,
+.mud-input,
+.mud-input-slot,
+.mud-input-control,
+.mud-text,
+.mud-label,
+.mud-snackbar,
+.mud-alert {
+	font-family: var(--font-heading) !important;
+}*/
+
+/* =====================================================================================
+   Layout Utility Classes
+===================================================================================== */
+/*.full-height-container {
+	height: 100vh;
+	display: flex;
+	flex-direction: column;
+	justify-content: start;
+	box-sizing: border-box;
+}
+
+.full-height-layout {
+	height: 100%;
+}
+
+.mud-main-content {
+	height: 100%;
+	padding-top: 0 !important;
+}
+
+.scroll-container {
+	overflow-y: auto;
+	-webkit-overflow-scrolling: touch;
+	padding-bottom: 80px;*/ /* if navbar is fixed */
+/*}
+
+.no-scroll {
+	overflow: hidden;
+}
+
+html, body, #app {
+	height: 100%;
+	margin: 0;
+	padding: 0;
+	overflow: hidden;
+}
+
+html, body {
+	font-family: var(--font-body);
+}
+
+.welcome-title,
+.primary-button,
+.secondary-button {
+	font-family: var(--font-heading);
+}
+
+.mud-icon-root.mud-svg-icon {
+	fill: #e7e6e3 !important;
+}*/
+/* =====================================================================================
+   Welcome.razor styles:
+===================================================================================== */
+/* Welcome Page Text Styling */
+/*.welcome-screen {
+	background-color: #000000 !important;
+	height: 100vh !important;
+	display: flex !important;
+	justify-content: center !important;
+	align-items: center !important;
+	box-sizing: border-box !important;
+	text-align: center !important;
+}
+
+.welcome-logo-container {
+	display: flex;
+	justify-content: center;
+	margin-top: 3.5rem;
+}
+
+.welcome-logo {
+	max-width: 575px;
+	height: auto;
+	object-fit: contain;
+}
+
+.welcome-subtitle {
+	font-size: 1rem !important;
+	color: #C7AE6A !important;
+	max-width: 320px !important;
+	line-height: 1.6 !important;
+	margin-top: 40px !important;
+}
+
+.welcome-button-stack {
+	width: 100%;
+	max-width: 350px;
+	margin: 0 auto;
+	margin-bottom: 50px !important;
+}
+.primary-button {
+	width: 100% !important;
+	background-color: #C7AE6A !important;
+	color: white !important;
+	font-weight: 600 !important;
+	border-radius: 8px !important;
+	padding: 0.75rem 1rem !important;
+	margin-bottom: 10px !important;
+	box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2) !important;
+	transition: background-color 0.2s ease-in-out !important;
+}
+
+.secondary-button {
+	width: 100% !important;
+	border: 2px solid #C7AE6A !important;
+	color: #C7AE6A !important;
+	background-color: #1a1a1a !important;
+	font-weight: 600 !important;
+	border-radius: 8px !important;
+	padding: 0.75rem 1rem !important;
+	box-shadow: none !important;
+	transition: all 0.2s ease-in-out !important;
+}
+
+.primary-button,
+.secondary-button {
+	width: 100% !important;
+	max-width: 300px !important;
+}
+
+.welcome-footer {
+	font-size: 1rem !important;
+	color: #C7AE6A !important;
+	max-width: 320px !important;
+	line-height: 1.6 !important;
+	margin-top: 10px !important;
+}
+
+.primary-button {
+	background: linear-gradient(135deg, #C7AE6A 0%, #b99a45 100%) !important;
+}
+
+.primary-button:active,
+.secondary-button:active {
+	transform: translateY(1px);
+	box-shadow: 0 1px 6px rgba(0, 0, 0, 0.1);
+}*/
+
+/* =====================================================================================
+   Component Overrides (Commented Out Example)
+===================================================================================== */
+/*
+.bottom-nav {
+	align-content: center;
+	height: 80px;
+	position: fixed;
+	bottom: 0;
+	left: 0;
+	right: 0;
+	z-index: 1000;
+	background-color: white;
+}
+*/
+
+/* =====================================================================================
+   CreateAccount.razor Overrides
+===================================================================================== */
+/*.create-account-screen {
+	background-color: #000000 !important;
+	height: 100vh !important;
+	width: 100%;
+	position: relative;*/ /* This is key */
+	/*display: flex;
+	align-items: center;
+	justify-content: center;
+	box-sizing: border-box;
+	overflow: hidden;
+}
+
+.create-account-logo-container {
+	position: absolute;
+	top: 34%;
+	left: 50%;
+	transform: translate(-50%, -50%);
+	z-index: 0;
+	opacity: 0.9;*/ /* Subtle visibility */
+	/*pointer-events: none;
+}
+
+.create-account-logo {
+	width: 90vw;
+	max-width: 600px;
+	height: auto;
+	object-fit: contain;
+}
+.create-account-form-fields {
+	margin-top: 250px;
+	display: flex;
+	flex-direction: column;
+	gap: 1.25rem;
+	width: 100%;
+	max-width: 500px;
+}
+.form-input {
+	align-self: anchor-center;
+	width: 100%;
+	max-width: 350px !important;
+	margin-bottom: 0rem;
+	box-sizing: border-box;
+}
+
+.form-input {
+	border-radius: 8px !important;
+	background-color: #212121; 
+}
+
+.create-account-form-wrapper {
+    align-content: center;
+    display: block;
+    width: 90%;
+    height: 100%;
+    max-width: 350px;
+    margin-bottom: 0rem;
+    box-sizing: border-box;
+	max-height: 850px;
+}
+
+.form-title {
+	color: #212121 !important;
+	text-align: left;
+	width: 100%;
+	font-size: 30px !important;
+	font-weight: 600 !important;
+	margin-top: 30px !important;
+}
+
+.form-subtitle {
+	color: #212121 !important;
+	text-align: left;
+	width: 100%;
+	font-size: 17px !important;
+	font-weight: 600 !important;
+	margin-top: 10px !important;
+	margin-bottom: 30px !important;
+}
+
+.create-account-button-row {
+	max-width: 350px;
+	width: 100%;
+	margin-top: 8px;
+	justify-content: space-evenly;
+	display: flex;
+}
+
+.create-create-button, create-back-button {
+	width: 100%;
+	max-width: 150px !important;
+}
+
+.create-create-button {
+	background-color: #C7AE6A !important;
+	color: white !important;
+	font-weight: 600 !important;
+	border-radius: 8px !important;
+	padding: 0.75rem 1rem !important;
+	margin-bottom: 10px !important;
+	box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2) !important;
+	transition: background-color 0.2s ease-in-out !important;
+	height: 52px;
+}
+
+.create-back-button {
+	border: 2px solid #C7AE6A !important;
+	color: #C7AE6A !important;
+	background-color: #1a1a1a !important;
+	font-weight: 600 !important;
+	border-radius: 8px !important;
+	padding: 0.75rem 1rem !important;
+	box-shadow: none !important;
+	transition: all 0.2s ease-in-out !important;
+	height: 52px;
+	width: 150px;
+}
+
+.create-account-footer {
+	margin-top: 5px !important;
+	font-size: 1rem !important;
+	color: #C7AE6A !important;
+	max-width: 320px !important;
+	line-height: 1.6 !important;
+}
+
+.mud-input {
+	color: #C7AE6A !important;
+	font-size: 20px !important;
+}
+
+.mud-input-control {
+	margin-top: 0px !important;
+}
+
+.mud-input.mud-input-outlined .mud-input-outlined-border {
+	border-color: #C7AE6A !important;
+}
+
+.mud-input-label-outlined {
+	background-color: #1a1a1a !important;
+}
+
+.mud-shrink ~ label.mud-input-label.mud-input-label-inputcontrol {
+	color: #C7AE6A !important;
+}
+.form-button-row {
+	margin-top: 35px;
+	justify-content: space-evenly;
+	display: flex;
+}
+
+.create-button {
+	background-color: #C7AE6A !important;
+	color: white !important;
+	font-weight: 600 !important;
+	border-radius: 8px !important;
+	padding: 0.75rem 1rem !important;
+	margin-bottom: 10px !important;
+	box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2) !important;
+	transition: background-color 0.2s ease-in-out !important;
+	height: 52px;
+}
+
+.back-button {
+	border: 2px solid #C7AE6A !important;
+	color: #C7AE6A !important;
+	background-color: #1a1a1a !important;
+	font-weight: 600 !important;
+	border-radius: 8px !important;
+	padding: 0.75rem 1rem !important;
+	box-shadow: none !important;
+	transition: all 0.2s ease-in-out !important;
+	height: 52px;
+}
+.create-button, .back-button {
+	width: 100%;
+	max-width: 130px;
+}
+
+.mud-icon-root.mud-svg-icon {
+	fill: #C7AE6A !important;
+}
+
+.mud-theme-primary {
+	color: #C7AE6A !important;
+	background-color: #C7AE6A !important;
+}
+
+.form-fields {
+	display: flex;
+	flex-direction: column;
+	gap: 1.25rem;*/ /* Adjust spacing here */
+	/*width: 100%;
+	max-width: 500px;
+}*/
+
+/* =====================================================================================
+   PhoneLogin.razor Overrides
+===================================================================================== */
+
+/*.login-screen {
+	background-color: #000000 !important;
+	height: 100vh !important;
+	display: flex !important;
+	justify-content: center !important;
+	align-items: center !important;
+	box-sizing: border-box !important;
+	text-align: center !important;
+}
+
+.login-form-wrapper {
+	align-content: center;
+	display: block;
+	width: 90%;
+	height: 100%;
+	max-width: 500px;
+	margin-bottom: 0rem;
+	box-sizing: border-box;
+}
+.login-form-screen {
+	background: linear-gradient(to bottom, #b99a45 0%, #1a1a1a 100%);
+	height: 100vh;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	padding: 1rem;
+	box-sizing: border-box;
+}
+
+.login-form-title {
+	color: #212121 !important;
+	text-align: left;
+	width: 100%;
+	font-size: 30px !important;
+	font-weight: 600 !important;
+	margin-top: 30px !important;
+}
+
+.login-form-subtitle {
+	color: #212121 !important;
+	text-align: left;
+	width: 100%;
+	font-size: 17px !important;
+	font-weight: 600 !important;
+	margin-top: 10px !important;
+	margin-bottom: 30px !important;
+}
+
+.login-form-fields {
+	display: flex;
+	flex-direction: column;
+	gap: 1.25rem; 
+	width: 100%;
+	max-width: 500px;
+}
+
+.login-form-button-row {
+	max-width: 350px;
+	width: 100%;
+	margin-top: 10px;
+	justify-content: space-evenly;
+	display: flex;
+}
+.login-footer {
+	margin-bottom: 10px !important;
+	font-size: 1rem !important;
+	color: #C7AE6A !important;
+	max-width: 320px !important;
+	line-height: 1.6 !important;
+	margin-top: 26px !important;
+}
+.login-logo-container {
+	display: flex;
+	justify-content: center;
+	margin-top: 67px;
+}
+
+.login-create-button, login-back-button {
+	width: 100%;
+	max-width: 150px !important;
+}
+.login-create-button {
+	background-color: #C7AE6A !important;
+	color: white !important;
+	font-weight: 600 !important;
+	border-radius: 8px !important;
+	padding: 0.75rem 1rem !important;
+	margin-bottom: 10px !important;
+	box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2) !important;
+	transition: background-color 0.2s ease-in-out !important;
+	height: 52px;
+}
+
+.login-back-button {
+	border: 2px solid #C7AE6A !important;
+	color: #C7AE6A !important;
+	background-color: #1a1a1a !important;
+	font-weight: 600 !important;
+	border-radius: 8px !important;
+	padding: 0.75rem 1rem !important;
+	box-shadow: none !important;
+	transition: all 0.2s ease-in-out !important;
+	height: 52px;
+	width: 150px;
+}*/

@@ -1,4 +1,4 @@
-﻿@page "/phonelogin"
+﻿@* @page "/phonelogin"
 @using SparkCheck.Services
 @using SparkCheck.Models.ViewModels
 @using MudBlazor
@@ -92,4 +92,123 @@
         Console.WriteLine("[CANCEL] User canceled login. Navigating to home.");
         Navigation.NavigateTo("/");
     }
+}
+ *@
+
+
+@page "/phonelogin"
+@using SparkCheck.Services
+@using SparkCheck.Models.ViewModels
+@using MudBlazor
+@layout MainLayout
+@inject NavigationManager Navigation
+@inject UserService UserService
+@inject UserSessionService UserSession
+
+<!-- MOBILE VIEW (XS, SM) -->
+<MudHidden Breakpoint="Breakpoint.MdAndUp">
+    <EditForm Model="model" OnValidSubmit="HandleLogin" style="width: 100%;">
+        <DataAnnotationsValidator />
+
+        <MudStack Spacing="6" AlignItems="AlignItems.Center">
+
+            <img src="images/logo.png"
+                 alt="SparkCheck logo"
+                 style="width: 100%;" />
+
+            <MudText Typo="Typo.body1" Align="Align.Center" Class="spark-text">
+                Login using your Phone Number
+            </MudText>
+
+            @if (!string.IsNullOrWhiteSpace(ErrorMessage))
+            {
+                <MudAlert Severity="Severity.Error" Variant="Variant.Filled" Dense="true">
+                    @ErrorMessage
+                </MudAlert>
+            }
+
+            <MudStack Spacing="4" Style="width: 80%; max-width: 320px;">
+                <MudTextField ShrinkLabel Label="Phone Number"
+                              @bind-Value="model.strPhone"
+                              Required="true" Immediate="true"
+                              Variant="Variant.Outlined" />
+            </MudStack>
+
+            <MudGrid Style="width: 80%; max-width: 320px;" GutterSize="3">
+                <MudItem xs="6">
+                    <MudButton Variant="Variant.Outlined" Class="secondary-button"
+                               OnClick="Cancel" FullWidth="true">
+                        Back
+                    </MudButton>
+                </MudItem>
+                <MudItem xs="6">
+                    <MudButton Variant="Variant.Filled" Class="primary-button"
+                               ButtonType="ButtonType.Submit" FullWidth="true">
+                        Log In
+                    </MudButton>
+                </MudItem>
+            </MudGrid>
+
+            <MudText Typo="Typo.subtitle2" Align="Align.Center" Class="spark-text">
+                © 2025 SparkCheck | Cortanix™
+            </MudText>
+
+        </MudStack>
+    </EditForm>
+</MudHidden>
+
+<!-- DESKTOP/TABLET VIEW (MD and up) -->
+<MudHidden Breakpoint="Breakpoint.SmAndDown">
+    <MudContainer MaxWidth="MaxWidth.Medium">
+        <MudStack Spacing="8" AlignItems="AlignItems.Center">
+            <img src="images/logo.png"
+                 alt="SparkCheck logo"
+                 style="width: 70%;" />
+
+            <MudText Typo="Typo.h6" Align="Align.Center" Class="spark-text">
+                SparkCheck is optimized for mobile devices.
+            </MudText>
+
+            <MudText Typo="Typo.body1" Align="Align.Center" Class="spark-text">
+                For the best experience, please open SparkCheck on your phone or
+                add it to your home screen.
+            </MudText>
+
+            <MudText Typo="Typo.subtitle2" Align="Align.Center" Class="spark-text">
+                © 2025 SparkCheck | Cortanix™
+            </MudText>
+        </MudStack>
+    </MudContainer>
+</MudHidden>
+
+@code {
+    private PhoneLoginModel model = new();
+    private string? ErrorMessage;
+
+    private async Task HandleLogin()
+    {
+        try
+        {
+            ErrorMessage = null;
+
+            var result = await UserService.AttemptLoginAsync(model.strPhone);
+
+            if (result.blnSuccess && result.User is not null)
+            {
+                UserSession.intUserID = result.User.intUserID;
+                UserSession.strPhone = result.User.strPhone;
+                Navigation.NavigateTo("/phoneauth");
+            }
+            else
+            {
+                ErrorMessage = result.strErrorMessage ?? "Login failed. Try again.";
+            }
+        }
+        catch (Exception)
+        {
+            ErrorMessage = "An unexpected error occurred during login.";
+        }
+    }
+
+    private void Cancel() => Navigation.NavigateTo("/");
 }
