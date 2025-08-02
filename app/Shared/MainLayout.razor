@@ -11,24 +11,16 @@
 <MudSnackbarProvider />
 <MudPopoverProvider />
 
-<MudLayout AppBar="false" Class="full-height-layout">
-
-    <MudMainContent>
-        <div class="full-height-container">
+<CascadingAuthenticationState>
+    <MudLayout AppBar="false">
+        <MudMainContent>
             @Body
-        </div>
-    </MudMainContent>
+        </MudMainContent>
 
-    @if (_renderNavBar) {
-        <BottomNavBar />
-    }
-
-</MudLayout>
-
-@code {
-    private bool _renderNavBar = false;
-
-    protected override void OnParametersSet() {
-        _renderNavBar = UserSession.blnIsAuthenticated;
-    }
-}
+        <AuthorizeView>
+            <Authorized>
+                <BottomNavBar />
+            </Authorized>
+        </AuthorizeView>
+    </MudLayout>
+</CascadingAuthenticationState>
