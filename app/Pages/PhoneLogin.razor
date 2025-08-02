@@ -1,102 +1,4 @@
-﻿@* @page "/phonelogin"
-@using SparkCheck.Services
-@using SparkCheck.Models.ViewModels
-@using MudBlazor
-@layout MainLayout
-@inject NavigationManager Navigation
-@inject UserService UserService
-@inject UserSessionService UserSession
-
-<div class="login-screen">
-    <EditForm Model="model" OnValidSubmit="HandleLogin" class="form-wrapper">
-        <DataAnnotationsValidator />
-
-        <MudStack AlignItems="AlignItems.Center" Spacing="5">
-
-			<div class="login-logo-container">
-				<img src="images/logo.png" alt="SparkCheck logo" class="welcome-logo" />
-			</div>
-
-			<MudText Class="welcome-subtitle" Align="Align.Center">
-				Login using your Phone Number
-			</MudText>
-
-            @if (!string.IsNullOrWhiteSpace(ErrorMessage)) {
-                <MudAlert Severity="Severity.Error" Variant="Variant.Filled" Dense="true">
-                    @ErrorMessage
-                </MudAlert>
-            }
-
-			<div class="login-form-fields">
-				<MudTextField ShrinkLabel Label="Phone Number" @bind-Value="model.strPhone" Required="true" Immediate="true" Variant="Variant.Outlined" Class="form-input" />
-			</div>
-
-			<div class="login-form-button-row">
-				<MudButton Class="login-back-button" OnClick="Cancel">
-					Back
-				</MudButton>
-				<MudButton Class="login-create-button" ButtonType="ButtonType.Submit">
-					Log In
-				</MudButton>
-			</div>
-
-			<MudText Class="login-footer" Align="Align.Center">
-				© 2025 SparkCheck | Cortanix™
-			</MudText>
-
-        </MudStack>
-
-    </EditForm>
-</div>
-
-@code {
-    private PhoneLoginModel model = new();
-    private string? ErrorMessage;
-
-    private async Task HandleLogin() {
-        Console.WriteLine($"[LOGIN FORM] Submit triggered. Entered phone: {model.strPhone}");
-
-        try {
-            ErrorMessage = null;
-
-            var result = await UserService.AttemptLoginAsync(model.strPhone);
-
-            if (result.blnSuccess && result.User is not null) {
-                Console.WriteLine("[LOGIN SUCCESS] Login attempt returned success from service.");
-                Console.WriteLine($" - UserID: {result.User.intUserID}");
-                Console.WriteLine($" - Phone: {result.User.strPhone}");
-
-                // Set session values
-                UserSession.intUserID = result.User.intUserID;
-                UserSession.strPhone = result.User.strPhone;
-
-                Console.WriteLine($"[SESSION] UserSessionService updated:");
-                Console.WriteLine($" - intUserID: {UserSession.intUserID}");
-                Console.WriteLine($" - strPhone: {UserSession.strPhone}");
-
-                Console.WriteLine("[NAVIGATION] Redirecting to /phoneauth");
-                Navigation.NavigateTo("/phoneauth");
-            }
-            else {
-                ErrorMessage = result.strErrorMessage ?? "Login failed. Try again.";
-                Console.WriteLine($"[LOGIN FAIL] {ErrorMessage}");
-            }
-        }
-        catch (Exception ex) {
-            ErrorMessage = "An unexpected error occurred during login.";
-            Console.WriteLine($"[EXCEPTION] Login error for {model.strPhone}: {ex}");
-        }
-    }
-
-    private void Cancel() {
-        Console.WriteLine("[CANCEL] User canceled login. Navigating to home.");
-        Navigation.NavigateTo("/");
-    }
-}
- *@
-
-
-@page "/phonelogin"
+﻿@page "/phonelogin"
 @using SparkCheck.Services
 @using SparkCheck.Models.ViewModels
 @using MudBlazor
@@ -185,30 +87,43 @@
     private PhoneLoginModel model = new();
     private string? ErrorMessage;
 
-    private async Task HandleLogin()
-    {
-        try
-        {
+    private async Task HandleLogin() {
+        Console.WriteLine($"[LOGIN FORM] Submit triggered. Entered phone: {model.strPhone}");
+
+        try {
             ErrorMessage = null;
 
             var result = await UserService.AttemptLoginAsync(model.strPhone);
 
-            if (result.blnSuccess && result.User is not null)
-            {
+            if (result.blnSuccess && result.User is not null) {
+                Console.WriteLine("[LOGIN SUCCESS] Login attempt returned success from service.");
+                Console.WriteLine($" - UserID: {result.User.intUserID}");
+                Console.WriteLine($" - Phone: {result.User.strPhone}");
+
+                // Set session values
                 UserSession.intUserID = result.User.intUserID;
                 UserSession.strPhone = result.User.strPhone;
+
+                Console.WriteLine($"[SESSION] UserSessionService updated:");
+                Console.WriteLine($" - intUserID: {UserSession.intUserID}");
+                Console.WriteLine($" - strPhone: {UserSession.strPhone}");
+
+                Console.WriteLine("[NAVIGATION] Redirecting to /phoneauth");
                 Navigation.NavigateTo("/phoneauth");
             }
-            else
-            {
+            else {
                 ErrorMessage = result.strErrorMessage ?? "Login failed. Try again.";
+                Console.WriteLine($"[LOGIN FAIL] {ErrorMessage}");
             }
         }
-        catch (Exception)
-        {
+        catch (Exception ex) {
             ErrorMessage = "An unexpected error occurred during login.";
+            Console.WriteLine($"[EXCEPTION] Login error for {model.strPhone}: {ex}");
         }
     }
 
-    private void Cancel() => Navigation.NavigateTo("/");
+    private void Cancel() {
+        Console.WriteLine("[CANCEL] User canceled login. Navigating to home.");
+        Navigation.NavigateTo("/");
+    }
 }

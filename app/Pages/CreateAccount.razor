@@ -1,4 +1,4 @@
-﻿@page "/createaccount"
+﻿@* @page "/createaccount"
 @layout MainLayout
 @using MudBlazor
 @using SparkCheck.Services
@@ -111,4 +111,137 @@
 		Console.WriteLine("[CANCEL] User cancelled account creation.");
 		Navigation.NavigateTo("/");
 	}
+}
+ *@
+
+@page "/createaccount"
+@layout MainLayout
+@using MudBlazor
+@using SparkCheck.Services
+@using SparkCheck.Models
+@using System.Globalization
+
+@inject NavigationManager Navigation
+@inject UserService UserService
+
+<!-- MOBILE VIEW (XS, SM) -->
+<MudHidden Breakpoint="Breakpoint.MdAndUp">
+    <EditForm Model="Account" OnValidSubmit="HandleValidSubmit" OnInvalidSubmit="HandleInvalidSubmit" style="width: 100%;">
+        <DataAnnotationsValidator />
+
+        <MudStack Spacing="4" AlignItems="AlignItems.Center" Style="width: 100%; padding: 0 1rem;">
+
+            <!-- Header -->
+            <MudText Typo="Typo.h6" Align="Align.Center" Class="spark-text">
+                Create Your Account
+            </MudText>
+
+            <!-- Form fields -->
+            <MudStack Spacing="3" Style="width: 100%; max-width: 400px;">
+                <MudTextField ShrinkLabel Label="Username" @bind-Value="Account.strUsername" Required="true" Variant="Variant.Outlined" />
+                <MudTextField ShrinkLabel Label="First Name" @bind-Value="Account.strFirstName" Required="true" Variant="Variant.Outlined" />
+                <MudTextField ShrinkLabel Label="Last Name" @bind-Value="Account.strLastName" Required="true" Variant="Variant.Outlined" />
+                <MudDatePicker Label="Date Of Birth" @bind-Date="Account.dtmDateOfBirth"
+                               DateFormat="MM/dd/yyyy" MaxDate="@DateTime.Today" Required="true"
+                               Variant="Variant.Outlined" />
+                <MudTextField ShrinkLabel Label="Phone Number" @bind-Value="Account.strPhone" Required="true" Variant="Variant.Outlined" />
+                <MudTextField ShrinkLabel Label="Email Address" @bind-Value="Account.strEmail" Required="true" Variant="Variant.Outlined" />
+
+                <MudSelect T="int" Label="Gender" @bind-Value="Account.intGenderID" Required="true" Variant="Variant.Outlined">
+                    <MudSelectItem T="int" Disabled="true" Value="0">Select your gender</MudSelectItem>
+                    @foreach (var gender in GenderOptions) {
+                        <MudSelectItem T="int" Value="@gender.intGenderID">@gender.strGender</MudSelectItem>
+                    }
+                </MudSelect>
+            </MudStack>
+
+            <!-- Buttons -->
+            <MudGrid Style="width: 100%; max-width: 400px;" GutterSize="3">
+                <MudItem xs="6">
+                    <MudButton Variant="Variant.Outlined" Class="secondary-button" OnClick="Cancel" FullWidth="true">
+                        Back
+                    </MudButton>
+                </MudItem>
+                <MudItem xs="6">
+                    <MudButton Variant="Variant.Filled" Class="primary-button" ButtonType="ButtonType.Submit" FullWidth="true">
+                        Create
+                    </MudButton>
+                </MudItem>
+            </MudGrid>
+
+            <MudText Typo="Typo.subtitle2" Align="Align.Center" Class="spark-text">
+                © 2025 SparkCheck | Cortanix™
+            </MudText>
+
+        </MudStack>
+    </EditForm>
+</MudHidden>
+
+<!-- DESKTOP/TABLET VIEW (MD and up) -->
+<MudHidden Breakpoint="Breakpoint.SmAndDown">
+    <MudContainer MaxWidth="MaxWidth.Medium">
+        <MudStack Spacing="8" AlignItems="AlignItems.Center">
+            <img src="images/logo.png"
+                 alt="SparkCheck logo"
+                 style="width: 70%;" />
+
+            <MudText Typo="Typo.h6" Align="Align.Center" Class="spark-text">
+                SparkCheck is optimized for mobile devices.
+            </MudText>
+
+            <MudText Typo="Typo.body1" Align="Align.Center" Class="spark-text">
+                For the best experience, please open SparkCheck on your phone or
+                add it to your home screen.
+            </MudText>
+
+            <MudText Typo="Typo.subtitle2" Align="Align.Center" Class="spark-text">
+                © 2025 SparkCheck | Cortanix™
+            </MudText>
+        </MudStack>
+    </MudContainer>
+</MudHidden>
+
+@code {
+    private TUsers Account = new() { dtmDateOfBirth = DateTime.Today };
+
+    private string? SuccessMessage;
+    private string? ErrorMessage;
+    private List<TGenders> GenderOptions = new();
+
+    protected override async Task OnInitializedAsync() {
+        GenderOptions = await UserService.GetAllGendersAsync();
+    }
+
+    private async Task HandleValidSubmit() {
+        try {
+            Account.dtmCreatedDate = DateTime.Now;
+            Account.blnIsActive = true;
+
+            var result = await UserService.CreateUserAsync(Account);
+
+            if (result.blnSuccess) {
+                SuccessMessage = "Account created successfully!";
+                ErrorMessage = null;
+                Account = new TUsers { dtmDateOfBirth = DateTime.Today };
+                StateHasChanged();
+                await Task.Delay(2000);
+                Navigation.NavigateTo("/");
+            }
+            else {
+                ErrorMessage = result.strErrorMessage ?? "Failed to create account.";
+                SuccessMessage = null;
+            }
+        }
+        catch {
+            ErrorMessage = "An unexpected error occurred. Please try again later.";
+            SuccessMessage = null;
+        }
+    }
+
+    private void HandleInvalidSubmit(EditContext context) {
+        foreach (var error in context.GetValidationMessages())
+            Console.WriteLine($"Validation error: {error}");
+    }
+
+    private void Cancel() => Navigation.NavigateTo("/");
 }

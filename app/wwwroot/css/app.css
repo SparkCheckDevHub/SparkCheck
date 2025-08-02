@@ -25,9 +25,6 @@
     color: #C7AE6A !important;
 }
 
-.spark-text {
-    color: #C7AE6A !important;
-}
 /*================== mud overrides ==================*/
 .mud-layout {
     display: flex !important;
@@ -55,8 +52,25 @@
     color: #C7AE6A !important;
 }
 
-/*================== mud button overrides ==================*/
+:root {
+    --mud-palette-primary: #C7AE6A !important; /* Your gold color */
+    --mud-palette-primary-darken: #b99a45 !important; /* Slightly darker gold */
+    --mud-palette-primary-lighten: #d5c28f !important; /* Lighter variant */
+    --mud-palette-surface: #e3d6b4 !important;
+}
 
+.mud-theme-primary {
+    background-color: var(--mud-palette-primary) !important;
+}
+
+.mud-input > input.mud-input-root, div.mud-input-slot.mud-input-root {
+    color: #C7AE6A !important;
+}
+
+.mud-icon-root.mud-svg-icon {
+    fill: #C7AE6A !important;
+}
+/*================== mud button overrides ==================*/
 .primary-button {
     background-color: #C7AE6A !important;
     color: white !important;
