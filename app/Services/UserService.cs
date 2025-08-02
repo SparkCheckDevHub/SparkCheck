@@ -3,7 +3,8 @@ using SparkCheck.Models;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Cryptography;
 
-namespace SparkCheck.Services {
+namespace SparkCheck.Services
+{
 	public class UserService
 	{
 		private readonly AppDbContext _context;

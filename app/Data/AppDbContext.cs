@@ -16,5 +16,7 @@ namespace SparkCheck.Data {
 		public DbSet<TInterestCategory> TInterestCategory { get; set; }
 		public DbSet<TInterestSubCategory> TInterestSubCategory { get; set; }
 		public DbSet<TUserPreferences> TUserPreferences { get; set; }
+		public DbSet<TMatches> TMatches { get; set; }
+		public DbSet<TMatchRequests> TMatchRequests { get; set; }
 	}
 }

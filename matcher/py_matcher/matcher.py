@@ -312,13 +312,13 @@ def find_match(db, user: TUsers):
     with user_updates_lock:
         if user.intUserID in user_updates:
             user_updates[user.intUserID][1] = {
-                "success": True,
+                "status": "success",
                 "match_request_id": match_request.intMatchRequestID
             }
             user_updates[user.intUserID][0].set()
         if current_match.intUserID in user_updates:
             user_updates[current_match.intUserID][1] = {
-                "success": True,
+                "status": "success",
                 "match_request_id": match_request.intMatchRequestID
             }
             user_updates[current_match.intUserID][0].set()
@@ -452,7 +452,7 @@ async def enter_queue(
 
 
 @router.get("/exitQueue")
-async def enter_queue(
+async def exit_queue(
         intUserID: int = Query(..., description="User ID to exit the queue"),
         db: Session = Depends(get_db)):
     """
