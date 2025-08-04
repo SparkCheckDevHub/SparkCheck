@@ -1,112 +1,4 @@
-﻿@* @page "/phoneauth"
-@using SparkCheck.Services
-@using MudBlazor
-@using SparkCheck.Models.ViewModels
-@layout MainLayout
-@inject NavigationManager Navigation
-@inject UserService UserService
-@inject UserSessionService UserSession
-
-<MudPaper Style="min-height: 100vh; padding: 1rem; display: flex; flex-direction: column; justify-content: center;">
-    <EditForm Model="model" OnValidSubmit="HandleVerify">
-        <DataAnnotationsValidator />
-
-        <MudStack AlignItems="AlignItems.Center" Spacing="1" Class="mb-4">
-            <MudText Typo="Typo.h5">Enter Verification Code</MudText>
-
-            @if (!string.IsNullOrWhiteSpace(ErrorMessage)) {
-                <MudAlert Severity="Severity.Error" Variant="Variant.Filled" Dense="true">
-                    @ErrorMessage
-                </MudAlert>
-            }
-        </MudStack>
-
-        <MudTextField Label="Verification Code"
-                      @bind-Value="model.Code"
-                      MaxLength="6"
-                      Required="true"
-                      Immediate="true"
-                      Class="mb-2" />
-
-        <MudGrid Class="mt-4">
-            <MudItem xs="6">
-                <MudButton Variant="Variant.Filled" StartIcon="@Icons.Material.Filled.ArrowBack"
-                           FullWidth="true" OnClick="Cancel">
-                    Cancel
-                </MudButton>
-            </MudItem>
-            <MudItem xs="6">
-                <MudButton Variant="Variant.Filled" EndIcon="@Icons.Material.Filled.Check"
-                           ButtonType="ButtonType.Submit" FullWidth="true">
-                    Verify
-                </MudButton>
-            </MudItem>
-        </MudGrid>
-    </EditForm>
-</MudPaper>
-
-@code {
-    private PhoneAuthModel model = new();
-    private string? ErrorMessage;
-
-    private async Task HandleVerify() {
-        ErrorMessage = null;
-
-        var phone = UserSession.strPhone;
-        var userId = UserSession.intUserID;
-
-        Console.WriteLine("[VERIFY START] User pressed submit on verification form.");
-        Console.WriteLine($" - strPhone: {phone}");
-        Console.WriteLine($" - intUserID: {userId}");
-        Console.WriteLine($" - Entered Code: {model.Code}");
-
-        if (userId == null || string.IsNullOrWhiteSpace(phone)) {
-            ErrorMessage = "Your session has expired. Please log in again.";
-            Console.WriteLine("[SESSION MISSING] Redirecting to /phonelogin");
-            Navigation.NavigateTo("/phonelogin");
-            return;
-        }
-
-        try {
-            var result = await UserService.VerifyPhoneLoginAsync(phone, model.Code, userId.Value);
-
-            if (result.blnSuccess) {
-                UserSession.blnIsAuthenticated = true;
-                var user = await UserService.GetUserById(userId.Value);
-                if (user is not null) {
-                    UserSession.strUsername = user.strUsername;
-                    UserSession.strFirstName = user.strFirstName;
-                    UserSession.strLastName = user.strLastName;
-                    UserSession.dtmDateOfBirth = user.dtmDateOfBirth;
-                    UserSession.intGenderID = user.intGenderID;
-                    UserSession.blnIsActive = user.blnIsActive;
-                    UserSession.blnIsOnline = true;
-                }
-
-                await UserService.UpdateUserStatusAsync(userId.Value, true);
-                Console.WriteLine("[NAVIGATION] Redirecting to /dashboard");
-                Navigation.NavigateTo("/dashboard");
-            }
-            else {
-                ErrorMessage = result.strErrorMessage ?? "Invalid verification code. Please try again.";
-                Console.WriteLine($"[FAILURE] {ErrorMessage}");
-            }
-        }
-        catch (Exception ex) {
-            ErrorMessage = "An unexpected error occurred. Please try again.";
-            Console.WriteLine($"[EXCEPTION] Phone verification error: {ex}");
-        }
-    }
-
-    private void Cancel() {
-        Console.WriteLine("[CANCEL] Navigating back to /phonelogin");
-        Navigation.NavigateTo("/phonelogin");
-    }
-}
-
- *@
-
-@page "/phoneauth"
+﻿@page "/phoneauth"
 @using SparkCheck.Services
 @using MudBlazor
 @using SparkCheck.Models.ViewModels
@@ -181,13 +73,14 @@
 			</MudText>
 
 			<MudText Typo="Typo.body1" Align="Align.Center" Class="spark-text">
-				For the best experience, please open SparkCheck on your phone or
-				add it to your home screen.
+				For the best experience, please open SparkCheck on your phone and
+				save it to your home screen.
 			</MudText>
 
 			<MudText Typo="Typo.subtitle2" Align="Align.Center" Class="spark-text">
 				© 2025 SparkCheck | Cortanix™
 			</MudText>
+
 		</MudStack>
 	</MudContainer>
 </MudHidden>

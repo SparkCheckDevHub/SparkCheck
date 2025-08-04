@@ -1,65 +1,146 @@
 ﻿@page "/dashboard"
 @layout MainLayout
-@inherits SparkCheck.Shared.SecureBasePage
+@inject NavigationManager Navigation
+@inject UserSessionService UserSession
 
+<!-- MOBILE VIEW (XS, SM) -->
+<MudHidden Breakpoint="Breakpoint.MdAndUp">
+	<MudStack Spacing="6" AlignItems="AlignItems.Center" Style="width: 100%">
 
-<MudContainer MaxWidth="MaxWidth.False" Class="d-flex flex-column min-vh-100">
+		<img src="images/logo.png"
+			 alt="SparkCheck logo"
+			 style="width: 100%;" />
 
+		<MudText Typo="Typo.h5" Align="Align.Center" Class="spark-text">
+			Welcome, @UserSession.strUsername!
+		</MudText>
 
-    <MudText Typo="Typo.h5" Class="mb-2">
-        Welcome, @UserSession.strUsername!
-    </MudText>
+		<MudPaper Class="p-4" Style="width: 100%; max-width: 320px;">
+			<MudList T="object" Dense="true">
 
-    <MudText Typo="Typo.body1" Class="mb-4">
-        Before we can spark meaningful connections, let's take care of a few quick steps:
-    </MudText>
+				<MudListItem T="object" OnClick="@(() => NavigateTo("/profile"))">
+					<div class="list-item-content">
+						@if (UserProgress.blnProfileComplete)
+						{
+							<MudIcon Icon="@Icons.Material.Filled.CheckCircle" Color="Color.Success" Class="me-2" />
+							<span>Your profile’s looking sharp.</span>
+						}
+						else
+						{
+							<MudIcon Icon="@Icons.Material.Filled.Person" Class="me-2" />
+							<span>A great match needs a great profile.</span>
+						}
+					</div>
+				</MudListItem>
 
-    <MudPaper Class="p-4 mb-4">
-        <MudList T="string" Dense="true">
+				<MudListItem T="object" OnClick="@(() => NavigateTo("/preferences"))">
+					<div class="list-item-content">
+						@if (UserProgress.blnPreferencesComplete)
+						{
+							<MudIcon Icon="@Icons.Material.Filled.CheckCircle" Color="Color.Success" Class="me-2" />
+							<span>Your vibe is locked in.</span>
+						}
+						else
+						{
+							<MudIcon Icon="@Icons.Material.Filled.Tune" Class="me-2" />
+							<span>Dial in your vibe for a solid match.</span>
+						}
+					</div>
+				</MudListItem>
 
-            <MudListItem T="string" OnClick="@(() => NavigateTo("/profile"))">
-                <MudIcon Icon="@Icons.Material.Filled.Person" Class="me-2" />
-                Complete your profile so others can get to know the real you.
-            </MudListItem>
+				<MudListItem T="object" Disabled="@(IsOnboardingIncomplete)" OnClick="@(() => NavigateTo("/matchqueue"))">
+					<div class="list-item-content">
+						<MudIcon Icon="@Icons.Material.Filled.Favorite" Class="me-2" />
+						@if (IsOnboardingIncomplete)
+						{
+							<span>Finish setup to join the match queue.</span>
+						}
+						else
+						{
+							<span>Locked in and ready to match.</span>
+						}
+					</div>
+				</MudListItem>
+			</MudList>
+		</MudPaper>
 
-            <MudListItem T="string" OnClick="@(() => NavigateTo("/preferences"))">
-                <MudIcon Icon="@Icons.Material.Filled.Tune" Class="me-2" />
-                Set your preferences so we can help find your ideal match.
-            </MudListItem>
+		<MudText Typo="Typo.subtitle2" Align="Align.Center" Class="spark-text">
+			© 2025 SparkCheck | Cortanix™
+		</MudText>
 
-            <MudListItem T="string" OnClick="@(() => NavigateTo("/matchqueue"))">
-                <MudIcon Icon="@Icons.Material.Filled.Favorite" Class="me-2" />
-                Join the Match Queue when you're ready to meet someone special.
-            </MudListItem>
+	</MudStack>
+</MudHidden>
 
-        </MudList>
-    </MudPaper>
+<!-- DESKTOP/TABLET VIEW (MD and up) -->
+<MudHidden Breakpoint="Breakpoint.SmAndDown">
+	<MudContainer MaxWidth="MaxWidth.Medium">
+		<MudStack Spacing="8" AlignItems="AlignItems.Center">
+			<img src="images/logo.png"
+				 alt="SparkCheck logo"
+				 style="width: 70%;" />
 
-    <MudSpacer />
-    <BottomNavBar />
+			<MudText Typo="Typo.h6" Align="Align.Center" Class="spark-text">
+				SparkCheck is optimized for mobile devices.
+			</MudText>
 
-</MudContainer>
+			<MudText Typo="Typo.body1" Align="Align.Center" Class="spark-text">
+				For the best experience, please open SparkCheck on your phone and
+				save it to your home screen.
+			</MudText>
+
+			<MudText Typo="Typo.subtitle2" Align="Align.Center" Class="spark-text">
+				© 2025 SparkCheck | Cortanix™
+			</MudText>
+
+		</MudStack>
+	</MudContainer>
+</MudHidden>
 
 @code {
-    private void NavigateTo(string url) {
-        Navigation.NavigateTo(url);
-    }
+	// Temporary hardcoded onboarding progress
+	private class OnboardingProgress
+	{
+		public bool blnProfileComplete { get; set; }
+		public bool blnPreferencesComplete { get; set; }
+	}
 
-    protected override void OnInitialized() {
-        Console.WriteLine("==== [DASHBOARD LOADED] ====");
-        Console.WriteLine($"UserID: {UserSession.intUserID}");
-        Console.WriteLine($"Username: {UserSession.strUsername}");
-        Console.WriteLine($"First Name: {UserSession.strFirstName}");
-        Console.WriteLine($"Last Name: {UserSession.strLastName}");
-        Console.WriteLine($"Phone: {UserSession.strPhone}");
-        Console.WriteLine($"DOB: {UserSession.dtmDateOfBirth}");
-        Console.WriteLine($"GenderID: {UserSession.intGenderID}");
-        Console.WriteLine($"ZipCodeID: {UserSession.intZipCodeID}");
-        Console.WriteLine($"IsAuthenticated: {UserSession.blnIsAuthenticated}");
-        Console.WriteLine($"IsActive: {UserSession.blnIsActive}");
-        Console.WriteLine($"IsOnline: {UserSession.blnIsOnline}");
-        Console.WriteLine($"InQueue: {UserSession.blnInQueue}");
-        Console.WriteLine($"QueuedDate: {UserSession.dtmQueuedDate}");
-        Console.WriteLine("==============================");
-    }
+	private OnboardingProgress UserProgress = new()
+		{
+		// blnProfileComplete = false,
+		// blnPreferencesComplete = false
+
+		// blnProfileComplete = true,
+		// blnPreferencesComplete = false
+
+		blnProfileComplete = true,
+		blnPreferencesComplete = true
+
+		};
+
+	private void NavigateTo(string url) => Navigation.NavigateTo(url);
+
+	protected override void OnInitialized()
+	{
+
+		// Debug output
+		Console.WriteLine("==== Debug User Session Information. ====");
+		Console.WriteLine($"UserID: {UserSession.intUserID}");
+		Console.WriteLine($"Username: {UserSession.strUsername}");
+		Console.WriteLine($"First Name: {UserSession.strFirstName}");
+		Console.WriteLine($"Last Name: {UserSession.strLastName}");
+		Console.WriteLine($"Phone: {UserSession.strPhone}");
+		Console.WriteLine($"DOB: {UserSession.dtmDateOfBirth}");
+		Console.WriteLine($"GenderID: {UserSession.intGenderID}");
+		Console.WriteLine($"ZipCodeID: {UserSession.intZipCodeID}");
+		Console.WriteLine($"IsAuthenticated: {UserSession.blnIsAuthenticated}");
+		Console.WriteLine($"IsActive: {UserSession.blnIsActive}");
+		Console.WriteLine($"IsOnline: {UserSession.blnIsOnline}");
+		Console.WriteLine($"InQueue: {UserSession.blnInQueue}");
+		Console.WriteLine($"QueuedDate: {UserSession.dtmQueuedDate}");
+		Console.WriteLine("==================================================");
+	}
+
+	private bool IsOnboardingIncomplete =>
+	!UserProgress.blnProfileComplete || !UserProgress.blnPreferencesComplete;
+
 }
