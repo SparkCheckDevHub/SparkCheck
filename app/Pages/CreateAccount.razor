@@ -1,120 +1,4 @@
-﻿@* @page "/createaccount"
-@layout MainLayout
-@using MudBlazor
-@using SparkCheck.Services
-@using SparkCheck.Models
-@using System.Globalization
-
-@inject NavigationManager Navigation
-@inject UserService UserService
-
-
-<div class="create-account-screen">
-	<EditForm Model="Account" OnValidSubmit="HandleValidSubmit" OnInvalidSubmit="HandleInvalidSubmit" class="create-account-form-wrapper">
-		<DataAnnotationsValidator />
-
-		<MudStack AlignItems="AlignItems.Center">
-
-			<div class="create-account-logo-container">
-				<img src="images/logo.png" alt="SparkCheck logo" class="welcome-logo" />
-			</div>
-
-			<div class="create-account-form-fields">
-				<MudTextField ShrinkLabel Label="Username" @bind-Value="Account.strUsername" Required="true" Class="form-input" Variant="Variant.Outlined" Margin="Margin.Dense" />
-				<MudTextField ShrinkLabel Label="First Name" @bind-Value="Account.strFirstName" Required="true" Class="form-input" Variant="Variant.Outlined" Margin="Margin.Dense" />
-				<MudTextField ShrinkLabel Label="Last Name" @bind-Value="Account.strLastName" Required="true" Class="form-input" Variant="Variant.Outlined" Margin="Margin.Dense" />
-				<MudDatePicker Label="Date Of Birth" @bind-Date="Account.dtmDateOfBirth" DateFormat="MM/dd/yyyy" MaxDate="@DateTime.Today" Required="true" Class="form-input" Variant="Variant.Outlined" Margin="Margin.Dense" />
-				<MudTextField ShrinkLabel Label="Phone Number" @bind-Value="Account.strPhone" Required="true" Class="form-input" Variant="Variant.Outlined" Margin="Margin.Dense" />
-				<MudTextField ShrinkLabel Label="Email Address" @bind-Value="Account.strEmail" Required="true" Class="form-input" Variant="Variant.Outlined" Margin="Margin.Dense" />
-
-				<MudSelect T="int" Label="Gender" @bind-Value="Account.intGenderID" Required="true" Class="form-input" Variant="Variant.Outlined" Margin="Margin.Dense">
-					<MudSelectItem T="int" Disabled="true" Value="0">Select your gender</MudSelectItem>
-					@foreach (var gender in GenderOptions) {
-						<MudSelectItem T="int" Value="@gender.intGenderID">@gender.strGender</MudSelectItem>
-					}
-				</MudSelect>
-			</div>
-			<div class="create-account-button-row">
-				<MudButton Class="create-back-button" OnClick="Cancel">Back</MudButton>
-				<MudButton Class="create-create-button create-button" ButtonType="ButtonType.Submit">Create</MudButton>
-			</div>
-
-			<MudText Class="create-account-footer" Align="Align.Center">
-				© 2025 SparkCheck | Cortanix™
-			</MudText>
-
-		</MudStack>
-	</EditForm>
-</div>
-
-@code {
-	private TUsers Account = new() {
-		dtmDateOfBirth = DateTime.Today
-	};
-
-	private string? SuccessMessage;
-	private string? ErrorMessage;
-	private List<TGenders> GenderOptions = new();
-
-	protected override async Task OnInitializedAsync() {
-		GenderOptions = await UserService.GetAllGendersAsync();
-	}
-
-	private async Task HandleValidSubmit() {
-		try {
-			Console.WriteLine("[CREATE ACCOUNT] Form submitted with valid data.");
-			Console.WriteLine($" - Username: {Account.strUsername}");
-			Console.WriteLine($" - First Name: {Account.strFirstName}");
-			Console.WriteLine($" - Last Name: {Account.strLastName}");
-			Console.WriteLine($" - DOB: {Account.dtmDateOfBirth?.ToShortDateString()}");
-			Console.WriteLine($" - Phone: {Account.strPhone}");
-			Console.WriteLine($" - Email: {Account.strEmail}");
-			Console.WriteLine($" - Gender ID: {Account.intGenderID}");
-
-			Account.dtmCreatedDate = DateTime.Now;
-			Account.blnIsActive = true;
-
-			var result = await UserService.CreateUserAsync(Account);
-
-			if (result.blnSuccess) {
-				SuccessMessage = "Account created successfully!";
-				ErrorMessage = null;
-				Console.WriteLine("[SUCCESS] Account creation succeeded.");
-
-				Account = new TUsers { dtmDateOfBirth = DateTime.Today };
-				StateHasChanged();
-
-				await Task.Delay(2000);
-				Console.WriteLine("[REDIRECT] Navigating to /");
-				Navigation.NavigateTo("/");
-			}
-			else {
-				ErrorMessage = result.strErrorMessage ?? "Failed to create account.";
-				SuccessMessage = null;
-				Console.WriteLine($"[ERROR] Account creation failed: {ErrorMessage}");
-			}
-		}
-		catch (Exception ex) {
-			ErrorMessage = "An unexpected error occurred. Please try again later.";
-			SuccessMessage = null;
-			Console.WriteLine($"[EXCEPTION] Account creation threw an error: {ex.Message}");
-		}
-	}
-
-	private void HandleInvalidSubmit(EditContext context) {
-		Console.WriteLine("[VALIDATION] Form submission was invalid. Errors:");
-		foreach (var error in context.GetValidationMessages())
-			Console.WriteLine($" - {error}");
-	}
-
-	private void Cancel() {
-		Console.WriteLine("[CANCEL] User cancelled account creation.");
-		Navigation.NavigateTo("/");
-	}
-}
- *@
-
-@page "/createaccount"
+﻿@page "/createaccount"
 @layout MainLayout
 @using MudBlazor
 @using SparkCheck.Services
@@ -190,8 +74,8 @@
             </MudText>
 
             <MudText Typo="Typo.body1" Align="Align.Center" Class="spark-text">
-                For the best experience, please open SparkCheck on your phone or
-                add it to your home screen.
+                For the best experience, please open SparkCheck on your phone and
+                save it to your home screen.
             </MudText>
 
             <MudText Typo="Typo.subtitle2" Align="Align.Center" Class="spark-text">

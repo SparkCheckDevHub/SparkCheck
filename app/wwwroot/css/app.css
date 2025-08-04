@@ -8,6 +8,12 @@
     padding-right: env(safe-area-inset-right);
 }
 
+.main-layout {
+    min-height: 100dvh;
+    display: flex;
+    flex-direction: column;
+}
+
 /*================== Typography Enforcement ==================*/
 .mud-typography,
 .mud-button,
@@ -29,7 +35,6 @@
 .mud-layout {
     display: flex !important;
     flex-direction: column !important;
-    height: 100vh !important;
     background-color: #000000 !important;
 }
 
@@ -53,9 +58,9 @@
 }
 
 :root {
-    --mud-palette-primary: #C7AE6A !important; /* Your gold color */
-    --mud-palette-primary-darken: #b99a45 !important; /* Slightly darker gold */
-    --mud-palette-primary-lighten: #d5c28f !important; /* Lighter variant */
+    --mud-palette-primary: #C7AE6A !important; 
+    --mud-palette-primary-darken: #b99a45 !important; 
+    --mud-palette-primary-lighten: #d5c28f !important; 
     --mud-palette-surface: #e3d6b4 !important;
 }
 
@@ -86,4 +91,47 @@
     border-radius: 8px !important;
     padding: 0.75rem 1rem !important;
     box-shadow: none !important;
+}
+
+/*================== BottomNavBar Styling ==================*/
+
+.bottom-nav {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    padding-bottom: env(safe-area-inset-bottom);
+    z-index: 1000;
+    background-color: #000 !important;
+    border-top: 1px solid #333;
+}
+
+.bottom-nav-stack {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-around;
+    align-items: center;
+    padding: 0.5rem 0.25rem;
+}
+
+.mud-icon-button {
+    color: #C7AE6A !important;
+    padding: 1rem;
+}
+
+    .mud-icon-button.mud-primary {
+        color: white !important;
+    }
+
+/* Ensures main content doesn’t get hidden behind the BottomNavBar */
+.main-content-with-bottom-nav {
+    padding-bottom: calc(77px + env(safe-area-inset-bottom)); /* 56px is nav height */
+}
+
+/*================== Dashboard List Styling ==================*/
+
+.list-item-content {
+    display: flex;
+    align-items: center;
+    padding: 0.5rem;
 }

@@ -1,33 +1,65 @@
 ﻿@page "/deleteaccount"
 @layout MainLayout
-@inherits SparkCheck.Shared.SecureBasePage
+@inject NavigationManager Navigation
+@inject UserSessionService UserSession
 
-<MudContainer MaxWidth="MaxWidth.False" Class="d-flex flex-column min-vh-100 justify-center align-center px-4">
-    <MudText Typo="Typo.h5" Class="mb-2 text-center">
-        Are you sure you want to delete your account?
-    </MudText>
+<!-- MOBILE VIEW (XS, SM) -->
+<MudHidden Breakpoint="Breakpoint.MdAndUp">
+    <MudStack Spacing="6" AlignItems="AlignItems.Center" Style="width: 100%">
 
-    <MudText Typo="Typo.body1" Class="mb-4 text-center">
-        We recommend taking a break and thinking it over. This action is permanent.
-    </MudText>
+        <img src="images/logo.png"
+             alt="SparkCheck logo"
+             style="width: 100%;" />
 
-    <MudStack Row="true" Spacing="2" Justify="Justify.Center">
-        <MudButton Variant="Variant.Outlined" OnClick="@Cancel">
-            Cancel
-        </MudButton>
+        <MudText Typo="Typo.body1" Align="Align.Center" Class="spark-text">
+            Delete User Account?
+        </MudText>
 
-        <MudButton Variant="Variant.Filled" OnClick="@ConfirmDelete">
-            Delete Account
-        </MudButton>
+        <MudText Typo="Typo.caption" Align="Align.Center" Class="spark-text" Style="max-width: 320px;">
+            Why not take a break and thinking it over.
+        </MudText>
+
+        <MudStack Spacing="4" AlignItems="AlignItems.Center" Style="width: 80%; max-width: 320px;">
+            <MudButton Variant="Variant.Filled" Class="primary-button" FullWidth="true" OnClick="@(() => Navigation.NavigateTo("/deleteconfirmation"))">
+                Delete Account
+            </MudButton>
+
+            <MudButton Variant="Variant.Filled" Class="secondary-button" FullWidth="true" OnClick="@(() => Navigation.NavigateTo("/dashboard"))">
+                Cancel
+            </MudButton>
+        </MudStack>
+
+        <MudText Typo="Typo.subtitle2" Align="Align.Center" Class="spark-text">
+            © 2025 SparkCheck | Cortanix™
+        </MudText>
     </MudStack>
-</MudContainer>
+</MudHidden>
+
+<!-- DESKTOP/TABLET VIEW (MD and up) -->
+<MudHidden Breakpoint="Breakpoint.SmAndDown">
+    <MudContainer MaxWidth="MaxWidth.Medium">
+        <MudStack Spacing="8" AlignItems="AlignItems.Center">
+            <img src="images/logo.png"
+                 alt="SparkCheck logo"
+                 style="width: 70%;" />
+
+            <MudText Typo="Typo.h6" Align="Align.Center" Class="spark-text">
+                SparkCheck is optimized for mobile devices.
+            </MudText>
+
+            <MudText Typo="Typo.body1" Align="Align.Center" Class="spark-text">
+                For the best experience, please open SparkCheck on your phone and save it to your home screen.
+            </MudText>
+
+            <MudText Typo="Typo.subtitle2" Align="Align.Center" Class="spark-text">
+                © 2025 SparkCheck | Cortanix™
+            </MudText>
+        </MudStack>
+    </MudContainer>
+</MudHidden>
 
 @code {
-    private void Cancel() {
-        Navigation.NavigateTo("/dashboard");
-    }
+    private void Cancel() => Navigation.NavigateTo("/dashboard");
 
-    private void ConfirmDelete() {
-        Navigation.NavigateTo("/deleteconfirmation");
-    }
+    private void ConfirmDelete() => Navigation.NavigateTo("/deleteconfirmation");
 }
