@@ -19,6 +19,10 @@ builder.Services.AddScoped<ValidationService>();
 builder.Services.AddScoped<UserService>();  // UserService is scoped correctly
 builder.Services.AddScoped<UserSessionService>();
 builder.Services.AddScoped<CircuitHandler, TrackingCircuitHandler>();
+builder.Services.AddScoped(sp => new HttpClient
+{
+	Timeout = Timeout.InfiniteTimeSpan
+});
 
 builder.Services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>(); // IHttpContextAccessor
 

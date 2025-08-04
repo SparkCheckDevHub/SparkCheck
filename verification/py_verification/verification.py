@@ -18,13 +18,13 @@ logger = logging.getLogger("uvicorn")
 router = APIRouter()
 
 
-@router.get("/sendVerificationMessage")
-async def send_verification_message(
+@router.get("/sendVerificationCode")
+async def send_verification_code(
         strPhone: str = Query(..., description="User's phone number."),
         strCode: str = Query(..., description="A code to send to the user."),
 ):
     """
-    Endpoint for sending a verification message to a number.
+    Endpoint for sending a verification code to a number.
     """
     client = AMIClient(address='127.0.0.1',port=5038)
     client.login(username='verification',secret='py_verification')
