@@ -33,9 +33,9 @@
 
                 <MudSelect T="int" Label="Gender" @bind-Value="Account.intGenderID" Required="true" Variant="Variant.Outlined">
                     <MudSelectItem T="int" Disabled="true" Value="0">Select your gender</MudSelectItem>
-@*                     @foreach (var gender in GenderOptions) {
+                    @foreach (var gender in GenderOptions) {
                         <MudSelectItem T="int" Value="@gender.intGenderID">@gender.strGender</MudSelectItem>
-                    } *@
+                    }
                 </MudSelect>
             </MudStack>
 
@@ -90,11 +90,11 @@
 
     private string? SuccessMessage;
     private string? ErrorMessage;
-    // private List<TGenders> GenderOptions = new();
+    private List<TGenders> GenderOptions = new();
 
-    // protected override async Task OnInitializedAsync() {
-    //     GenderOptions = await UserService.GetAllGendersAsync();
-    // }
+    protected override async Task OnInitializedAsync() {
+        GenderOptions = await UserService.GetAllGendersAsync();
+    }
 
     private async Task HandleValidSubmit() {
         try {
