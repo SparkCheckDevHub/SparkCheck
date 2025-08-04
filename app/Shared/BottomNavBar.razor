@@ -2,58 +2,59 @@
 @using MudBlazor
 @inject NavigationManager Navigation
 
-<div class="bottom-nav spark-theme">
-    <div class="bottom-nav-stack">
-        <MudIconButton Icon="@Icons.Material.Filled.Tune"
-                       Size="Size.Large"
-                       Color="@(IsCurrent("/preferences") ? Color.Primary : Color.Default)"
-                       OnClick="@(() => Navigate("/preferences"))" />
+<div class="bottom-nav variant-pulse">
+	<div class="bottom-nav-stack">
 
-        <MudIconButton Icon="@Icons.Material.Filled.Favorite"
-                       Size="Size.Large"
-                       Color="@(IsCurrent("/match") ? Color.Primary : Color.Default)"
-                       OnClick="@(() => Navigate("/match"))" />
+		<MudIconButton Icon="@Icons.Material.Filled.Tune"
+					   Size="Size.Large"
+					   Color="@(IsCurrent("/preferences") ? Color.Primary : Color.Default)"
+					   OnClick="@(() => Navigate("/preferences"))" />
 
-        <MudIconButton Icon="@Icons.Material.Filled.Link"
-                       Size="Size.Large"
-                       Color="@(IsCurrent("/matchqueue") ? Color.Primary : Color.Default)"
-                       OnClick="@(() => Navigate("/matchqueue"))" />
+		<MudIconButton Icon="@Icons.Material.Filled.Favorite"
+					   Size="Size.Large"
+					   Color="@(IsCurrent("/match") ? Color.Primary : Color.Default)"
+					   OnClick="@(() => Navigate("/match"))" />
 
-        <MudIconButton Icon="@Icons.Material.Filled.Person"
-                       Size="Size.Large"
-                       Color="@(IsCurrent("/profile") ? Color.Primary : Color.Default)"
-                       OnClick="@(() => Navigate("/profile"))" />
+		<MudIconButton Icon="@Icons.Material.Filled.Link"
+					   Size="Size.Large"
+					   Color="@(IsCurrent("/matchqueue") ? Color.Primary : Color.Default)"
+					   OnClick="@(() => Navigate("/matchqueue"))" />
 
-        <MudIconButton Icon="@Icons.Material.Filled.Settings"
-                       Size="Size.Large"
-                       Color="@(IsCurrent("/controls") ? Color.Primary : Color.Default)"
-                       OnClick="@(() => Navigate("/controls"))" />
-    </div>
+		<MudIconButton Icon="@Icons.Material.Filled.Person"
+					   Size="Size.Large"
+					   Color="@(IsCurrent("/profile") ? Color.Primary : Color.Default)"
+					   OnClick="@(() => Navigate("/profile"))" />
+
+		<MudIconButton Icon="@Icons.Material.Filled.Settings"
+					   Size="Size.Large"
+					   Color="@(IsCurrent("/controls") ? Color.Primary : Color.Default)"
+					   OnClick="@(() => Navigate("/controls"))" />
+	</div>
 </div>
 
 @code {
-    private string currentUri = "";
+	private string currentUri = "";
 
-    protected override void OnInitialized()
-    {
-        currentUri = Navigation.Uri;
-        Navigation.LocationChanged += HandleLocationChanged;
-    }
+	protected override void OnInitialized()
+	{
+		currentUri = Navigation.Uri;
+		Navigation.LocationChanged += HandleLocationChanged;
+	}
 
-    private void HandleLocationChanged(object? sender, Microsoft.AspNetCore.Components.Routing.LocationChangedEventArgs e)
-    {
-        currentUri = e.Location;
-        StateHasChanged();
-    }
+	private void HandleLocationChanged(object? sender, Microsoft.AspNetCore.Components.Routing.LocationChangedEventArgs e)
+	{
+		currentUri = e.Location;
+		StateHasChanged();
+	}
 
-    private bool IsCurrent(string target) =>
-        currentUri.Contains(target, StringComparison.OrdinalIgnoreCase);
+	private bool IsCurrent(string target) =>
+		currentUri.Contains(target, StringComparison.OrdinalIgnoreCase);
 
-    private void Navigate(string url) =>
-        Navigation.NavigateTo(url);
+	private void Navigate(string url) =>
+		Navigation.NavigateTo(url);
 
-    public void Dispose()
-    {
-        Navigation.LocationChanged -= HandleLocationChanged;
-    }
+	public void Dispose()
+	{
+		Navigation.LocationChanged -= HandleLocationChanged;
+	}
 }
