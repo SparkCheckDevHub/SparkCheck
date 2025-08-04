@@ -1,9 +1,44 @@
 ﻿@page "/match"
 @layout MainLayout
 @inherits SparkCheck.Shared.SecureBasePage
+<MudContainer MaxWidth="MaxWidth.False" Class="d-flex flex-column min-vh-100 justify-center align-center px-4">
+    @if (isMatched)
+    {
+        <MudText Typo="Typo.h5" Class="mb-4 text-center">
+            You found a match!
+        </MudText>
+    }
+    else
+    {
+        <MudText Typo="Typo.h5" Class="mb-4 text-center">
+            Come back here after you have found a match.
+        </MudText>
 
-<h3>Welcome</h3>
+        <MudList T="string" Dense="true">
+            <MudListItem T="string" OnClick="@(() => NavigateTo("/matchqueue"))">
+                <MudIcon Icon="@Icons.Material.Filled.Favorite" Class="me-2" />
+                Join the Match Queue when you're ready to meet someone special.
+            </MudListItem>
+        </MudList>
+    }
 
+    <MudSpacer />
+    <BottomNavBar />
+</MudContainer>
+
+@inject UserService UserService
+@inject MatchService MatchService
 @code{
+    private bool isMatched = false;
+    private void NavigateTo(string url) {
+        Navigation.NavigateTo(url);
+    }    
+    protected override async Task OnInitializedAsync(){
+        if (await MatchService.GetLatestActiveMatchAsync(UserSession.intUserID) != null)
+        {
+            isMatched = true;
+            StateHasChanged();
+        }
+    }
 
 }

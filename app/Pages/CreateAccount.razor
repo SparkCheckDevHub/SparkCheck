@@ -87,9 +87,9 @@
 
 @code {
     private TUsers Account = new() { dtmDateOfBirth = DateTime.Today };
-
     private string? SuccessMessage;
     private string? ErrorMessage;
+	private TUserPreferences UserPreferences = new();
     private List<TGenders> GenderOptions = new();
 
     protected override async Task OnInitializedAsync() {
@@ -101,7 +101,7 @@
             Account.dtmCreatedDate = DateTime.Now;
             Account.blnIsActive = true;
 
-            var result = await UserService.CreateUserAsync(Account);
+            var result = await UserService.CreateUserAsync(Account, UserPreferences);
 
             if (result.blnSuccess) {
                 SuccessMessage = "Account created successfully!";

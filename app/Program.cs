@@ -16,8 +16,9 @@ Console.WriteLine(connectionString);
 
 // Add services to the container.
 builder.Services.AddScoped<ValidationService>();
-builder.Services.AddScoped<UserService>();  // UserService is scoped correctly
+builder.Services.AddScoped<UserService>();
 builder.Services.AddScoped<UserSessionService>();
+builder.Services.AddScoped<MatchService>();
 builder.Services.AddScoped<CircuitHandler, TrackingCircuitHandler>();
 builder.Services.AddScoped(sp => new HttpClient
 {

@@ -1,34 +1,37 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace SparkCheck.Models {
+namespace SparkCheck.Models
+{
 	[Table("TUsers")]
-	public class TUsers {
+	public class TUsers
+	{
 		[Key]
 		[DatabaseGenerated(DatabaseGeneratedOption.Identity)]
 		public int intUserID { get; set; }
 
-		[Required]
+		[Required(ErrorMessage = "Phone number is required.")]
 		[Display(Name = "Phone Number")]
+		[RegularExpression(@"^\d{10}$", ErrorMessage = "Phone number must be 10 digits.")]
 		[MaxLength(250)]
 		public string strPhone { get; set; } = "";
 
-		[Required]
+		[Required(ErrorMessage = "Email address is required.")]
 		[Display(Name = "Email Address")]
 		[MaxLength(250)]
 		public string strEmail { get; set; } = "";
 
-		[Required]
+		[Required(ErrorMessage = "Username is required.")]
 		[Display(Name = "Username")]
 		[MaxLength(250)]
 		public string strUsername { get; set; } = "";
 
-		[Required]
+		[Required(ErrorMessage = "First name is required.")]
 		[Display(Name = "First Name")]
 		[MaxLength(250)]
 		public string strFirstName { get; set; } = "";
 
-		[Required]
+		[Required(ErrorMessage = "Last name is required.")]
 		[Display(Name = "Last Name")]
 		[MaxLength(250)]
 		public string strLastName { get; set; } = "";
@@ -37,9 +40,8 @@ namespace SparkCheck.Models {
 		[Display(Name = "Date of Birth")]
 		public DateTime? dtmDateOfBirth { get; set; }
 
-		[Range(1, int.MaxValue, ErrorMessage = "Please select a gender.")]
 		[Display(Name = "Gender")]
-		public int intGenderID { get; set; } = 0;
+		public int intGenderID { get; set; } = 1;
 
 		public decimal? decLatitude { get; set; }
 		public decimal? decLongitude { get; set; }
