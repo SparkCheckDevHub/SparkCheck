@@ -1,7 +1,7 @@
 ﻿/*app.css*/
 
 /*================== This is to be used if the bar on the top of the phone cuts content ==================*/
-.safe-area-padding {
+body {
     padding-top: env(safe-area-inset-top);
     padding-bottom: env(safe-area-inset-bottom);
     padding-left: env(safe-area-inset-left);
@@ -127,12 +127,9 @@
 
 /*================== BottomNavBar Styling Variants ==================*/
 
-/*----------------------------*/
-/* Variant: Pulse Glow */
-/*----------------------------*/
 .bottom-nav.variant-pulse {
     backdrop-filter: blur(10px);
-    background: rgba(26, 26, 26, 0.85);
+/*    background: rgba(26, 26, 26, 0.85);*/
     border-top: 1px solid #C7AE6A;
     box-shadow: 0 -5px 15px rgba(199, 174, 106, 0.3);
 }
@@ -144,12 +141,12 @@
     background-color: transparent !important;
     box-shadow: none !important;
     position: relative;
-    animation: intensePulse 1.5s infinite ease-in-out;
+/*    animation: intensePulse 1.5s infinite ease-in-out;*/
     filter: drop-shadow(0 0 10px rgba(199, 174, 106, 0.8));
     outline: none;
 }
 
-@keyframes intensePulse {
+/*@keyframes intensePulse {
     0% {
         transform: scale(1);
         box-shadow: 0 0 0 0 rgba(199, 174, 106, 0.6);
@@ -164,7 +161,7 @@
         transform: scale(1);
         box-shadow: 0 0 0 0 rgba(199, 174, 106, 0.6);
     }
-}
+}*/
 /* Apply black outline only to paths inside icons within BottomNavBar */
 .bottom-nav .mud-icon-root path {
     stroke: black;
