@@ -10,6 +10,7 @@ services:
     environment:
       ASPNETCORE_ENVIRONMENT: Production
       ConnectionStrings__DefaultConnection: "Server=db,1433;Database=dbSparkCheck;User Id=sa;Password=${SA_PASSWORD};TrustServerCertificate=True;"
+      SC_USE_ASTERISK: "${SC_USE_ASTERISK}"
     networks:
       - sparkcheck-network
     restart: unless-stopped
@@ -45,6 +46,29 @@ services:
       - db
     environment:
       SC_MATCHER_CONN: "mssql+pyodbc://sa:${SA_PASSWORD}@db:1433/dbSparkCheck?driver=ODBC+Driver+18+for+SQL+Server&TrustServerCertificate=yes"
+
+  verification:
+      build:
+        context: ./verification
+      container_name: sparkcheck-verification
+      ports:
+        - "9977:9977"
+      volumes:
+        - ./verification/asterisk/manager.conf:/etc/asterisk/manager.conf
+        - ./verification/asterisk/extensions.conf:/etc/asterisk/extensions.conf
+      networks:
+        - sparkcheck-network
+      restart: unless-stopped
+      depends_on:
+        - db
+      environment:
+        SC_USE_ASTERISK: "${SC_USE_ASTERISK}"
+        SC_SIP_HOST: "${SC_SIP_HOST}"
+        SC_SIP_PORT: "${SC_SIP_PORT}"
+        SC_SIP_NUMBER: "${SC_SIP_NUMBER}"
+        SC_SIP_USERNAME: "${SC_SIP_USERNAME}"
+        SC_SIP_PASSWORD: "${SC_SIP_PASSWORD}"
+
 volumes:
   mssql-data:
 

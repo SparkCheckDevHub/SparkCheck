@@ -1,0 +1,43 @@
+[transport-udp]
+type = transport
+protocol = udp
+bind = 0.0.0.0
+
+[verification-registration]
+type = registration
+transport = transport-udp
+outbound_auth = verification-auth
+client_uri = sip:${SC_SIP_USERNAME}@${SC_SIP_HOST}:${SC_SIP_PORT}
+server_uri = sip:${SC_SIP_HOST}:${SC_SIP_PORT}
+
+[verification-auth]
+type = auth
+auth_type = userpass
+username = ${SC_SIP_USERNAME}
+password = ${SC_SIP_PASSWORD}
+
+[verification-aor]
+type = aor
+contact = sip:${SC_SIP_USERNAME}@${SC_SIP_HOST}
+qualify_frequency = 30
+
+[verification-endpoint]
+type = endpoint
+transport = transport-udp
+context = outbound
+disallow = all
+allow = ulaw
+; allow=g729
+from_user = ${SC_SIP_USERNAME}
+auth = verification-auth
+outbound_auth = verification-auth
+aors = verification-aor
+; NAT parameters:
+rtp_symmetric = yes
+rewrite_contact = yes
+send_rpid = yes
+
+[verification-identify]
+type = identify
+endpoint = verification-endpoint
+match = ${SC_SIP_HOST}

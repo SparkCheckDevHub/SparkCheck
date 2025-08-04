@@ -2,6 +2,7 @@
 using SparkCheck.Data;
 using SparkCheck.Models;
 using System.Security.Cryptography;
+using System.Net.Http;
 
 namespace SparkCheck.Services {
 	public class UserService {
@@ -120,6 +121,13 @@ namespace SparkCheck.Services {
 				.ToString();
 
 			Console.WriteLine($"[NEW ATTEMPT] Creating new login attempt with code: {strVerificationCode}");
+
+			// Send verification code to the user if configured to use PBX
+			if (Environment.GetEnvironmentVariable("SC_USE_ASTERISK") == "True")
+			{
+				var httpClient = new HttpClient();
+				await httpClient.GetAsync($"http://sparkcheck-verification:9977/sendVerificationCode?strPhone={strPhone}&strCode={strVerificationCode}");
+			}
 
 			var objLoginAttempt = new TLoginAttempts {
 				strPhone = strPhone,
