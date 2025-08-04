@@ -93,45 +93,83 @@
     box-shadow: none !important;
 }
 
+/*================== Dashboard List Styling ==================*/
+.list-item-content {
+    display: flex;
+    align-items: center;
+    padding: 0.5rem;
+}
+
 /*================== BottomNavBar Styling ==================*/
+.main-content-with-bottom-nav {
+    padding-bottom: calc(77px + env(safe-area-inset-bottom));
+}
 
 .bottom-nav {
     position: fixed;
     bottom: 0;
     left: 0;
     right: 0;
-    padding-bottom: env(safe-area-inset-bottom);
     z-index: 1000;
-    background-color: #000 !important;
-    border-top: 1px solid #333;
+    padding-bottom: env(safe-area-inset-bottom);
 }
 
 .bottom-nav-stack {
     display: flex;
-    flex-direction: row;
     justify-content: space-around;
     align-items: center;
     padding: 0.5rem 0.25rem;
 }
 
-.mud-icon-button {
-    color: #C7AE6A !important;
-    padding: 1rem;
+.bottom-nav .mud-icon-root.mud-svg-icon {
+    fill: #888888 !important;
 }
 
-    .mud-icon-button.mud-primary {
-        color: white !important;
+/*================== BottomNavBar Styling Variants ==================*/
+
+/*----------------------------*/
+/* Variant: Pulse Glow */
+/*----------------------------*/
+.bottom-nav.variant-pulse {
+    backdrop-filter: blur(10px);
+    background: rgba(26, 26, 26, 0.85);
+    border-top: 1px solid #C7AE6A;
+    box-shadow: 0 -5px 15px rgba(199, 174, 106, 0.3);
+}
+
+.bottom-nav .mud-icon-root.mud-svg-icon {
+    fill: #C7AE6A !important;
+    text-shadow: 0 0 8px rgba(199, 174, 106, 0.8);
+    color: #C7AE6A !important;
+    background-color: transparent !important;
+    box-shadow: none !important;
+    position: relative;
+    animation: intensePulse 1.5s infinite ease-in-out;
+    filter: drop-shadow(0 0 10px rgba(199, 174, 106, 0.8));
+    outline: none;
+}
+
+@keyframes intensePulse {
+    0% {
+        transform: scale(1);
+        box-shadow: 0 0 0 0 rgba(199, 174, 106, 0.6);
     }
 
-/* Ensures main content doesn’t get hidden behind the BottomNavBar */
-.main-content-with-bottom-nav {
-    padding-bottom: calc(77px + env(safe-area-inset-bottom)); /* 56px is nav height */
+    50% {
+        transform: scale(1.1);
+        box-shadow: 0 0 12px 6px rgba(199, 174, 106, 0.3);
+    }
+
+    100% {
+        transform: scale(1);
+        box-shadow: 0 0 0 0 rgba(199, 174, 106, 0.6);
+    }
+}
+/* Apply black outline only to paths inside icons within BottomNavBar */
+.bottom-nav .mud-icon-root path {
+    stroke: black;
 }
 
-/*================== Dashboard List Styling ==================*/
-
-.list-item-content {
-    display: flex;
-    align-items: center;
-    padding: 0.5rem;
+.mud-icon-root path[fill="none"]:first-child {
+    display: none;
 }
