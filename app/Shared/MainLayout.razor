@@ -22,26 +22,26 @@
     }
 </MudLayout>
 
-@* @code {
+@code {
     protected override void OnInitialized()
     {
         // ======== DEV TEST SESSION SETUP ========
         // Comment this block when integrating real auth/session
         if (!UserSession.blnIsAuthenticated)
         {
-            UserSession.intUserID = 1;
-            UserSession.strUsername = "TestUser26";
-            UserSession.strFirstName = "Johnny";
-            UserSession.strLastName = "Test";
-            UserSession.strPhone = "1234567890";
+            UserSession.intUserID = 2;
+            UserSession.strUsername = "Brandon";
+            UserSession.strFirstName = "Brandon";
+            UserSession.strLastName = "Burton";
+            UserSession.strPhone = "8129071181";
             UserSession.dtmDateOfBirth = new DateTime(1991, 2, 10);
             UserSession.intGenderID = 2;
             UserSession.intZipCodeID = 5;
             UserSession.blnIsAuthenticated = true;
-            UserSession.blnIsActive = false;
-            UserSession.blnIsOnline = false;
+            UserSession.blnIsActive = true;
+            UserSession.blnIsOnline = true;
             UserSession.blnInQueue = false;
             UserSession.dtmQueuedDate = null;
         }
     }
-} *@
+}

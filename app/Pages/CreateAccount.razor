@@ -10,6 +10,13 @@
 
 <!-- MOBILE VIEW (XS, SM) -->
 <MudHidden Breakpoint="Breakpoint.MdAndUp">
+
+    @if (!string.IsNullOrWhiteSpace(SuccessMessage)) {
+        <MudAlert Severity="Severity.Success" Elevation="0">
+            @SuccessMessage
+        </MudAlert>
+    }
+
     <EditForm Model="Account" OnValidSubmit="HandleValidSubmit" OnInvalidSubmit="HandleInvalidSubmit" style="width: 100%;">
         <DataAnnotationsValidator />
 
@@ -106,8 +113,6 @@
             if (result.blnSuccess) {
                 SuccessMessage = "Account created successfully!";
                 ErrorMessage = null;
-                Account = new TUsers { dtmDateOfBirth = DateTime.Today };
-                StateHasChanged();
                 await Task.Delay(2000);
                 Navigation.NavigateTo("/");
             }
