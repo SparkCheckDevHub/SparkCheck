@@ -1,0 +1,134 @@
+﻿@page "/interests"
+@using SparkCheck.Models
+@inject UserService UserService
+@inject NavigationManager Navigation
+@inject UserSessionService Session
+
+<!-- MOBILE VIEW (XS, SM) -->
+<MudHidden Breakpoint="Breakpoint.MdAndUp">
+    <MudStack Spacing="4" AlignItems="AlignItems.Center" Style="width: 100%; padding: 0 1rem;">
+
+        <!-- Header -->
+        <MudText Typo="Typo.h6" Align="Align.Center" Class="spark-text">
+            Choose Your Interests
+        </MudText>
+
+        <!-- Interest categories -->
+        <MudStack Spacing="2" Style="width: 100%; max-width: 400px;">
+            <MudExpansionPanels>
+                @foreach (var category in Categories) {
+                    <MudExpansionPanel Text="@category.Name">
+                        @if (category.Interests?.Count > 0) {
+                            <MudChipSet T="string" MultiSelection="true">
+                                @foreach (var interest in category.Interests) {
+                                    <MudChip T="string"
+                                             Text="@interest.Name"
+                                             Color="@(interest.IsSelected ? Color.Primary : Color.Default)"
+                                             Selected="@interest.IsSelected"
+                                             OnClick="() => ToggleInterest(category.Id, interest.Id)">
+                                    </MudChip>
+                                }
+                            </MudChipSet>
+                        }
+                        else {
+                            <MudText Typo="Typo.body2" Color="Color.Secondary">
+                                No interests available in this category.
+                            </MudText>
+                        }
+                    </MudExpansionPanel>
+                }
+            </MudExpansionPanels>
+        </MudStack>
+
+        <!-- Action Buttons -->
+        <MudGrid Style="width: 100%; max-width: 400px;" GutterSize="3">
+            <MudItem xs="6">
+                <MudButton Variant="Variant.Outlined" Class="secondary-button" OnClick="Cancel" FullWidth="true">
+                    Back
+                </MudButton>
+            </MudItem>
+            <MudItem xs="6">
+                <MudButton Variant="Variant.Filled" Class="primary-button" OnClick="Submit" FullWidth="true">
+                    Save
+                </MudButton>
+            </MudItem>
+        </MudGrid>
+
+        <!-- Footer -->
+        <MudText Typo="Typo.subtitle2" Align="Align.Center" Class="spark-text">
+            © 2025 SparkCheck | Cortanix™
+        </MudText>
+    </MudStack>
+</MudHidden>
+
+<!-- DESKTOP/TABLET VIEW (MD and up) -->
+<MudHidden Breakpoint="Breakpoint.SmAndDown">
+    <MudContainer MaxWidth="MaxWidth.Medium">
+        <MudStack Spacing="8" AlignItems="AlignItems.Center">
+            <img src="images/logo.png" alt="SparkCheck logo" style="width: 70%;" />
+
+            <MudText Typo="Typo.h6" Align="Align.Center" Class="spark-text">
+                SparkCheck is optimized for mobile devices.
+            </MudText>
+
+            <MudText Typo="Typo.body1" Align="Align.Center" Class="spark-text">
+                For the best experience, please open SparkCheck on your phone and save it to your home screen.
+            </MudText>
+
+            <MudText Typo="Typo.subtitle2" Align="Align.Center" Class="spark-text">
+                © 2025 SparkCheck | Cortanix™
+            </MudText>
+        </MudStack>
+    </MudContainer>
+</MudHidden>
+
+@code {
+    private List<InterestSelectionDto> Categories = new();
+
+    protected override async Task OnInitializedAsync() {
+        Categories = await UserService.GetInterestCategoriesWithInterestsAsync();
+    }
+
+    private void ToggleInterest(int categoryId, int interestId) {
+        var category = Categories.FirstOrDefault(c => c.Id == categoryId);
+        if (category == null) {
+            Console.WriteLine($"[WARN] Category ID {categoryId} not found.");
+            return;
+        }
+
+        var interest = category.Interests.FirstOrDefault(i => i.Id == interestId);
+        if (interest == null) {
+            Console.WriteLine($"[WARN] Interest ID {interestId} not found in category {category.Name}.");
+            return;
+        }
+
+        interest.IsSelected = !interest.IsSelected;
+        Console.WriteLine($"[TOGGLE] Interest: {interest.Name} (ID: {interest.Id}) → {(interest.IsSelected ? "SELECTED" : "DESELECTED")}");
+    }
+
+    private async Task Submit() {
+        int userId = Session.intUserID ?? 0;
+        Console.WriteLine($"[SESSION] Retrieved User ID from session: {userId}");
+
+        if (userId == 0) {
+            Console.WriteLine("[ERROR] No valid User ID found in session. Aborting save.");
+            return;
+        }
+
+        var selectedIds = Categories
+            .SelectMany(c => c.Interests)
+            .Where(i => i.IsSelected)
+            .Select(i => i.Id)
+            .ToList();
+
+        Console.WriteLine($"[SAVE] Selected Interest IDs: {string.Join(", ", selectedIds)}");
+
+        await UserService.SaveUserInterestsAsync(userId, selectedIds);
+        Navigation.NavigateTo("/dashboard");
+    }
+
+    private void Cancel() {
+        Console.WriteLine("[CANCEL] Navigating back to dashboard without saving.");
+        Navigation.NavigateTo("/dashboard");
+    }
+}
