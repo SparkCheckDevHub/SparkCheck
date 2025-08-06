@@ -2,6 +2,9 @@
 @layout MainLayout
 @inject NavigationManager Navigation
 @inject UserSessionService UserSession
+@inject UserService UserService
+@using SparkCheck.Models
+
 
 <!-- MOBILE VIEW (XS, SM) -->
 <MudHidden Breakpoint="Breakpoint.MdAndUp">
@@ -33,7 +36,7 @@
 					</div>
 				</MudListItem>
 
-				<MudListItem T="object" OnClick="@(() => NavigateTo("/preferences"))">
+				<MudListItem T="object" OnClick="@(() => NavigateTo("/interests"))">
 					<div class="list-item-content">
 						@if (UserProgress.blnPreferencesComplete)
 						{
@@ -97,32 +100,13 @@
 </MudHidden>
 
 @code {
-	// Temporary hardcoded onboarding progress
-	private class OnboardingProgress
-	{
-		public bool blnProfileComplete { get; set; }
-		public bool blnPreferencesComplete { get; set; }
-	}
-
-	private OnboardingProgress UserProgress = new()
-		{
-		// blnProfileComplete = false,
-		// blnPreferencesComplete = false
-
-		// blnProfileComplete = true,
-		// blnPreferencesComplete = false
-
-		blnProfileComplete = true,
-		blnPreferencesComplete = true
-
-		};
+	
+	private OnboardingProgressDto UserProgress = new();
 
 	private void NavigateTo(string url) => Navigation.NavigateTo(url);
 
-	protected override void OnInitialized()
-	{
+	protected override async Task OnInitializedAsync() {
 
-		// Debug output
 		Console.WriteLine("==== Debug User Session Information. ====");
 		Console.WriteLine($"UserID: {UserSession.intUserID}");
 		Console.WriteLine($"Username: {UserSession.strUsername}");
@@ -138,7 +122,23 @@
 		Console.WriteLine($"InQueue: {UserSession.blnInQueue}");
 		Console.WriteLine($"QueuedDate: {UserSession.dtmQueuedDate}");
 		Console.WriteLine("==================================================");
+		// ... [you can keep or trim the rest of the debug logs]
+
+		if (UserSession.intUserID == null) {
+			Console.WriteLine("[DASHBOARD] No user ID found.");
+			return;
+		}
+
+		var progress = await UserService.GetUserOnboardingProgressAsync(UserSession.intUserID.Value);
+
+		UserProgress = new OnboardingProgressDto {
+			blnProfileComplete = progress.blnProfileComplete,
+			blnPreferencesComplete = progress.blnPreferencesComplete
+		};
+
+		Console.WriteLine($"[DASHBOARD] ProfileComplete: {UserProgress.blnProfileComplete}, PreferencesComplete: {UserProgress.blnPreferencesComplete}");
 	}
+
 
 	private bool IsOnboardingIncomplete =>
 	!UserProgress.blnProfileComplete || !UserProgress.blnPreferencesComplete;

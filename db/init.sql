@@ -266,6 +266,14 @@ CREATE TABLE TAppUsageTypes (
   CONSTRAINT TAppUsageTypes_PK PRIMARY KEY (intAppUsageTypeID)
 );
 
+CREATE TABLE TOnboardingProgress (
+  intOnboardingProgressID INT IDENTITY(1,1) NOT NULL,
+  intUserID INT NOT NULL,
+  blnProfileComplete BIT NOT NULL DEFAULT 0,
+  blnPreferencesComplete BIT NOT NULL DEFAULT 0,
+  CONSTRAINT TOnboardingProgress_PK PRIMARY KEY (intOnboardingProgressID)
+);
+
 -- --------------------------------------------------------------------------------
 -- Step #1.2: Identify and Create Foreign Keys
 -- --------------------------------------------------------------------------------
@@ -402,6 +410,10 @@ FOREIGN KEY ( intUserID ) REFERENCES TUsers ( intUserID );
 -- #14
 ALTER TABLE TReports ADD CONSTRAINT TReports_TReportReasons_FK
 FOREIGN KEY ( intReportReasonID ) REFERENCES TReportReasons ( intReportReasonID );
+
+-- #26
+ALTER TABLE TOnboardingProgress ADD CONSTRAINT TOnboardingProgress_TUsers_FK
+FOREIGN KEY (intUserID) REFERENCES TUsers(intUserID);
 
 -- --------------------------------------------------------------------------------
 -- Add Records into Genders
