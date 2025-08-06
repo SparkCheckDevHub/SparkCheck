@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Components.Server.Circuits;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using Microsoft.AspNetCore.Server.Kestrel.Core;
 using MudBlazor;
 using MudBlazor.Services;
 using SparkCheck;
@@ -18,6 +19,8 @@ Console.WriteLine(connectionString);
 builder.Services.AddScoped<ValidationService>();
 builder.Services.AddScoped<UserService>();
 builder.Services.AddScoped<UserSessionService>();
+builder.Services.AddScoped<LocationService>();
+builder.Services.AddScoped<MediaService>();
 builder.Services.AddScoped<MatchService>();
 builder.Services.AddScoped<CircuitHandler, TrackingCircuitHandler>();
 builder.Services.AddScoped(sp => new HttpClient
@@ -42,6 +45,18 @@ builder.Services.AddServerSideBlazor().AddCircuitOptions(options =>
 builder.Services.AddMudServices();
 
 builder.Logging.ClearProviders(); // Clear existing logging providers
+// Configure logging to use Serilog
+
+builder.Services.Configure<IISServerOptions>(options =>
+{
+	options.MaxRequestBodySize = 1024 * 1024 * 150; // 150 MB
+});
+
+builder.Services.Configure<KestrelServerOptions>(options =>
+{
+    options.Limits.MaxRequestBodySize = 1024 * 1024 * 150; // 150 MB
+});
+
 
 var app = builder.Build();
 

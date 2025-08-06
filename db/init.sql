@@ -191,7 +191,7 @@ CREATE TABLE TChatMessages (
 CREATE TABLE TUserMedia (
   intUserMediaID  INTEGER IDENTITY(1,1) NOT NULL,
   intUserID       INTEGER      NOT NULL,
-  strMediaURL     VARCHAR(250) NOT NULL,
+  Photo           VARBINARY(MAX)   NULL,
   blnOnProfile    BIT          NOT NULL,
   blnIsFace       BIT          NOT NULL,
   blnIsActive     BIT          NOT NULL,

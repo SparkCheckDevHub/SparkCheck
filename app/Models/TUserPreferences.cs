@@ -2,21 +2,23 @@ using System;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace SparkCheck.Models {
+namespace SparkCheck.Models
+{
 	[Table("TUserPreferences")]
-	public class TUserPreferences {
+	public class TUserPreferences
+	{
 		[Key]
 		[ForeignKey("User")]
-		public int intUserID { get; set; }  
+		public int intUserID { get; set; }
 		public TUsers? User { get; set; }
 
-		[Range(1,299)]
+		[Range(1, 299)]
 		public int intMatchDistance { get; set; } = 50;
 
 		[Range(18, 99)]
 		public int intMinAge { get; set; } = 18;
 
-        [Range(19, 100)]
+		[Range(19, 100)]
 		public int intMaxAge { get; set; } = 35;
 
 		[ForeignKey("TGenders")]
@@ -35,5 +37,12 @@ namespace SparkCheck.Models {
 
 		[Required]
 		public int intAppUsageTypeID { get; set; } = 1;
+	}
+
+	public class TAppUsageTypes
+	{
+		[Key]
+		public int intAppUsageTypeID { get; set; }
+		public string strAppUsageType { get; set; } = "";
 	}
 }
