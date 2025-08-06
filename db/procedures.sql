@@ -180,7 +180,7 @@ GO
 
 CREATE PROCEDURE uspCreateUserMedia
     @intUserID INT,
-    @strMediaURL VARCHAR(250),
+    @strMediaURL VARBINARY(MAX),
     @blnOnProfile BIT,
     @blnIsFace BIT,
     @blnIsActive BIT
@@ -189,7 +189,7 @@ BEGIN
     SET NOCOUNT ON;
 
     INSERT INTO TUserMedia (
-        intUserID, strMediaURL, blnOnProfile, blnIsFace, blnIsActive, dtmUploadDate
+        intUserID, Photo, blnOnProfile, blnIsFace, blnIsActive, dtmUploadDate
     )
     VALUES (
         @intUserID, @strMediaURL, @blnOnProfile, @blnIsFace, @blnIsActive, GETDATE()
@@ -210,6 +210,7 @@ CREATE PROCEDURE uspUpdateUserPreferences
     @intMatchDistance INT,
     @intMinAge INT,
     @intMaxAge INT,
+    @intGenderPreferenceID INT,
     @blnReceiveEmails BIT,
     @blnShowProfile BIT,
     @strBio VARCHAR(350),

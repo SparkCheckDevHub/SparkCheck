@@ -14,11 +14,10 @@ namespace SparkCheck.Data {
 		public DbSet<TUserPreferences> TUserPreferences { get; set; }
 		public DbSet<TMatches> TMatches { get; set; }
 		public DbSet<TMatchRequests> TMatchRequests { get; set; }
+		public DbSet<TAppUsageTypes> TAppUsageTypes { get; set; }
 		public DbSet<TInterestCategories> TInterestCategories { get; set; }
 		public DbSet<TInterests> TInterests { get; set; }
 		public DbSet<TUserInterests> TUserInterests { get; set; }
 		public DbSet<TOnboardingProgress> TOnboardingProgress { get; set; }
-
-
 	}
 }

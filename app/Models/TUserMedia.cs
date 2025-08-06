@@ -13,10 +13,8 @@ namespace SparkCheck.Models {
 		[ForeignKey("User")]
 		public int intUserID { get; set; }
 		public TUsers? User { get; set; }
-
-		[Required]
-		[MaxLength(250)]
-		public string strMediaURL { get; set; } = "";
+		
+		public byte[]? Photo { get; set; } = Array.Empty<byte>();
 
 		[Required]
 		public bool blnOnProfile { get; set; } = false;

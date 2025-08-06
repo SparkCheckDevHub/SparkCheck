@@ -26,33 +26,6 @@ SET NOCOUNT ON;
 GO
 
 -- --------------------------------------------------------------------------------
--- Drop Tables
--- --------------------------------------------------------------------------------
-IF OBJECT_ID('TUserInterests') IS NOT NULL DROP TABLE TUserInterests;
-IF OBJECT_ID('TInterests') IS NOT NULL DROP TABLE TInterests;
-IF OBJECT_ID('TUserLogs') IS NOT NULL DROP TABLE TUserLogs;
-IF OBJECT_ID('TLoginAttempts') IS NOT NULL DROP TABLE TLoginAttempts;
-IF OBJECT_ID('TReports') IS NOT NULL DROP TABLE TReports;
-IF OBJECT_ID('TUserPreferences') IS NOT NULL DROP TABLE TUserPreferences;
-IF OBJECT_ID('TUserAppSettings') IS NOT NULL DROP TABLE TUserAppSettings;
-IF OBJECT_ID('TChatMessages') IS NOT NULL DROP TABLE TChatMessages;
-IF OBJECT_ID('TUserMedia') IS NOT NULL DROP TABLE TUserMedia;
-IF OBJECT_ID('TChatEvents') IS NOT NULL DROP TABLE TChatEvents;
-IF OBJECT_ID('TMatches') IS NOT NULL DROP TABLE TMatches;
-IF OBJECT_ID('TMatchRequests') IS NOT NULL DROP TABLE TMatchRequests;
-IF OBJECT_ID('TUserLogTypes') IS NOT NULL DROP TABLE TUserLogTypes;
-IF OBJECT_ID('TReportReasons') IS NOT NULL DROP TABLE TReportReasons;
-IF OBJECT_ID('TChatEventTypes') IS NOT NULL DROP TABLE TChatEventTypes;
-IF OBJECT_ID('TAppUsageTypes') IS NOT NULL DROP TABLE TAppUsageTypes;
-IF OBJECT_ID('TInterestSubCategories') IS NOT NULL DROP TABLE TInterestSubCategories;
-IF OBJECT_ID('TInterestCategories') IS NOT NULL DROP TABLE TInterestCategories;
-IF OBJECT_ID('TUsers') IS NOT NULL DROP TABLE TUsers;
-IF OBJECT_ID('TZipCodes') IS NOT NULL DROP TABLE TZipCodes;
-IF OBJECT_ID('TCities') IS NOT NULL DROP TABLE TCities;
-IF OBJECT_ID('TStates') IS NOT NULL DROP TABLE TStates;
-IF OBJECT_ID('TGenders') IS NOT NULL DROP TABLE TGenders;
-
--- --------------------------------------------------------------------------------
 -- Establish Tables
 -- --------------------------------------------------------------------------------
 CREATE TABLE TUsers (
@@ -191,7 +164,7 @@ CREATE TABLE TChatMessages (
 CREATE TABLE TUserMedia (
   intUserMediaID  INTEGER IDENTITY(1,1) NOT NULL,
   intUserID       INTEGER      NOT NULL,
-  strMediaURL     VARCHAR(250) NOT NULL,
+  Photo           VARBINARY(MAX)   NULL,
   blnOnProfile    BIT          NOT NULL,
   blnIsFace       BIT          NOT NULL,
   blnIsActive     BIT          NOT NULL,
