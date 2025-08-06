@@ -10,7 +10,7 @@ namespace SparkCheck.Services
         private readonly AppDbContext _context;
 
         private const long MaxFileSize = 1024 * 1024 * 100; // 100 MB
-        private const int MaxPhotoCount = 4; // Maximum number of photos allowed
+        private const int MaxPhotoCount = 1; // Maximum number of photos allowed
 
         public MediaService(AppDbContext context, UserSessionService sessionService)
         {

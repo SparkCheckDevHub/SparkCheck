@@ -93,6 +93,13 @@
         try {
             ErrorMessage = null;
 
+            // Validate phone number
+            if (model.strPhone.Length != 10 || !model.strPhone.All(char.IsDigit)) {
+                ErrorMessage = "Please enter a valid phone number.";
+                Console.WriteLine("[VALIDATION] Phone number is invalid.");
+                return;
+            }
+
             var result = await UserService.AttemptLoginAsync(model.strPhone);
 
             if (result.blnSuccess && result.User is not null) {

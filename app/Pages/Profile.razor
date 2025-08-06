@@ -4,10 +4,13 @@
 @using Microsoft.EntityFrameworkCore;
 @using SparkCheck.Data
 @inject UserSessionService UserSession
+@inject UserService UserService
 @inject MediaService MediaService
 @inject NavigationManager Navigation
 @inject IDbContextFactory<AppDbContext> DbFactory
 @inject LocationService LocationService
+
+@inherits SparkCheck.Shared.SecureBasePage
 @inject IJSRuntime JS
 
 
@@ -17,102 +20,86 @@
 	-This page is 90% functional - submit does not work yet.
 *@
 
+<div class="profile-container">
+    <div>
+        <MudPaper Class="pa-4 mt-4 responsive-form">
+			@if (UserPreferences != null)
+			{
+			@if (UserMediaFiles != null && UserMediaFiles.Any())
+			{
+				<div class="user-photo-container">
+					@foreach (var media in UserMediaFiles)
+					{
+						if (media.Photo != null)
+						{
+							<img width="80px" height="80px" src="@GetImageSrc(media.Photo)" alt="User Photo" class="img-thumbnail" style="display: block;margin-left: auto;margin-right: auto;object-fit: cover;border-radius: 50%;"/>
+							<MudButton Color="Color.Error" Size="Size.Small" OnClick="() => DeletePhotoAsync(media.intUserMediaID)" style="display: block;margin-left: auto;margin-right: auto;">
+								Delete Profile Picture
+							</MudButton>
+						}
+					}
+				</div>
+			}
+			else
+			{
+				<MudPaper Class="pa-4 mt-4">
+				<MudText Typo="Typo.h6">Upload Profile Photo</MudText>
+				<div class="file-input-wrapper">
+					<InputFile OnChange="HandleImageUpload" />
+				</div>
+				</MudPaper>
+			}			
+            <EditForm @key="formKey" Model="@UserPreferences" OnValidSubmit="@HandleValidSubmit">
+                <DataAnnotationsValidator />
+                <ValidationSummary />
 
-<h3>Edit Profile (Test UI)</h3>
+				@if (!string.IsNullOrEmpty(SuccessMessage))
+				{
+					<MudAlert Severity="Severity.Success">@SuccessMessage</MudAlert>
+				}
+				@if (!string.IsNullOrEmpty(ErrorMessage))
+				{
+					<MudAlert Severity="Severity.Error">@ErrorMessage</MudAlert>
+				}
 
-@if (!string.IsNullOrEmpty(SuccessMessage))
-{
-    <MudAlert Severity="Severity.Success">@SuccessMessage</MudAlert>
-}
-@if (!string.IsNullOrEmpty(ErrorMessage))
-{
-    <MudAlert Severity="Severity.Error">@ErrorMessage</MudAlert>
-}
-@if (UserMediaFiles != null && UserMediaFiles.Any())
-{
-	Console.WriteLine("[DEBUG] Path = Not Null");
-    foreach (var media in UserMediaFiles)
-    {
-        if (media.Photo != null)
-        {
-            <div class="m-2 d-inline-block text-center">
-                <img src="@GetImageSrc(media.Photo)" alt="User Photo" class="img-thumbnail" width="150" />
-                <MudButton Color="Color.Error" Size="Size.Small" OnClick="() => DeletePhotoAsync(media.intUserMediaID)">
-                    Delete
+                <MudTextField @bind-Value="UserPreferences.intMatchDistance" Label="Match Distance (mi)" Type="number" />
+                <MudTextField @bind-Value="UserPreferences.intMinAge" Label="Minimum Age" Type="number" />
+                <MudTextField @bind-Value="UserPreferences.intMaxAge" Label="Maximum Age" Type="number" />
+                <MudSelect T="int" @bind-Value="UserPreferences.intGenderPreferenceID" Label="Gender Preference">
+                    @foreach (var gender in Genders)
+                    {
+                        <MudSelectItem Value="@gender.intGenderID">@gender.strGender</MudSelectItem>
+                    }
+                </MudSelect>
+                <MudSwitch T="bool" @bind-Value="UserPreferences.blnReceiveEmails" Label="Receive Emails" />
+                <MudSwitch T="bool" @bind-Value="UserPreferences.blnShowProfile" Label="Show Profile to Others" />
+                <MudTextField @bind-Value="UserPreferences.strBio" Label="Bio" Multiline Rows="3" />
+                <MudSelect T="int" @bind-Value="UserPreferences.intAppUsageTypeID" Label="App Usage Type">
+                    @foreach (var usageType in AppUsageTypes)
+                    {
+                        <MudSelectItem Value="@usageType.intAppUsageTypeID">@usageType.strAppUsageType</MudSelectItem>
+                    }
+                </MudSelect>
+
+                <MudButton Type="Submit" OnClick="@(() => @HandleValidSubmit())" Variant="Variant.Filled" Color="Color.Primary" Class="mt-2" style="display: block;margin-left: auto;margin-right: auto;">
+                    Save Changes
                 </MudButton>
-            </div>
-        }
-    }
-}
-else
-{
-	Console.WriteLine("[DEBUG] Path = Null");
-    <p>No photos uploaded yet. You can add one below.</p>
-    
-}
+            </EditForm>
+			}
+        </MudPaper>
+    </div>
+</div>
 
-<MudPaper Class="pa-4 mt-4">
-    <MudText Typo="Typo.h6">Upload Profile Photo</MudText>
-    <InputFile OnChange="HandleImageUpload" />
-</MudPaper>
-
-<h3>Get Location </h3>
-<button @onclick="GetLocationAsync">Get My Location</button>
-
-@if (error != null)
-{
-    <p style="color:red">@error</p>
-}
-else if (latitude != 0 && longitude != 0)
-{
-    <p>Latitude: @latitude</p>
-    <p>Longitude: @longitude</p>
-}
-
-<EditForm Model="@UserPreferences" OnValidSubmit="@HandleValidSubmit">
-	<DataAnnotationsValidator />
-	<ValidationSummary />
-	
-	<MudTextField @bind-Value="UserPreferences.intMatchDistance" Label="Match Distance (km)" Type="number" />
-	<MudTextField @bind-Value="UserPreferences.intMinAge" Label="Minimum Age" Type="number" />
-	<MudTextField @bind-Value="UserPreferences.intMaxAge" Label="Maximum Age" Type="number" />
-	<MudSelect T="int" @bind-Value="UserPreferences.intAppUsageTypeID" Label="Gender Preference">
-		@foreach (var gender in Genders)
-		{
-			<MudSelectItem Value="@gender.intGenderID">@gender.strGender</MudSelectItem>
-		}
-	</MudSelect>
-	<MudSwitch T="bool" @bind-Checked="UserPreferences.blnReceiveEmails" Label="Receive Emails" />
-	<MudSwitch T="bool" @bind-Checked="UserPreferences.blnShowProfile" Label="Show Profile to Others" />
-	<MudTextField @bind-Value="UserPreferences.strBio" Label="Bio" Multiline Rows="3" />
-	<MudSelect T="int" @bind-Value="UserPreferences.intAppUsageTypeID" Label="App Usage Type">
-		@foreach (var usageType in AppUsageTypes)
-		{
-			<MudSelectItem Value="@usageType.intAppUsageTypeID">@usageType.strAppUsageType</MudSelectItem>
-		}
-	</MudSelect>
-
-	<MudExpansionPanels Elevation="0">
-    @foreach (var group in CategorizedInterests)
-    {
-        <MudExpansionPanel Text="@group.CategoryName"></MudExpansionPanel>
-    }
-	</MudExpansionPanels>
-
-	<MudButton Type="Submit">Save Changes</MudButton>
-
-</EditForm>
 
 @code {
 	int UserID = -1;
+	private string formKey = Guid.NewGuid().ToString();
 	private TUserPreferences UserPreferences = new();
 	private List<TUserMedia> UserMediaFiles = new();
     private IBrowserFile? SelectedFile;
 	public List<TAppUsageTypes> AppUsageTypes { get; set; } = new();
 	public List<TGenders> Genders { get; set; } = new();
 
-	//Only the lord knows why, but when this line is deleted the front end breaks.
-	private List<InterestCategoryGroup> CategorizedInterests = new();
 	private string? SuccessMessage;
 	private string? ErrorMessage;
 	private TUsers user = new();
@@ -144,7 +131,7 @@ else if (latitude != 0 && longitude != 0)
 				Console.WriteLine("[SECURITY] No valid session found. Redirecting to /welcome.");
 				// Navigation.NavigateTo("/welcome", true);
 				return;
-			}
+			} 
 
 			UserID = UserIDTemp.Value;
 
@@ -161,7 +148,9 @@ else if (latitude != 0 && longitude != 0)
 			if (TempPrefs != null)
 			{
 				UserPreferences = TempPrefs;
+				formKey = Guid.NewGuid().ToString();
 				Console.WriteLine("[DEBUG] UserPreferences loaded for UserID: {0}", UserID);
+				await InvokeAsync(StateHasChanged);
 			}
 			else
 			{
@@ -202,6 +191,7 @@ else if (latitude != 0 && longitude != 0)
 			ErrorMessage = "Failed to load profile.";
 			Console.WriteLine($"[INIT ERROR] {ex.Message}");
 		}
+		StateHasChanged();
 	}
 
 
@@ -219,6 +209,30 @@ else if (latitude != 0 && longitude != 0)
 
 			// Use a fresh, scoped context
 			using var context = DbFactory.CreateDbContext();
+
+			// Validate UserID
+			if (UserID <= 0)
+			{
+				ErrorMessage = "Invalid User ID.";
+				Console.WriteLine("[ERROR] Invalid User ID.");
+				return;
+			}
+
+			// Validate match distance
+			if (UserPreferences.intMatchDistance < 5)
+			{
+				ErrorMessage = "Match distance too low.";
+				Console.WriteLine("[ERROR] Match distance too low.");
+				return;
+			}
+
+			// Validate age range
+			if (UserPreferences.intMinAge < 18 || UserPreferences.intMaxAge > 100 || UserPreferences.intMinAge >= UserPreferences.intMaxAge)
+			{
+				ErrorMessage = "Invalid age range.";
+				Console.WriteLine("[ERROR] Invalid age range.");
+				return;
+			}
 
 			// Execute stored procedure
 			await context.Database.ExecuteSqlRawAsync(
@@ -241,6 +255,20 @@ else if (latitude != 0 && longitude != 0)
 				UserPreferences.blnShowProfile,
 				UserPreferences.strBio ?? "",
 				UserPreferences.intAppUsageTypeID
+			);
+
+			// Update onboarding progress
+        	await UserService.SaveUserProfileOnboarding(UserID);
+
+			// Set user lat/long
+			await context.Database.ExecuteSqlRawAsync(
+				@"UPDATE TUsers 
+					SET decLatitude = {0}, 
+					decLongitude = {1}
+					WHERE intUserID = {2}",
+				CurrentLatitude ?? null,
+				CurrentLongitude ?? null,
+				UserID
 			);
 
 			// Upload media using external service (likely doesn’t touch EF directly)
@@ -429,7 +457,7 @@ else if (latitude != 0 && longitude != 0)
                     };
 
                     // Display temporary popup
-                    showLocationPopup(result.latitude, result.longitude);
+                    //showLocationPopup(result.latitude, result.longitude);
 
                     resolve(result);
                 },

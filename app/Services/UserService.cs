@@ -329,14 +329,48 @@ namespace SparkCheck.Services {
 
 			Console.WriteLine($"[UserService] Successfully saved onboarding progress for user {userId}");
 		}
+		
+
+		// ===================================================================================
+		// Saves user profile onboarding progress
+		// ===================================================================================
+		public async Task SaveUserProfileOnboarding(int userId) {
+			Console.WriteLine($"[UserService] Saving onboarding for user ID: {userId}");
+
+			// Update or insert onboarding progress
+			var progress = await _context.TOnboardingProgress
+				.FirstOrDefaultAsync(p => p.intUserID == userId);
+
+			if (progress == null) {
+				Console.WriteLine($"[UserService] No onboarding progress found. Inserting new row for user {userId}.");
+
+				progress = new TOnboardingProgress {
+					intUserID = userId,
+					blnProfileComplete = true
+				};
+
+				_context.TOnboardingProgress.Add(progress);
+			}
+			else {
+				Console.WriteLine($"[UserService] Updating onboarding progress: setting blnProfileComplete = true for user {userId}");
+				progress.blnProfileComplete = true;
+				_context.TOnboardingProgress.Update(progress);
+			}
+
+			await _context.SaveChangesAsync();
+
+			Console.WriteLine($"[UserService] Successfully saved onboarding progress for user {userId}");
+		}
 
 		// ===================================================================================
 		// Grabs the onboarding progress of a user from TOnboardingProgress
 		// ===================================================================================
-		public async Task<(bool blnProfileComplete, bool blnPreferencesComplete)> GetUserOnboardingProgressAsync(int userId) {
+		public async Task<(bool blnProfileComplete, bool blnPreferencesComplete)> GetUserOnboardingProgressAsync(int userId)
+		{
 			Console.WriteLine($"[GetUserOnboardingProgressAsync] Fetching onboarding progress for UserID {userId}");
 
-			if (userId <= 0) {
+			if (userId <= 0)
+			{
 				Console.WriteLine("[GetUserOnboardingProgressAsync] Invalid UserID supplied.");
 				return (false, false);
 			}
@@ -345,7 +379,8 @@ namespace SparkCheck.Services {
 				.AsNoTracking()
 				.FirstOrDefaultAsync(p => p.intUserID == userId);
 
-			if (progress == null) {
+			if (progress == null)
+			{
 				Console.WriteLine("[GetUserOnboardingProgressAsync] No onboarding record found.");
 				return (false, false);
 			}

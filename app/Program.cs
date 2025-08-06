@@ -32,9 +32,13 @@ builder.Services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>(); // I
 
 
 
-// Register AppDbContext with the connection string from appsettings.json
-builder.Services.AddDbContext<AppDbContext>(options =>
-	options.UseSqlServer(connectionString));
+// Register DbContext for services (Scoped)
+// builder.Services.AddDbContext<AppDbContext>(options =>
+//     options.UseSqlServer(connectionString));
+
+// Register DbContextFactory for components (Transient/fresh each time)
+builder.Services.AddDbContextFactory<AppDbContext>(options =>
+    options.UseSqlServer(connectionString));
 
 // Configure MudBlazor
 builder.Services.AddRazorComponents().AddInteractiveServerComponents();

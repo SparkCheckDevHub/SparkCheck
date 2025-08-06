@@ -4,18 +4,13 @@
 @using SparkCheck.Services
 @using SparkCheck.Models
 @using System.Globalization
+@using System.ComponentModel.DataAnnotations;
 
 @inject NavigationManager Navigation
 @inject UserService UserService
 
 <!-- MOBILE VIEW (XS, SM) -->
 <MudHidden Breakpoint="Breakpoint.MdAndUp">
-
-    @if (!string.IsNullOrWhiteSpace(SuccessMessage)) {
-        <MudAlert Severity="Severity.Success" Elevation="0">
-            @SuccessMessage
-        </MudAlert>
-    }
 
     <EditForm Model="Account" OnValidSubmit="HandleValidSubmit" OnInvalidSubmit="HandleInvalidSubmit" style="width: 100%;">
         <DataAnnotationsValidator />
@@ -27,13 +22,25 @@
                 Create Your Account
             </MudText>
 
+            @if (!string.IsNullOrWhiteSpace(SuccessMessage)) {
+                <MudAlert Severity="Severity.Error" Variant="Variant.Filled" Dense="true">
+                    @SuccessMessage
+                </MudAlert>
+            }
+
+            @if (!string.IsNullOrWhiteSpace(ErrorMessage)) {
+                <MudAlert Severity="Severity.Error" Variant="Variant.Filled" Dense="true">
+                    @ErrorMessage
+                </MudAlert>
+            }
+
             <!-- Form fields -->
             <MudStack Spacing="3" Style="width: 100%; max-width: 400px;">
                 <MudTextField ShrinkLabel Label="Username" @bind-Value="Account.strUsername" Required="true" Variant="Variant.Outlined" />
                 <MudTextField ShrinkLabel Label="First Name" @bind-Value="Account.strFirstName" Required="true" Variant="Variant.Outlined" />
                 <MudTextField ShrinkLabel Label="Last Name" @bind-Value="Account.strLastName" Required="true" Variant="Variant.Outlined" />
                 <MudDatePicker Label="Date Of Birth" @bind-Date="Account.dtmDateOfBirth"
-                               DateFormat="MM/dd/yyyy" MaxDate="@DateTime.Today" Required="true"
+                               DateFormat="MM/dd/yyyy"MaxDate="@(DateTime.Today.AddYears(-18))" Required="true"
                                Variant="Variant.Outlined" />
                 <MudTextField ShrinkLabel Label="Phone Number" @bind-Value="Account.strPhone" Required="true" Variant="Variant.Outlined" />
                 <MudTextField ShrinkLabel Label="Email Address" @bind-Value="Account.strEmail" Required="true" Variant="Variant.Outlined" />
@@ -93,7 +100,7 @@
 </MudHidden>
 
 @code {
-    private TUsers Account = new() { dtmDateOfBirth = DateTime.Today };
+    private TUsers Account = new() { dtmDateOfBirth = DateTime.Today.AddYears(-18) };
     private string? SuccessMessage;
     private string? ErrorMessage;
 	private TUserPreferences UserPreferences = new();
@@ -107,6 +114,35 @@
         try {
             Account.dtmCreatedDate = DateTime.Now;
             Account.blnIsActive = true;
+
+            // Validate the account model
+            if (Account.strUsername.Length < 3 || Account.strUsername.Length > 20) {
+                ErrorMessage = "Username must be between 3 and 20 characters.";
+                return;
+            }
+            if (Account.strFirstName.Length < 2 || Account.strFirstName.Length > 50) {
+                ErrorMessage = "First name must be between 2 and 50 characters.";
+                return;
+            }
+            if (Account.strLastName.Length < 2 || Account.strLastName.Length > 50) {
+                ErrorMessage = "Last name must be between 2 and 50 characters.";
+                return;
+            }
+            if (Account.strPhone.Length != 10 || !Account.strPhone.All(char.IsDigit)) {
+                ErrorMessage = "Phone number must be valid.";
+                return;
+            }
+            if (Account.dtmDateOfBirth > DateTime.Today.AddYears(-18)) {
+                ErrorMessage = "You must be at least 18 years old.";
+                return;
+            }
+            var emailValidator = new EmailAddressAttribute();
+
+            if (string.IsNullOrWhiteSpace(Account.strEmail) || !emailValidator.IsValid(Account.strEmail))
+            {
+                ErrorMessage = "Email address is invalid.";
+                return;
+            }
 
             var result = await UserService.CreateUserAsync(Account, UserPreferences);
 
@@ -125,6 +161,8 @@
             ErrorMessage = "An unexpected error occurred. Please try again later.";
             SuccessMessage = null;
         }
+
+        StateHasChanged();
     }
 
     private void HandleInvalidSubmit(EditContext context) {
