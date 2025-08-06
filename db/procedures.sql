@@ -226,6 +226,7 @@ BEGIN
             intMatchDistance = @intMatchDistance,
             intMinAge = @intMinAge,
             intMaxAge = @intMaxAge,
+            intGenderPreferenceID = @intGenderPreferenceID,
             blnReceiveEmails = @blnReceiveEmails,
             blnShowProfile = @blnShowProfile,
             strBio = @strBio,
@@ -235,10 +236,10 @@ BEGIN
     ELSE
     BEGIN
         INSERT INTO TUserPreferences (
-            intUserID, intMatchDistance, intMinAge, intMaxAge, blnReceiveEmails, blnShowProfile, strBio, intAppUsageTypeID
+            intUserID, intMatchDistance, intMinAge, intMaxAge, intGenderPreferenceID, blnReceiveEmails, blnShowProfile, strBio, intAppUsageTypeID
         )
         VALUES (
-            @intUserID, @intMatchDistance, @intMinAge, @intMaxAge, @blnReceiveEmails, @blnShowProfile, @strBio, @intAppUsageTypeID
+            @intUserID, @intMatchDistance, @intMinAge, @intMaxAge, @intGenderPreferenceID, @blnReceiveEmails, @blnShowProfile, @strBio, @intAppUsageTypeID
         );
     END
 
