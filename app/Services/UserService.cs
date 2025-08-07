@@ -6,34 +6,40 @@ using System.Net.Http;
 using System.Security.Cryptography;
 
 namespace SparkCheck.Services {
-	public class UserService {
+	public class UserService
+	{
 		private readonly AppDbContext _context;
 		private readonly ValidationService _validation;
 
-		public UserService(AppDbContext context, ValidationService validation) {
+		public UserService(AppDbContext context, ValidationService validation)
+		{
 			_context = context;
 			_validation = validation;
 		}
 		// ===================================================================================
 		// Create users/Reactivate users.
 		// ===================================================================================
-		public async Task<ServiceResult> CreateUserAsync(TUsers objUser, TUserPreferences objPreferences) {
+		public async Task<ServiceResult> CreateUserAsync(TUsers objUser, TUserPreferences objPreferences)
+		{
 			Console.WriteLine("[CREATE USER] Begin user creation process...");
 
 			var validationResult = await _validation.ValidateUserForCreate(objUser);
-			if (!validationResult.blnSuccess) {
+			if (!validationResult.blnSuccess)
+			{
 				Console.WriteLine($"[VALIDATION FAIL] {validationResult.strErrorMessage}");
 				return validationResult;
 			}
 
-			try {
+			try
+			{
 				// Check for matching inactive user
 				var existingInactiveUser = await _context.TUsers
 					.FirstOrDefaultAsync(u =>
 						u.strPhone == objUser.strPhone &&
 						!u.blnIsActive);
 
-				if (existingInactiveUser != null) {
+				if (existingInactiveUser != null)
+				{
 					Console.WriteLine("[REACTIVATION] Inactive user found. Updating existing record.");
 
 					// Reactivate and update fields
@@ -64,7 +70,8 @@ namespace SparkCheck.Services {
 				Console.WriteLine("[SUCCESS] New user saved to database.");
 				return ServiceResult.Ok();
 			}
-			catch (Exception ex) {
+			catch (Exception ex)
+			{
 				Console.WriteLine($"[EXCEPTION] CreateUserAsync failed: {ex}");
 				return ServiceResult.Fail("Failed to create account. Please try again later.");
 			}
@@ -73,11 +80,13 @@ namespace SparkCheck.Services {
 		// ===================================================================================
 		// Attempt logging a user in.
 		// ===================================================================================
-		public async Task<ServiceResult> AttemptLoginAsync(string strPhone) {
+		public async Task<ServiceResult> AttemptLoginAsync(string strPhone)
+		{
 			Console.WriteLine("[ATTEMPT LOGIN] Attempting login with phone: " + strPhone);
 
 			var validationResult = await _validation.ValidatePhoneLogin(strPhone);
-			if (!validationResult.blnSuccess) {
+			if (!validationResult.blnSuccess)
+			{
 				Console.WriteLine($"[VALIDATION FAIL] {validationResult.strErrorMessage}");
 				return validationResult;
 			}
@@ -96,7 +105,8 @@ namespace SparkCheck.Services {
 			var objUser = await _context.TUsers
 			.FirstOrDefaultAsync(u => u.strPhone == strPhone && u.blnIsActive);
 
-			if (objUser == null) {
+			if (objUser == null)
+			{
 				Console.WriteLine("[FAIL] No active user found with that phone.");
 				return ServiceResult.Fail("No active account found for that phone number.");
 			}
@@ -110,15 +120,18 @@ namespace SparkCheck.Services {
 							x.blnIsActive)
 				.ToListAsync();
 
-			if (existingAttempts.Any()) {
+			if (existingAttempts.Any())
+			{
 				Console.WriteLine($"[CLEANUP] Deactivating {existingAttempts.Count} old login attempts...");
-				foreach (var attempt in existingAttempts) {
+				foreach (var attempt in existingAttempts)
+				{
 					attempt.blnIsActive = false;
 					Console.WriteLine($" - Deactivated LoginAttemptID: {attempt.intLoginAttemptID}");
 				}
 				await _context.SaveChangesAsync();
 			}
-			else {
+			else
+			{
 				Console.WriteLine("[CLEANUP] No active login attempts to deactivate.");
 			}
 
@@ -129,12 +142,14 @@ namespace SparkCheck.Services {
 			Console.WriteLine($"[NEW ATTEMPT] Creating new login attempt with code: {strVerificationCode}");
 
 			// Send verification code to the user if configured to use PBX
-			if (Environment.GetEnvironmentVariable("SC_USE_ASTERISK") == "True") {
+			if (Environment.GetEnvironmentVariable("SC_USE_ASTERISK") == "True")
+			{
 				var httpClient = new HttpClient();
 				await httpClient.GetAsync($"http://sparkcheck-verification:9977/sendVerificationCode?strPhone={strPhone}&strCode={strVerificationCode}");
 			}
 
-			var objLoginAttempt = new TLoginAttempts {
+			var objLoginAttempt = new TLoginAttempts
+			{
 				strPhone = strPhone,
 				strVerificationCode = strVerificationCode,
 				dtmLoginDate = DateTime.UtcNow,
@@ -149,7 +164,8 @@ namespace SparkCheck.Services {
 			await _context.SaveChangesAsync();
 
 			Console.WriteLine("[LOGIN ATTEMPT] Successfully saved login attempt.");
-			return new ServiceResult {
+			return new ServiceResult
+			{
 				blnSuccess = true,
 				User = objUser
 			};
@@ -158,7 +174,8 @@ namespace SparkCheck.Services {
 		// ===================================================================================
 		// Verifying Phone Login
 		// ===================================================================================
-		public async Task<ServiceResult> VerifyPhoneLoginAsync(string strPhone, string strVerificationCode, int intUserID) {
+		public async Task<ServiceResult> VerifyPhoneLoginAsync(string strPhone, string strVerificationCode, int intUserID)
+		{
 			Console.WriteLine("[VERIFY CODE] Starting verification...");
 			Console.WriteLine($" - Phone: {strPhone}");
 			Console.WriteLine($" - Code: {strVerificationCode}");
@@ -170,16 +187,19 @@ namespace SparkCheck.Services {
 		// ===================================================================================
 		// Getting the user by ID
 		// ===================================================================================
-		public async Task<TUsers?> GetUserById(int intUserID) {
+		public async Task<TUsers?> GetUserById(int intUserID)
+		{
 			Console.WriteLine("[GET USER] Fetching user by ID: " + intUserID);
 
 			var user = await _context.TUsers
 				.FirstOrDefaultAsync(u => u.intUserID == intUserID);
 
-			if (user == null) {
+			if (user == null)
+			{
 				Console.WriteLine("[GET USER] No user found.");
 			}
-			else {
+			else
+			{
 				Console.WriteLine($"[GET USER] Found user: {user.strUsername} ({user.strPhone})");
 			}
 
@@ -188,26 +208,31 @@ namespace SparkCheck.Services {
 		// ===================================================================================
 		// Updating User Status Async
 		// ===================================================================================
-		public async Task UpdateUserStatusAsync(int intUserID, bool blnIsOnline) {
+		public async Task UpdateUserStatusAsync(int intUserID, bool blnIsOnline)
+		{
 			Console.WriteLine($"[UPDATE STATUS] Setting UserID {intUserID} → {(blnIsOnline ? "Online" : "Offline")}");
 
 			var user = await _context.TUsers
 				.FirstOrDefaultAsync(u => u.intUserID == intUserID);
 
-			if (user != null) {
+			if (user != null)
+			{
 				user.blnIsOnline = blnIsOnline;
 				await _context.SaveChangesAsync();
 				Console.WriteLine("[STATUS UPDATE] User status updated.");
 			}
-			else {
+			else
+			{
 				Console.WriteLine("[STATUS UPDATE] User not found. Cannot update.");
 			}
 		}
 		// ===================================================================================
 		// Deactivating a user account (Delete account logic)
 		// ===================================================================================
-		public async Task<bool> DeactivateUserAccountAsync(int intUserID, string strPhone) {
-			try {
+		public async Task<bool> DeactivateUserAccountAsync(int intUserID, string strPhone)
+		{
+			try
+			{
 				var user = await _context.TUsers
 					.FirstOrDefaultAsync(u => u.intUserID == intUserID && u.strPhone == strPhone);
 
@@ -220,7 +245,8 @@ namespace SparkCheck.Services {
 				await _context.SaveChangesAsync();
 				return true;
 			}
-			catch (Exception ex) {
+			catch (Exception ex)
+			{
 				Console.WriteLine($"[ERROR] Failed to deactivate account: {ex.Message}");
 				return false;
 			}
@@ -229,24 +255,28 @@ namespace SparkCheck.Services {
 		// ===================================================================================
 		// Populating the TGenders Dropdown
 		// ===================================================================================
-		public async Task<List<TGenders>> GetAllGendersAsync() {
+		public async Task<List<TGenders>> GetAllGendersAsync()
+		{
 			return await _context.TGenders.OrderBy(g => g.intGenderID).ToListAsync();
 		}
 
 		// ===================================================================================
 		// Get online user count
 		// ===================================================================================
-		public async Task<int> GetOnlineUserCountAsync() {
+		public async Task<int> GetOnlineUserCountAsync()
+		{
 			return await _context.TUsers.CountAsync(u => u.blnIsOnline && u.blnIsActive);
 		}
 
 		// ===================================================================================
 		// Get all interest categories (for Interests.razor drawers)
 		// ===================================================================================
-		public async Task<List<InterestSelectionDto>> GetInterestCategoriesAsync() {
+		public async Task<List<InterestSelectionDto>> GetInterestCategoriesAsync()
+		{
 			return await _context.TInterestCategories
 				.OrderBy(c => c.strInterestCategory)
-				.Select(c => new InterestSelectionDto {
+				.Select(c => new InterestSelectionDto
+				{
 					Id = c.intInterestCategoryID,
 					Name = c.strInterestCategory
 				})
@@ -256,16 +286,19 @@ namespace SparkCheck.Services {
 		// ===================================================================================
 		// Get all interests sorted by categories (for Interests.razor drawers)
 		// ===================================================================================
-		public async Task<List<InterestSelectionDto>> GetInterestCategoriesWithInterestsAsync() {
+		public async Task<List<InterestSelectionDto>> GetInterestCategoriesWithInterestsAsync()
+		{
 			var categories = await _context.TInterestCategories
 				.OrderBy(c => c.strInterestCategory)
-				.Select(c => new InterestSelectionDto {
+				.Select(c => new InterestSelectionDto
+				{
 					Id = c.intInterestCategoryID,
 					Name = c.strInterestCategory,
 					Interests = _context.TInterests
 						.Where(i => i.intInterestCategoryID == c.intInterestCategoryID)
 						.OrderBy(i => i.strInterest)
-						.Select(i => new InterestDto {
+						.Select(i => new InterestDto
+						{
 							Id = i.intInterestID,
 							Name = i.strInterest
 						}).ToList()
@@ -278,7 +311,8 @@ namespace SparkCheck.Services {
 		// ===================================================================================
 		// Creates a row in TUserInterests (for Interests.razor drawers)
 		// ===================================================================================
-		public async Task SaveUserInterestsAsync(int userId, List<int> selectedInterestIds) {
+		public async Task SaveUserInterestsAsync(int userId, List<int> selectedInterestIds)
+		{
 			Console.WriteLine($"[UserService] Saving interests for user ID: {userId}");
 
 			// 1. Remove existing interests for this user
@@ -286,14 +320,16 @@ namespace SparkCheck.Services {
 				.Where(ui => ui.intUserID == userId)
 				.ToListAsync();
 
-			if (existingInterests.Any()) {
+			if (existingInterests.Any())
+			{
 				Console.WriteLine($"[UserService] Removing {existingInterests.Count} existing interests for user {userId}");
 				_context.TUserInterests.RemoveRange(existingInterests);
 				await _context.SaveChangesAsync(); // flush deletions before insert
 			}
 
 			// 2. Add selected interests
-			var newInterests = selectedInterestIds.Select(interestId => new TUserInterests {
+			var newInterests = selectedInterestIds.Select(interestId => new TUserInterests
+			{
 				intUserID = userId,
 				intInterestID = interestId
 			}).ToList();
@@ -306,10 +342,12 @@ namespace SparkCheck.Services {
 			var progress = await _context.TOnboardingProgress
 				.FirstOrDefaultAsync(p => p.intUserID == userId);
 
-			if (progress == null) {
+			if (progress == null)
+			{
 				Console.WriteLine($"[UserService] No onboarding progress found. Inserting new row for user {userId}.");
 
-				progress = new TOnboardingProgress {
+				progress = new TOnboardingProgress
+				{
 					intUserID = userId,
 					blnPreferencesComplete = true
 					// Let blnProfileComplete default to false
@@ -317,7 +355,8 @@ namespace SparkCheck.Services {
 
 				_context.TOnboardingProgress.Add(progress);
 			}
-			else {
+			else
+			{
 				Console.WriteLine($"[UserService] Updating onboarding progress: setting blnPreferencesComplete = true for user {userId}");
 				progress.blnPreferencesComplete = true;
 
@@ -329,29 +368,33 @@ namespace SparkCheck.Services {
 
 			Console.WriteLine($"[UserService] Successfully saved onboarding progress for user {userId}");
 		}
-		
+
 
 		// ===================================================================================
 		// Saves user profile onboarding progress
 		// ===================================================================================
-		public async Task SaveUserProfileOnboarding(int userId) {
+		public async Task SaveUserProfileOnboarding(int userId)
+		{
 			Console.WriteLine($"[UserService] Saving onboarding for user ID: {userId}");
 
 			// Update or insert onboarding progress
 			var progress = await _context.TOnboardingProgress
 				.FirstOrDefaultAsync(p => p.intUserID == userId);
 
-			if (progress == null) {
+			if (progress == null)
+			{
 				Console.WriteLine($"[UserService] No onboarding progress found. Inserting new row for user {userId}.");
 
-				progress = new TOnboardingProgress {
+				progress = new TOnboardingProgress
+				{
 					intUserID = userId,
 					blnProfileComplete = true
 				};
 
 				_context.TOnboardingProgress.Add(progress);
 			}
-			else {
+			else
+			{
 				Console.WriteLine($"[UserService] Updating onboarding progress: setting blnProfileComplete = true for user {userId}");
 				progress.blnProfileComplete = true;
 				_context.TOnboardingProgress.Update(progress);
@@ -389,6 +432,32 @@ namespace SparkCheck.Services {
 			return (progress.blnProfileComplete, progress.blnPreferencesComplete);
 		}
 
+		// ===================================================================================
+		// Get user preferences by user ID
+		// ===================================================================================
+		public async Task<TUserPreferences?> GetUserPreferencesAsync(int userId)
+		{
+			Console.WriteLine($"[GetUserPreferencesAsync] Fetching preferences for UserID {userId}");
+
+			if (userId <= 0)
+			{
+				Console.WriteLine("[GetUserPreferencesAsync] Invalid UserID supplied.");
+				return null;
+			}
+
+			var preferences = await _context.TUserPreferences
+				.AsNoTracking()
+				.FirstOrDefaultAsync(p => p.intUserID == userId);
+
+			if (preferences == null)
+			{
+				Console.WriteLine("[GetUserPreferencesAsync] No preferences found for this user.");
+				return null;
+			}
+
+			Console.WriteLine("[GetUserPreferencesAsync] Preferences found.");
+			return preferences;
+		}
 	}
 }
 
