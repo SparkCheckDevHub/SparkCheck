@@ -19,5 +19,6 @@ namespace SparkCheck.Data {
 		public DbSet<TInterests> TInterests { get; set; }
 		public DbSet<TUserInterests> TUserInterests { get; set; }
 		public DbSet<TOnboardingProgress> TOnboardingProgress { get; set; }
+		public DbSet<TChatMessages> TChatMessages { get; set; }
 	}
 }

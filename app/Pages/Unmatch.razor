@@ -1,0 +1,112 @@
+@page "/unmatch"
+@layout MainLayout
+@using Microsoft.EntityFrameworkCore;
+@using SparkCheck.Data
+@inject NavigationManager Navigation
+@inject UserSessionService UserSession
+@inject IDbContextFactory<AppDbContext> DbFactory
+<!-- MOBILE VIEW (XS, SM) -->
+<MudHidden Breakpoint="Breakpoint.MdAndUp">
+    <MudStack Spacing="6" AlignItems="AlignItems.Center" Style="width: 100%">
+
+        <img src="images/logo.png"
+             alt="SparkCheck logo"
+             style="width: 100%;" />
+
+        <MudText Typo="Typo.body1" Align="Align.Center" Class="spark-text">
+            Unmatch with @strDisplayName?
+        </MudText>
+
+        <MudStack Spacing="4" AlignItems="AlignItems.Center" Style="width: 70%; max-width: 320px;">
+            <MudButton Variant="Variant.Filled" Class="primary-button" FullWidth="true" OnClick="@(() => ConfirmUnmatch())">
+                Unmatch
+            </MudButton>
+
+            <MudButton Variant="Variant.Filled" Class="primary-button" FullWidth="true" OnClick="@(() => ReportMatch())">
+                Report + Unmatch
+            </MudButton>
+
+            <MudButton Variant="Variant.Filled" Class="secondary-button" FullWidth="true" OnClick="@(() => Navigation.NavigateTo("/match"))">
+                Cancel
+            </MudButton>
+        </MudStack>
+
+        <MudText Typo="Typo.subtitle2" Align="Align.Center" Class="spark-text">
+            © 2025 SparkCheck | Cortanix™
+        </MudText>
+    </MudStack>
+</MudHidden>
+
+<!-- DESKTOP/TABLET VIEW (MD and up) -->
+<MudHidden Breakpoint="Breakpoint.SmAndDown">
+    <MudContainer MaxWidth="MaxWidth.Medium">
+        <MudStack Spacing="8" AlignItems="AlignItems.Center">
+            <img src="images/logo.png"
+                 alt="SparkCheck logo"
+                 style="width: 70%;" />
+
+            <MudText Typo="Typo.h6" Align="Align.Center" Class="spark-text">
+                SparkCheck is optimized for mobile devices.
+            </MudText>
+
+            <MudText Typo="Typo.body1" Align="Align.Center" Class="spark-text">
+                For the best experience, please open SparkCheck on your phone and save it to your home screen.
+            </MudText>
+
+            <MudText Typo="Typo.subtitle2" Align="Align.Center" Class="spark-text">
+                © 2025 SparkCheck | Cortanix™
+            </MudText>
+        </MudStack>
+    </MudContainer>
+</MudHidden>
+
+@inject UserService UserService
+@inject MatchService MatchService
+@code {
+    private string strDisplayName = "";
+    private int intOtherID = 0;
+    private int intMatchID = 0;
+    
+    protected override async Task OnInitializedAsync()
+    {
+        var match = await MatchService.GetLatestActiveMatchAsync(UserSession.intUserID);
+        if (match != null)
+        {
+            TUsers otherUser = await MatchService.GetOtherUserFromMatchAsync(UserSession.intUserID ?? 0);
+
+            // Update the other party's display info
+            if (otherUser != null)
+            {
+                strDisplayName = otherUser.strUsername;
+                intOtherID = otherUser.intUserID;
+                intMatchID = match.intMatchID;
+                StateHasChanged();
+            }   
+        }
+        else
+        {
+            Navigation.NavigateTo("/dashboard");
+        }
+    }
+    
+    private async Task ReportMatch() {
+        // Add report to the database
+        using var context = DbFactory.CreateDbContext();
+        await context.Database.ExecuteSqlRawAsync(
+            @"INSERT INTO TReports( intMatchID, intUserID, strComment, dtmReportDate, intReportReasonID)
+                VALUES ( {0}, {1}, 'User Reported', GETDATE(), 1 )",
+            intMatchID, intOtherID
+        );
+        await ConfirmUnmatch();
+    }
+
+    private async Task ConfirmUnmatch() {
+       // Add message to the database
+        using var context = DbFactory.CreateDbContext();
+        await context.Database.ExecuteSqlRawAsync(
+            @"UPDATE TMatches SET dtmMatchEnded = GETDATE() WHERE intMatchID = {0}",
+            intMatchID
+        );
+        Navigation.NavigateTo("/match");
+    }
+}

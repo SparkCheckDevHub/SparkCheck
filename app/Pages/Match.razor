@@ -1,15 +1,169 @@
 ﻿@page "/match"
+@using Microsoft.EntityFrameworkCore;
+@using SparkCheck.Data
 @layout MainLayout
+@using MudBlazor
 @inherits SparkCheck.Shared.SecureBasePage
-<MudContainer MaxWidth="MaxWidth.False" Class="d-flex flex-column min-vh-100 justify-center align-center px-4">
-    @if (isMatched)
-    {
-        <MudText Typo="Typo.h5" Class="mb-4 text-center">
-            You found a match!
-        </MudText>
-    }
-    else
-    {
+@using System.Timers;
+@implements IAsyncDisposable
+@inject IJSRuntime JS
+
+@if (isMatched)
+{
+    <div class="conversation">
+        <MudChatHeader>
+            <MudAvatar Size="Size.Medium">
+                @if (theirProfilePicture != null)
+                {
+                    <MudImage Src="@GetImageSrc(theirProfilePicture)" />
+                }
+                else
+                {
+                    <i style="font-size: 1rem" class="fa fa-user"></i>
+                }
+            </MudAvatar>
+            <MudText Typo="Typo.h6">@strDisplayName</MudText>
+            <MudIconButton Icon="@Icons.Material.Filled.Close" Color="Color.Primary" OnClick="@(() => NavigateTo("/unmatch"))" />
+        </MudChatHeader>
+        <MudChatList>
+            @foreach ( var (author, message) in lstChats )
+            {
+                if (author == "Me")
+                {
+                    <MudChat Class="me" ChatPosition="ChatBubblePosition.Start">
+                        <MudChatBubble>
+                            @message
+                        </MudChatBubble>
+                        <MudAvatar Size="Size.Medium">
+                            @if (myProfilePicture != null)
+                            {
+                                <MudImage Src="@GetImageSrc(myProfilePicture)" />
+                            }
+                            else
+                            {
+                                <i style="font-size: 1rem" class="fa fa-user"></i>
+                            }
+                        </MudAvatar>
+                    </MudChat>
+                }
+                else if (author == "Other")
+                {
+                    <MudChat ChatPosition="ChatBubblePosition.End">
+                        <MudAvatar Size="Size.Medium">
+                            @if (theirProfilePicture != null)
+                            {
+                                <MudImage Src="@GetImageSrc(theirProfilePicture)" />
+                            }
+                            else
+                            {
+                                <i style="font-size: 1rem" class="fa fa-user"></i>
+                            }
+                        </MudAvatar>
+                        <MudChatBubble>
+                            @message
+                        </MudChatBubble>
+                    </MudChat>
+                }
+                else
+                {
+                    <MudChat ChatPosition="ChatBubblePosition.Start">
+                        <MudAvatar Size="Size.Medium">
+                            <i style="font-size: 1rem" class="fa fa-info"></i>
+                        </MudAvatar>
+                        <MudChatBubble>
+                            <b>[SYSTEM] </b>@message
+                        </MudChatBubble>
+                    </MudChat>
+                }
+            }
+        </MudChatList>
+
+        <MudChatFooter Class="chat-footer">
+            <MudTextField 
+                Placeholder="Type a message…" 
+                T="string" 
+                FullWidth="true" 
+                Adornment="Adornment.End" 
+                @bind-Value="strChatMessage"
+                AdornmentIcon="@Icons.Material.Filled.Send"
+                OnAdornmentClick="@(() => SendMessage())" />
+        </MudChatFooter>
+    </div>
+
+    <style>
+        .conversation {
+            max-width: 95vw;
+            margin: auto;
+            display: flex;
+            flex-direction: column;
+            font-size: 1rem;
+        }
+
+        mudchatheader {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 8px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid #C7AE6A;
+            color: #C7AE6A;
+        }
+
+        mudchatfooter {
+            padding-top: 8px;
+            border-top: 1px solid #C7AE6A;
+        }
+
+        mudchatlist {
+            flex-grow: 1;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            max-height: calc(100vh - 220px);
+        }
+
+        mudchat {
+            display: flex;
+            margin: 4px;
+        }
+
+        mudchat.me {
+            justify-content: flex-end;
+        }
+
+        .mud-avatar {
+            background-color: #C7AE6A;
+            color: #181b1b;
+            align-items: center;
+            justify-content: center;
+            margin: 8px; 
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+        }
+
+        mudchatbubble {
+            background-color: #181b1b;
+            color: #C7AE6A;
+            border-radius: 8px;
+            padding: 10px 10px;
+            align-self: center;    
+        }
+    </style>
+    <script>
+        window.scrollChatList = function() {
+            var chatList = document.querySelector('mudchatlist');
+            if (chatList) {
+                chatList.scrollTop = chatList.scrollHeight;
+            }
+        };
+    </script>
+}
+else
+{
+
+    <MudContainer MaxWidth="MaxWidth.False" Class="d-flex flex-column min-vh-100 justify-center align-center px-4">
         <MudText Typo="Typo.h5" Class="mb-4 text-center">
             Come back here after you have found a match.
         </MudText>
@@ -19,26 +173,236 @@
                 <MudIcon Icon="@Icons.Material.Filled.Favorite" Class="me-2" />
                 Join the Match Queue when you're ready to meet someone special.
             </MudListItem>
-        </MudList>
-    }
-
-    <MudSpacer />
-    <BottomNavBar />
-</MudContainer>
+        </MudList>    
+    </MudContainer>
+}
 
 @inject UserService UserService
 @inject MatchService MatchService
+@inject MediaService MediaService
+@inject IDbContextFactory<AppDbContext> DbFactory
 @code{
+    private Timer refreshTimer = new System.Timers.Timer(2000);
+    private int intLastChatID = 0;
+    private int intMatchID = 0;
+    private List<(string, string)> lstChats = new List<(string, string)>();
     private bool isMatched = false;
+    TUserMedia? myProfilePicture = null;
+    TUserMedia? theirProfilePicture = null;
+    private TUsers? otherUser = null;
+    private string strDisplayName = string.Empty;
+    private string strChatMessage = string.Empty;
+    
     private void NavigateTo(string url) {
         Navigation.NavigateTo(url);
     }    
+
+    private async Task SendMessage()
+    {
+        if (string.IsNullOrEmpty(strChatMessage) || intMatchID == 0)
+        {
+            return;
+        }
+        // Clear input box
+        string strTrimmedMessage = strChatMessage.Trim();
+
+        strChatMessage = string.Empty;
+
+        // Add message to the database
+        using var context = DbFactory.CreateDbContext();
+        await context.Database.ExecuteSqlRawAsync(
+            @"INSERT INTO TChatMessages (intSenderUserID, intMatchID, strMessageText, dtmSentAt, blnIsActive)
+                VALUES ({0}, {1}, {2}, GETDATE(), 1)",
+            UserSession.intUserID ?? 0, intMatchID, strTrimmedMessage
+        );
+    }
+
+    private async void RefreshChat(Object source, ElapsedEventArgs e)
+    {
+        Console.WriteLine("Refreshing chat...");
+        
+        // Get latest messags from the database
+        if (intMatchID == 0)
+        {
+            return;
+        }
+
+        // Is match over?
+        var match = await MatchService.GetLatestActiveMatchAsync(UserSession.intUserID);
+        if (match == null || match.intMatchID != intMatchID)
+        {
+            // Match is over, stop the timer and clear the chat
+            refreshTimer.Stop();
+            refreshTimer.Dispose();
+            refreshTimer = null;
+            intMatchID = 0;
+            lstChats.Add(("System", "Match is over. You can return to the match queue."));
+            await InvokeAsync(() =>
+            {
+                // Update the UI
+                StateHasChanged();
+                JS.InvokeVoidAsync("scrollChatList");
+            });
+            return;
+        }        
+
+        using var context = DbFactory.CreateDbContext();
+        var newChats = await context
+                            .Set<TChatMessages>()
+                            .FromSqlRaw(@"
+                                SELECT TChatMessages.*
+                                FROM TChatMessages
+                                JOIN TMatches ON TMatches.intMatchID = TChatMessages.intMatchID
+                                AND TMatches.intMatchID = {0}
+                                WHERE intChatMessageID > {1}
+                                ",
+                                intMatchID, intLastChatID
+                            )
+                            .ToListAsync();
+
+        // Add new messages to the chat list
+        if (newChats.Count > 0)
+        {
+            foreach (var chat in newChats)
+            {
+                if (chat.intSenderUserID == UserSession.intUserID)
+                {
+                    lstChats.Add(("Me", chat.strMessageText));
+                }
+                else
+                {
+                    lstChats.Add(("Other", chat.strMessageText));
+                }
+
+                // Update the last chat ID
+                intLastChatID = chat.intChatMessageID; 
+            }            
+            await InvokeAsync(() =>
+            {
+                // Update the UI
+                StateHasChanged();
+                JS.InvokeVoidAsync("scrollChatList");
+            });
+        }
+    }
+    public async ValueTask DisposeAsync()
+    {
+        // Dispose of the timer to prevent memory leaks
+        if (refreshTimer != null)
+        {
+            refreshTimer.Stop();
+            refreshTimer.Dispose();
+            refreshTimer = null;
+        }
+    }
     protected override async Task OnInitializedAsync(){
-        if (await MatchService.GetLatestActiveMatchAsync(UserSession.intUserID) != null)
+        using var context = DbFactory.CreateDbContext();
+
+        // Add default values to the chat list            
+        var match = await MatchService.GetLatestActiveMatchAsync(UserSession.intUserID);    
+        if (match != null)
         {
             isMatched = true;
+            intMatchID = match.intMatchID;
+            otherUser = await MatchService.GetOtherUserFromMatchAsync(UserSession.intUserID ?? 0);
+
+            // Update the other party's display info
+            if (otherUser != null)
+            {
+
+                // Get other user's preferences
+                TUserPreferences? otherUserPreferences = await UserService.GetUserPreferencesAsync(otherUser.intUserID);
+
+                // Is profile shown? 
+                if (otherUserPreferences.blnShowProfile == true)
+                {
+                    // Calculate age
+                    string strAge = "";
+
+                    if (otherUser.dtmDateOfBirth != null)
+                    {
+                        int intAge = DateTime.Now.Year - otherUser.dtmDateOfBirth.Value.Year;
+                        if (DateTime.Now.Date < otherUser.dtmDateOfBirth.Value.Date.AddYears(intAge))
+                        {
+                            intAge--;
+                        }
+                        strAge = " (" + intAge + ")";
+                    }                    
+
+                    // Find nearest city/state
+                    
+                    // Use first name and age
+                    strDisplayName = otherUser.strFirstName + strAge;
+
+                    // Try and get profile pictures
+                    List<TUserMedia> myPictures = await MediaService.GetUserMediaAsync(UserSession.intUserID ?? 0);
+                    if (myPictures.Count > 0)
+                    {
+                        myProfilePicture = myPictures[ 0 ];
+                    }
+
+                    List<TUserMedia> theirPictures = await MediaService.GetUserMediaAsync(otherUser.intUserID);
+                    if (theirPictures.Count > 0)
+                    {
+                        theirProfilePicture = theirPictures[ 0 ];
+                    }
+
+                    // Get shared interests
+                    var sharedInterests = await context
+                    .Set<TInterests>()
+                    .FromSqlRaw(@"
+                        SELECT TInterests.strInterest
+                        FROM TInterests
+                        JOIN TUserInterests ON TUserInterests.intInterestID = TInterests.intInterestID
+                        JOIN TUsers ON TUserInterests.intUserID = TUsers.intUserID
+                            AND TUsers.intUserID = {0}
+                        WHERE TInterests.intInterestID IN (
+                            SELECT TInterests.intInterestID
+                            FROM TInterests
+                            JOIN TUserInterests ON TUserInterests.intInterestID = TInterests.intInterestID
+                            JOIN TUsers ON TUserInterests.intUserID = TUsers.intUserID
+                                AND TUsers.intUserID = {1}
+                        )",
+                        UserSession.intUserID, otherUser.intUserID
+                    )
+                    .Select(interest => interest.strInterest)
+                    .ToListAsync();
+
+                    if (sharedInterests.Count > 0)
+                    {
+                        lstChats.Add(("System", "Shared interests: " + string.Join(", ", sharedInterests) + "!"));
+                    }
+                    
+                    // Get other user bio
+                    if (!string.IsNullOrEmpty(otherUserPreferences.strBio))
+                    {
+                        lstChats.Add(("System", "Bio: " + otherUserPreferences.strBio));
+                    }
+
+                    // Start refreshing the chat in a background task
+                    refreshTimer.Elapsed += RefreshChat;
+                    refreshTimer.AutoReset = true;
+                    refreshTimer.Enabled = true;  
+                }
+                else
+                {
+                    // Use username
+                    strDisplayName = otherUser.strUsername;
+                }
+            }
+
             StateHasChanged();
         }
+    }
+
+    private string GetImageSrc(TUserMedia? media)
+    {
+        if (media == null)
+        {
+            return "";
+        }
+        var base64 = Convert.ToBase64String(media.Photo);
+        return $"data:image/jpeg;base64,{base64}";
     }
 
 }

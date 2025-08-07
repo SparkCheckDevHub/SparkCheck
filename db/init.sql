@@ -137,7 +137,6 @@ CREATE TABLE TReports (
   intReportID        INTEGER IDENTITY(1,1) NOT NULL,
   intMatchID         INTEGER      NOT NULL,
   intUserID          INTEGER      NOT NULL,
-  intMatchRequestID  INTEGER      NOT NULL,
   strComment         VARCHAR(250) NOT NULL,
   dtmReportDate      DATETIME     NOT NULL,
   intReportReasonID  INTEGER      NOT NULL,
@@ -408,3 +407,10 @@ VALUES ( 'Long-Term Relationship' )
       ,( 'Intimacy' )
       ,( 'Casual' )
       ,( 'Friends' )
+
+-- --------------------------------------------------------------------------------
+-- Add Records into Report Reasons
+-- --------------------------------------------------------------------------------
+
+INSERT INTO TReportReasons ( strReportReason )
+VALUES ( 'User Initiated' )
