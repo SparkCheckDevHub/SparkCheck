@@ -25,4 +25,7 @@ fi
 sudo nginx -t
 systemctl restart nginx
 
-# TODO: Invoke certbot to install certificates
+# Invoke certbot to install certificates
+sudo certbot --nginx -d sparkcheck.date -d www.sparkcheck.date
+sudo systemctl enable certbot.timer
+sudo systemctl start certbot.timer
