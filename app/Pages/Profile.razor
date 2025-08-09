@@ -1,6 +1,4 @@
 ﻿@page "/profile"
-@layout MainLayout
-
 @using Microsoft.EntityFrameworkCore;
 @using SparkCheck.Data
 @inject UserSessionService UserSession
@@ -13,82 +11,114 @@
 @inherits SparkCheck.Shared.SecureBasePage
 @inject IJSRuntime JS
 
+<MudHidden Breakpoint="Breakpoint.MdAndUp">
+	<MudStack Spacing="4" AlignItems="AlignItems.Center" Style="width: 100%; padding: 01rem;">
+		<div class="profile-scope">
+			<MudPaper Class="pa-4" Style="width: 100%; max-width: 400px;">
+				<MudStack Spacing="4">
 
-@* Page Notes:
-	-Front end is utilizing 'OnSubmit' instead of 'OnValidSubmit' which bypasses validation.
-	-This is a test UI for the profile page.
-	-This page is 90% functional - submit does not work yet.
-*@
+					<!-- Profile Photo -->
+					@if (UserMediaFiles != null && UserMediaFiles.Any()) {
+						<MudStack Spacing="2" AlignItems="AlignItems.Center">
+							<img src="@GetImageSrc(UserMediaFiles.First().Photo)" Class="profile-photo" />
+							<MudStack AlignItems="AlignItems.Center" Spacing="1" Class="mt-2">
+								<MudButton Variant="Variant.Filled" Class="secondary-button" Size="Size.Medium"
+										   OnClick="() => DeletePhotoAsync(UserMediaFiles.First().intUserMediaID)">
+									Delete Profile Picture
+								</MudButton>
+							</MudStack>
 
-<div class="profile-container">
-    <div>
-        <MudPaper Class="pa-4 mt-4 responsive-form">
-			@if (UserPreferences != null)
-			{
-			@if (UserMediaFiles != null && UserMediaFiles.Any())
-			{
-				<div class="user-photo-container">
-					@foreach (var media in UserMediaFiles)
-					{
-						if (media.Photo != null)
-						{
-							<img width="80px" height="80px" src="@GetImageSrc(media.Photo)" alt="User Photo" class="img-thumbnail" style="display: block;margin-left: auto;margin-right: auto;object-fit: cover;border-radius: 50%;"/>
-							<MudButton Color="Color.Error" Size="Size.Small" OnClick="() => DeletePhotoAsync(media.intUserMediaID)" style="display: block;margin-left: auto;margin-right: auto;">
-								Delete Profile Picture
-							</MudButton>
-						}
+						</MudStack>
 					}
-				</div>
-			}
-			else
-			{
-				<MudPaper Class="pa-4 mt-4">
-				<MudText Typo="Typo.h6">Upload Profile Photo</MudText>
-				<div class="file-input-wrapper">
-					<InputFile OnChange="HandleImageUpload" />
-				</div>
-				</MudPaper>
-			}			
-            <EditForm @key="formKey" Model="@UserPreferences" OnValidSubmit="@HandleValidSubmit">
-                <DataAnnotationsValidator />
-                <ValidationSummary />
+					else {
+						<MudText Typo="Typo.h6" Align="Align.Center" Class="profile-text">Upload Profile Photo</MudText>
+						<InputFile OnChange="HandleImageUpload" />
+					}
 
-				@if (!string.IsNullOrEmpty(SuccessMessage))
-				{
-					<MudAlert Severity="Severity.Success">@SuccessMessage</MudAlert>
-				}
-				@if (!string.IsNullOrEmpty(ErrorMessage))
-				{
-					<MudAlert Severity="Severity.Error">@ErrorMessage</MudAlert>
-				}
+					<!-- Form -->
+					<EditForm Model="@UserPreferences" OnValidSubmit="@HandleValidSubmit">
+						<DataAnnotationsValidator />
+						<ValidationSummary />
 
-                <MudTextField @bind-Value="UserPreferences.intMatchDistance" Label="Match Distance (mi)" Type="number" />
-                <MudTextField @bind-Value="UserPreferences.intMinAge" Label="Minimum Age" Type="number" />
-                <MudTextField @bind-Value="UserPreferences.intMaxAge" Label="Maximum Age" Type="number" />
-                <MudSelect T="int" @bind-Value="UserPreferences.intGenderPreferenceID" Label="Gender Preference">
-                    @foreach (var gender in Genders)
-                    {
-                        <MudSelectItem Value="@gender.intGenderID">@gender.strGender</MudSelectItem>
-                    }
-                </MudSelect>
-                <MudSwitch T="bool" @bind-Value="UserPreferences.blnReceiveEmails" Label="Receive Emails" />
-                <MudSwitch T="bool" @bind-Value="UserPreferences.blnShowProfile" Label="Show Profile to Others" />
-                <MudTextField @bind-Value="UserPreferences.strBio" Label="Bio" Multiline Rows="3" />
-                <MudSelect T="int" @bind-Value="UserPreferences.intAppUsageTypeID" Label="App Usage Type">
-                    @foreach (var usageType in AppUsageTypes)
-                    {
-                        <MudSelectItem Value="@usageType.intAppUsageTypeID">@usageType.strAppUsageType</MudSelectItem>
-                    }
-                </MudSelect>
+						@if (!string.IsNullOrEmpty(SuccessMessage)) {
+							<MudAlert Severity="Severity.Success">@SuccessMessage</MudAlert>
+						}
+						@if (!string.IsNullOrEmpty(ErrorMessage)) {
+							<MudAlert Severity="Severity.Error">@ErrorMessage</MudAlert>
+						}
 
-                <MudButton Type="Submit" OnClick="@(() => @HandleValidSubmit())" Variant="Variant.Filled" Color="Color.Primary" Class="mt-2" style="display: block;margin-left: auto;margin-right: auto;">
-                    Save Changes
-                </MudButton>
-            </EditForm>
-			}
-        </MudPaper>
-    </div>
-</div>
+						<MudStack Spacing="3">
+							<MudTextField @bind-Value="UserPreferences.intMatchDistance"
+										  Label="Match Distance (mi)"
+										  Type="number"
+										  Variant="Variant.Outlined" />
+
+							<MudTextField @bind-Value="UserPreferences.intMinAge"
+										  Label="Minimum Age"
+										  Type="number"
+										  Variant="Variant.Outlined" />
+
+							<MudTextField @bind-Value="UserPreferences.intMaxAge"
+										  Label="Maximum Age"
+										  Type="number"
+										  Variant="Variant.Outlined" />
+
+							<MudSelect T="int"
+									   @bind-Value="UserPreferences.intGenderPreferenceID"
+									   Label="Gender Preference"
+									   Variant="Variant.Outlined">
+								@foreach (var gender in Genders) {
+									<MudSelectItem Value="@gender.intGenderID">@gender.strGender</MudSelectItem>
+								}
+							</MudSelect>
+
+							<MudSwitch T="bool" @bind-Value="UserPreferences.blnReceiveEmails" Label="Receive Emails" />
+							<MudSwitch T="bool" @bind-Value="UserPreferences.blnShowProfile" Label="Show Profile to Others" />
+
+							<MudTextField @bind-Value="UserPreferences.strBio"
+										  Label="Bio"
+										  Multiline Rows="3"
+										  Variant="Variant.Outlined" />
+
+							<MudSelect T="int"
+									   @bind-Value="UserPreferences.intAppUsageTypeID"
+									   Label="App Usage Type"
+									   Variant="Variant.Outlined">
+								@foreach (var usageType in AppUsageTypes) {
+									<MudSelectItem Value="@usageType.intAppUsageTypeID">@usageType.strAppUsageType</MudSelectItem>
+								}
+							</MudSelect>
+
+							<MudGrid GutterSize="3">
+								<MudItem xs="6">
+									<MudButton Variant="Variant.Outlined"
+											   Class="secondary-button"
+											   OnClick="@Cancel"
+											   FullWidth="true">
+										Back
+									</MudButton>
+								</MudItem>
+								<MudItem xs="6">
+									<MudButton Variant="Variant.Filled"
+											   Class="primary-button"
+											   ButtonType="ButtonType.Submit"
+											   FullWidth="true">
+										Save
+									</MudButton>
+								</MudItem>
+							</MudGrid>
+
+						</MudStack>
+					</EditForm>
+
+				</MudStack>
+			</MudPaper>
+		</div>
+		<MudText Typo="Typo.subtitle2" Align="Align.Center" Class="spark-text">
+			© 2025 SparkCheck | Cortanix™
+		</MudText>
+	</MudStack>
+</MudHidden>
 
 
 @code {
@@ -96,7 +126,7 @@
 	private string formKey = Guid.NewGuid().ToString();
 	private TUserPreferences UserPreferences = new();
 	private List<TUserMedia> UserMediaFiles = new();
-    private IBrowserFile? SelectedFile;
+	private IBrowserFile? SelectedFile;
 	public List<TAppUsageTypes> AppUsageTypes { get; set; } = new();
 	public List<TGenders> Genders { get; set; } = new();
 
@@ -110,28 +140,25 @@
 	private decimal? FallbackLongitude;
 	private bool LocationPermissionDenied = false;
 	private decimal latitude;
-    private decimal longitude;
-    private string error = "";
+	private decimal longitude;
+	private string error = "";
 
 
 	// ===================================================================================
 	// Runs on view start up
 	// ===================================================================================
-	protected override async Task OnInitializedAsync()
-	{
+	protected override async Task OnInitializedAsync() {
 		Console.WriteLine("[DEBUG] OnInitializedAsync started.");
 
-		try
-		{
+		try {
 			int? UserIDTemp = UserSession.intUserID;
 			Console.WriteLine("[DEBUG] UserIDTemp = {0}", UserIDTemp);
 
-			if (UserIDTemp == null)
-			{
+			if (UserIDTemp == null) {
 				Console.WriteLine("[SECURITY] No valid session found. Redirecting to /welcome.");
 				// Navigation.NavigateTo("/welcome", true);
 				return;
-			} 
+			}
 
 			UserID = UserIDTemp.Value;
 
@@ -145,15 +172,13 @@
 
 			// Load user preferences (may be from a service that also uses db context)
 			var TempPrefs = await GetPreferencesByUserIDAsync();
-			if (TempPrefs != null)
-			{
+			if (TempPrefs != null) {
 				UserPreferences = TempPrefs;
 				formKey = Guid.NewGuid().ToString();
 				Console.WriteLine("[DEBUG] UserPreferences loaded for UserID: {0}", UserID);
 				await InvokeAsync(StateHasChanged);
 			}
-			else
-			{
+			else {
 				Console.WriteLine("[DEBUG] No preferences found for UserID: {0}", UserID);
 				UserPreferences = new TUserPreferences { intUserID = UserID };
 			}
@@ -162,13 +187,12 @@
 			UserMediaFiles = await MediaService.GetUserMediaAsync(UserID);
 			Console.WriteLine("[DEBUG] UserMediaFiles: {0}", UserMediaFiles.Count);
 
-			foreach (var media in UserMediaFiles)
-			{
+			foreach (var media in UserMediaFiles) {
 				media.intUserID = UserID;
 			}
 
 			// Location logic — doesn't use EF directly
-			
+
 
 			var effectiveLocation = await LocationService.GetEffectiveUserLocationAsync(UserID);
 
@@ -177,8 +201,7 @@
 
 			LocationPermissionDenied = !effectiveLocation.IsFromBrowser;
 
-			if (!effectiveLocation.IsFromBrowser)
-			{
+			if (!effectiveLocation.IsFromBrowser) {
 				FallbackLatitude = effectiveLocation.Latitude;
 				FallbackLongitude = effectiveLocation.Longitude;
 			}
@@ -186,8 +209,7 @@
 			// User session
 			user = UserSession.GetUser();
 		}
-		catch (Exception ex)
-		{
+		catch (Exception ex) {
 			ErrorMessage = "Failed to load profile.";
 			Console.WriteLine($"[INIT ERROR] {ex.Message}");
 		}
@@ -198,12 +220,10 @@
 	// ===================================================================================
 	// Handles form submission and updates user preferences
 	// ===================================================================================
-	private async Task HandleValidSubmit()
-	{
+	private async Task HandleValidSubmit() {
 		Console.WriteLine("[DEBUG] HandleValidSubmit() triggered");
 
-		try
-		{
+		try {
 			SuccessMessage = null;
 			ErrorMessage = null;
 
@@ -211,24 +231,21 @@
 			using var context = DbFactory.CreateDbContext();
 
 			// Validate UserID
-			if (UserID <= 0)
-			{
+			if (UserID <= 0) {
 				ErrorMessage = "Invalid User ID.";
 				Console.WriteLine("[ERROR] Invalid User ID.");
 				return;
 			}
 
 			// Validate match distance
-			if (UserPreferences.intMatchDistance < 5)
-			{
+			if (UserPreferences.intMatchDistance < 5) {
 				ErrorMessage = "Match distance too low.";
 				Console.WriteLine("[ERROR] Match distance too low.");
 				return;
 			}
 
 			// Validate age range
-			if (UserPreferences.intMinAge < 18 || UserPreferences.intMaxAge > 100 || UserPreferences.intMinAge >= UserPreferences.intMaxAge)
-			{
+			if (UserPreferences.intMinAge < 18 || UserPreferences.intMaxAge > 100 || UserPreferences.intMinAge >= UserPreferences.intMaxAge) {
 				ErrorMessage = "Invalid age range.";
 				Console.WriteLine("[ERROR] Invalid age range.");
 				return;
@@ -236,15 +253,15 @@
 
 			// Execute stored procedure
 			await context.Database.ExecuteSqlRawAsync(
-				@"EXEC uspUpdateUserPreferences 
-					@intUserID = {0}, 
-					@intMatchDistance = {1}, 
-					@intMinAge = {2}, 
+				@"EXEC uspUpdateUserPreferences
+					@intUserID = {0},
+					@intMatchDistance = {1},
+					@intMinAge = {2},
 					@intMaxAge = {3},
-					@intGenderPreferenceID = {4}, 
-					@blnReceiveEmails = {5}, 
-					@blnShowProfile = {6}, 
-					@strBio = {7}, 
+					@intGenderPreferenceID = {4},
+					@blnReceiveEmails = {5},
+					@blnShowProfile = {6},
+					@strBio = {7},
 					@intAppUsageTypeID = {8}",
 				UserID,
 				UserPreferences.intMatchDistance,
@@ -258,12 +275,12 @@
 			);
 
 			// Update onboarding progress
-        	await UserService.SaveUserProfileOnboarding(UserID);
+			await UserService.SaveUserProfileOnboarding(UserID);
 
 			// Set user lat/long
 			await context.Database.ExecuteSqlRawAsync(
-				@"UPDATE TUsers 
-					SET decLatitude = {0}, 
+				@"UPDATE TUsers
+					SET decLatitude = {0},
 					decLongitude = {1}
 					WHERE intUserID = {2}",
 				CurrentLatitude ?? null,
@@ -272,19 +289,17 @@
 			);
 
 			// Upload media using external service (likely doesn’t touch EF directly)
-			if (SelectedFile != null)
-			{
+			if (SelectedFile != null) {
 				await MediaService.UploadOrUpdateProfilePhotoAsync(SelectedFile, UserID);
 				Console.WriteLine("[PROGRAM] Profile photo uploaded/updated.");
 			}
 
-			Console.WriteLine(@"[PROGRAM] User preferences updated for UserID: {0}, 
+			Console.WriteLine(@"[PROGRAM] User preferences updated for UserID: {0},
 								User's name: {1}, {2}.",
 				UserID, UserSession.strFirstName, UserSession.strLastName);
 
 			// Save location to the user entity
-			if (user != null)
-			{
+			if (user != null) {
 				user.decLatitude = CurrentLatitude;
 				user.decLongitude = CurrentLongitude;
 
@@ -295,111 +310,93 @@
 
 			SuccessMessage = "Profile updated successfully!";
 		}
-		catch (Exception ex)
-		{
+		catch (Exception ex) {
 			ErrorMessage = "Unexpected error while saving profile.";
 			Console.WriteLine($"[EXCEPTION] {ex.Message}");
 		}
 	}
 
+	private void Cancel() {
+		Navigation.NavigateTo("/dashboard");
+	}
 
-	
 	// ===================================================================================
 	// Handles Location Logic
 	// ===================================================================================
-    
-	
-	private async Task SaveFallbackLocation()
-	{
-		if (FallbackLatitude.HasValue && FallbackLongitude.HasValue)
-		{
+
+	private async Task SaveFallbackLocation() {
+		if (FallbackLatitude.HasValue && FallbackLongitude.HasValue) {
 			bool success = await LocationService.SaveUserFallbackLocationAsync(UserID, FallbackLatitude.Value, FallbackLongitude.Value);
-			if (success)
-			{
+			if (success) {
 				SuccessMessage = "Fallback location saved.";
 				// Update current location to fallback
 				CurrentLatitude = FallbackLatitude;
 				CurrentLongitude = FallbackLongitude;
 				LocationPermissionDenied = false;
 			}
-			else
-			{
+			else {
 				ErrorMessage = "Failed to save fallback location.";
 			}
 		}
-		else
-		{
+		else {
 			ErrorMessage = "Please enter valid latitude and longitude.";
 		}
 
-		
-	}
-    private async Task GetLocationAsync()
-    {
-        try
-        {
-			Console.WriteLine("[DEBUG] Attempting to get browser location...");
-            var result = await JS.InvokeAsync<GeolocationResult>("getBrowserLocation");
-            latitude = result.Latitude;
-            longitude = result.Longitude;
-        }
-        catch (Exception ex)
-        {
-            error = ex.Message;
-        }
-    }
 
-    public class GeolocationResult
-    {
-        public decimal Latitude { get; set; }
-        public decimal Longitude { get; set; }
-    }	
-	
-	
+	}
+	private async Task GetLocationAsync() {
+		try {
+			Console.WriteLine("[DEBUG] Attempting to get browser location...");
+			var result = await JS.InvokeAsync<GeolocationResult>("getBrowserLocation");
+			latitude = result.Latitude;
+			longitude = result.Longitude;
+		}
+		catch (Exception ex) {
+			error = ex.Message;
+		}
+	}
+
+	public class GeolocationResult {
+		public decimal Latitude { get; set; }
+		public decimal Longitude { get; set; }
+	}
+
+
 	// ===================================================================================
 	// Handles Media Commands
 	// ===================================================================================
-    private async Task HandleUpload(InputFileChangeEventArgs e)
-    {
-        var file = e.File;
-        await MediaService.UploadOrUpdateProfilePhotoAsync(file, UserID);
-    }
-
-	private async Task HandleImageUpload(InputFileChangeEventArgs e)
-	{
+	private async Task HandleUpload(InputFileChangeEventArgs e) {
 		var file = e.File;
-		if (file != null && UserSession.intUserID != null)
-		{
+		await MediaService.UploadOrUpdateProfilePhotoAsync(file, UserID);
+	}
+
+	private async Task HandleImageUpload(InputFileChangeEventArgs e) {
+		var file = e.File;
+		if (file != null && UserSession.intUserID != null) {
 			var success = await MediaService.UploadPhotoAsync(UserSession.intUserID.Value, file);
-			if (success)
-			{
+			if (success) {
 				SuccessMessage = "Photo uploaded!";
 				UserMediaFiles = await MediaService.GetUserMediaAsync(UserSession.intUserID.Value); // reload
 			}
-			else
-			{
+			else {
 				ErrorMessage = "Upload failed.";
 			}
 		}
 	}
 
-	private void OnPhotoSelected(InputFileChangeEventArgs e)
-    {
-        SelectedFile = e.File;
-    }
+	private void OnPhotoSelected(InputFileChangeEventArgs e) {
+		SelectedFile = e.File;
+	}
 
-	private async Task DeletePhotoAsync(int mediaID)
-	{
-		try
-		{
+	private async Task DeletePhotoAsync(int mediaID) {
+		try {
 			using var db = DbFactory.CreateDbContext();
 
 			// Find the media record
 			var mediaToDelete = await db.TUserMedia
 				.FirstOrDefaultAsync(m => m.intUserMediaID == mediaID && m.intUserID == UserID);
 
-			if (mediaToDelete != null)
-			{
+			if (mediaToDelete != null) {
 				db.TUserMedia.Remove(mediaToDelete);
 				await db.SaveChangesAsync();
 
@@ -408,13 +405,11 @@
 
 				SuccessMessage = "Photo deleted.";
 			}
-			else
-			{
+			else {
 				ErrorMessage = "Photo not found.";
 			}
 		}
-		catch (Exception ex)
-		{
+		catch (Exception ex) {
 			ErrorMessage = "Failed to delete photo.";
 			Console.WriteLine($"[Delete Error] {ex.Message}");
 		}
@@ -425,83 +420,80 @@
 	// Database Read Methods
 	// ===================================================================================
 
-	public async Task<TUserPreferences?> GetPreferencesByUserIDAsync()
-	{
+	public async Task<TUserPreferences?> GetPreferencesByUserIDAsync() {
 		using var context = DbFactory.CreateDbContext();
 		return await context.TUserPreferences
 					.FirstOrDefaultAsync(p => p.intUserID == UserID);
 	}
-	
-    private string GetImageSrc(byte[] imageBytes)
-    {
-        var base64 = Convert.ToBase64String(imageBytes);
-        return $"data:image/jpeg;base64,{base64}";
-    }
+
+	private string GetImageSrc(byte[] imageBytes) {
+		var base64 = Convert.ToBase64String(imageBytes);
+		return $"data:image/jpeg;base64,{base64}";
+	}
 }
 
-
 <script>
-    window.getBrowserLocation = function () {
-        return new Promise((resolve, reject) => {
-            if (!navigator.geolocation) {
-                reject("Geolocation not supported.");
-                return;
-            }
+	window.getBrowserLocation = function () {
+		return new Promise((resolve, reject) => {
+			if (!navigator.geolocation) {
+				reject("Geolocation not supported.");
+				return;
+			}
 
-            navigator.geolocation.getCurrentPosition(
-                (position) => {
-                    const result = {
-                        success: true,
-                        latitude: position.coords.latitude,
-                        longitude: position.coords.longitude
-                    };
+			navigator.geolocation.getCurrentPosition(
+				(position) => {
+					const result = {
+						success: true,
+						latitude: position.coords.latitude,
+						longitude: position.coords.longitude
+					};
 
-                    // Display temporary popup
-                    //showLocationPopup(result.latitude, result.longitude);
+					// Display temporary popup
+					//showLocationPopup(result.latitude, result.longitude);
 
-                    resolve(result);
-                },
-                (error) => {
-                    console.error("[JS] Geolocation error:", error.message);
-                    reject("Geolocation error: " + error.message);
-                },
-                {
-                    enableHighAccuracy: true,
-                    timeout: 10000,
-                    maximumAge: 10000 // Use cached location if < 10s old
-                }
-            );
-        });
-    };
+					resolve(result);
+				},
+				(error) => {
+					console.error("[JS] Geolocation error:", error.message);
+					reject("Geolocation error: " + error.message);
+				},
+				{
+					enableHighAccuracy: true,
+					timeout: 10000,
+					maximumAge: 10000 // Use cached location if < 10s old
+				}
+			);
+		});
+	};
 
-    function showLocationPopup(latitude, longitude) {
-        // Remove existing popup if present
-        let existing = document.getElementById("geo-popup");
-        if (existing) {
-            existing.remove();
-        }
+	function showLocationPopup(latitude, longitude) {
+		// Remove existing popup if present
+		let existing = document.getElementById("geo-popup");
+		if (existing) {
+			existing.remove();
+		}
 
-        // Create new popup
-        const popup = document.createElement("div");
-        popup.id = "geo-popup";
-        popup.innerText = `📍 Location: ${latitude.toFixed(5)}, ${longitude.toFixed(5)}`;
-        popup.style.position = "fixed";
-        popup.style.bottom = "20px";
-        popup.style.left = "50%";
-        popup.style.transform = "translateX(-50%)";
-        popup.style.backgroundColor = "#323232";
-        popup.style.color = "white";
-        popup.style.padding = "10px 20px";
-        popup.style.borderRadius = "8px";
-        popup.style.boxShadow = "0 2px 10px rgba(0,0,0,0.2)";
-        popup.style.zIndex = "10000";
-        popup.style.fontSize = "1rem";
+		// Create new popup
+		const popup = document.createElement("div");
+		popup.id = "geo-popup";
+		popup.innerText = `📍 Location: ${latitude.toFixed(5)}, ${longitude.toFixed(5)}`;
+		popup.style.position = "fixed";
+		popup.style.bottom = "20px";
+		popup.style.left = "50%";
+		popup.style.transform = "translateX(-50%)";
+		popup.style.backgroundColor = "#323232";
+		popup.style.color = "white";
+		popup.style.padding = "10px 20px";
+		popup.style.borderRadius = "8px";
+		popup.style.boxShadow = "0 2px 10px rgba(0,0,0,0.2)";
+		popup.style.zIndex = "10000";
+		popup.style.fontSize = "1rem";
 
-        document.body.appendChild(popup);
+		document.body.appendChild(popup);
 
-        // Remove after 5 seconds
-        setTimeout(() => {
-            popup.remove();
-        }, 5000);
-    }
+		// Remove after 5 seconds
+		setTimeout(() => {
+			popup.remove();
+		}, 5000);
+	}
 </script>
