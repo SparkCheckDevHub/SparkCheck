@@ -14,11 +14,11 @@
 set -e
 
 # Copy the nginx config file to sites-available
-cp nginx.conf /etc/nginx/sites-available/vibecheck.date.conf
+cp nginx.conf /etc/nginx/sites-available/sparkcheck.date.conf
 
 # Enable the site
-if [ ! -L /etc/nginx/sites-enabled/vibecheck.date.conf ]; then
-  ln -s /etc/nginx/sites-available/vibecheck.date.conf /etc/nginx/sites-enabled/vibecheck.date.conf
+if [ ! -L /etc/nginx/sites-enabled/sparkcheck.date.conf ]; then
+  ln -s /etc/nginx/sites-available/sparkcheck.date.conf /etc/nginx/sites-enabled/sparkcheck.date.conf
 fi
 
 # Restart Nginx
