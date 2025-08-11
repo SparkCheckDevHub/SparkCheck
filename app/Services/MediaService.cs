@@ -101,7 +101,7 @@ namespace SparkCheck.Services
                 }
 
                 using var stream = new MemoryStream();
-                await file.OpenReadStream().CopyToAsync(stream);
+                await file.OpenReadStream(maxAllowedSize: 10_000_000).CopyToAsync(stream);
                 var imageBytes = stream.ToArray();
 
                 var newPhoto = new TUserMedia

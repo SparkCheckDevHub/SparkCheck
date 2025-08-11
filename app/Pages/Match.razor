@@ -1,10 +1,14 @@
 ﻿@page "/match"
 @using Microsoft.EntityFrameworkCore;
+@using System.Timers;
+@using System.Text;
+@using System.Text.Json;
+@using System.Net.Http;
+@using System.Net.Http.Headers;
+@using MudBlazor
 @using SparkCheck.Data
 @layout MainLayout
-@using MudBlazor
 @inherits SparkCheck.Shared.SecureBasePage
-@using System.Timers;
 @implements IAsyncDisposable
 @inject IJSRuntime JS
 
@@ -86,16 +90,18 @@
 				<MudItem xs="6">
 					<MudButton Variant="Variant.Outlined"
 							   Class="secondary-button"
-							   FullWidth="true">
-						Date Plan
+							   FullWidth="true"
+							   OnClick="@(() => GenerateDatePlan())">
+						@strDatePlan
 					</MudButton>
 				</MudItem>
 				<MudItem xs="6">
 					<MudButton Variant="Variant.Filled"
 							   Class="primary-button"
 							   ButtonType="ButtonType.Submit"
-							   FullWidth="true">
-						Ice Breaker
+							   FullWidth="true"
+							   OnClick="@(() => GenerateIceBreaker())">
+						@strIceBreaker
 					</MudButton>
 				</MudItem>
 			</MudGrid>
@@ -130,6 +136,7 @@ else {
 @inject UserService UserService
 @inject MatchService MatchService
 @inject MediaService MediaService
+@inject HttpClient HttpClient
 @inject IDbContextFactory<AppDbContext> DbFactory
 @code {
 	private Timer refreshTimer = new System.Timers.Timer(2000);
@@ -142,6 +149,8 @@ else {
 	private TUsers? otherUser = null;
 	private string strDisplayName = string.Empty;
 	private string strChatMessage = string.Empty;
+	private string strDatePlan = "Date Plan";
+	private string strIceBreaker = "Ice Breaker";
 
 	private void NavigateTo(string url) {
 		Navigation.NavigateTo(url);
@@ -163,6 +172,208 @@ else {
                 VALUES ({0}, {1}, {2}, GETDATE(), 1)",
 			UserSession.intUserID ?? 0, intMatchID, strTrimmedMessage
 		);
+	}
+
+	private async Task GenerateDatePlan() {
+		if (intMatchID == 0) {
+			return;
+		}
+
+		using var context = DbFactory.CreateDbContext();
+		
+		strDatePlan = "Generating...";
+		StateHasChanged();
+
+		// Get interests of both users
+		var myInterests = await context
+			.Set<TInterests>()
+			.FromSqlRaw(@"
+				SELECT TInterests.strInterest
+				FROM TInterests
+				JOIN TUserInterests ON TUserInterests.intInterestID = TInterests.intInterestID
+				JOIN TUsers ON TUserInterests.intUserID = TUsers.intUserID
+				WHERE TUsers.intUserID = {0}
+				",
+				UserSession.intUserID ?? 0
+			)
+			.Select(interest => interest.strInterest)
+			.ToListAsync();
+
+		var theirInterests = await context
+			.Set<TInterests>()
+			.FromSqlRaw(@"
+				SELECT TInterests.strInterest
+				FROM TInterests
+				JOIN TUserInterests ON TUserInterests.intInterestID = TInterests.intInterestID
+				JOIN TUsers ON TUserInterests.intUserID = TUsers.intUserID
+				WHERE TUsers.intUserID = {0}
+				",
+				otherUser?.intUserID ?? 0
+			)
+			.Select(interest => interest.strInterest)
+			.ToListAsync();
+
+		// Get each user's location
+		var myLocation = await GetLocationAsync(UserSession.intUserID ?? 0);
+		var theirLocation = await GetLocationAsync(otherUser?.intUserID ?? 0);
+		
+		// Craft prompt to generate date plan
+		string strPrompt = "Generate a date plan for two people with the following interests:\n";
+		strPrompt += "My interests: " + string.Join(", ", myInterests) + "\n";
+		strPrompt += "Their interests: " + string.Join(", ", theirInterests) + "\n";
+		strPrompt += "My location: " + myLocation + "\n";
+		strPrompt += "Their location: " + theirLocation + "\n";
+		strPrompt += "Do not use emojis. Make everything on one line. Maximum 8 sentences.\n";
+		strPrompt += "Make sure to say similar: Since I/you/we both like X interest, we should do X,Y,Z.\n";
+
+		// Send message
+		await context.Database.ExecuteSqlRawAsync(
+			@"INSERT INTO TChatMessages (intSenderUserID, intMatchID, strMessageText, dtmSentAt, blnIsActive)
+                VALUES ({0}, {1}, {2}, GETDATE(), 1)",
+			UserSession.intUserID ?? 0, intMatchID, "[Date Plan] " + await GenerateChatGPTAsync(strPrompt)
+		);
+
+		strDatePlan = "Date Plan";
+		StateHasChanged();
+	}
+	private async Task GenerateIceBreaker() {
+		if (intMatchID == 0) {
+			return;
+		}
+
+		using var context = DbFactory.CreateDbContext();
+
+		strIceBreaker = "Generating...";
+		StateHasChanged();
+
+		// Get interests of both users
+		var myInterests = await context
+			.Set<TInterests>()
+			.FromSqlRaw(@"
+				SELECT TInterests.strInterest
+				FROM TInterests
+				JOIN TUserInterests ON TUserInterests.intInterestID = TInterests.intInterestID
+				JOIN TUsers ON TUserInterests.intUserID = TUsers.intUserID
+				WHERE TUsers.intUserID = {0}
+				",
+				UserSession.intUserID ?? 0
+			)
+			.Select(interest => interest.strInterest)
+			.ToListAsync();
+
+		var theirInterests = await context
+			.Set<TInterests>()
+			.FromSqlRaw(@"
+				SELECT TInterests.strInterest
+				FROM TInterests
+				JOIN TUserInterests ON TUserInterests.intInterestID = TInterests.intInterestID
+				JOIN TUsers ON TUserInterests.intUserID = TUsers.intUserID
+				WHERE TUsers.intUserID = {0}
+				",
+				otherUser?.intUserID ?? 0
+			)
+			.Select(interest => interest.strInterest)
+			.ToListAsync();
+
+		// Get each user's location
+		var myLocation = await GetLocationAsync(UserSession.intUserID ?? 0);
+		var theirLocation = await GetLocationAsync(otherUser?.intUserID ?? 0);
+
+		// Craft prompt to generate date plan
+		string strPrompt = "Generate an ice breaker question for two people. Below is additional context about the users:\n";
+		strPrompt += "My interests: " + string.Join(", ", myInterests) + "\n";
+		strPrompt += "Their interests: " + string.Join(", ", theirInterests) + "\n";
+		strPrompt += "My location: " + myLocation + "\n";
+		strPrompt += "Their location: " + theirLocation + "\n";
+		strPrompt += "Try to be unique and clever with the ice breakers, as well as something easy to\n";
+		strPrompt += "answer. Incorporate the user's interests sometimes, but not always.\n";
+		strPrompt += "Do not use emojis. Make everything on one line. Maximum 1 sentence.\n";
+
+		// Send message
+		await context.Database.ExecuteSqlRawAsync(
+			@"INSERT INTO TChatMessages (intSenderUserID, intMatchID, strMessageText, dtmSentAt, blnIsActive)
+                VALUES ({0}, {1}, {2}, GETDATE(), 1)",
+			UserSession.intUserID ?? 0, intMatchID, "[Ice Breaker] " + await GenerateChatGPTAsync(strPrompt)
+		);
+
+		strIceBreaker = "Ice Breaker";
+		StateHasChanged();
+	}
+
+	async Task<string?> GenerateChatGPTAsync(string prompt)
+	{
+		try {
+			HttpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", Environment.GetEnvironmentVariable("SC_OPENAI_KEY"));
+			HttpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+
+			var json = JsonSerializer.Serialize(new
+			{
+				model = "gpt-4o-mini",
+				input = prompt,
+				temperature = 0.9,
+				store = true
+			});
+
+			var response = await HttpClient.PostAsync("https://api.openai.com/v1/responses", new StringContent(json, Encoding.UTF8, "application/json"));
+			JsonElement jsonOutput = JsonDocument.Parse(await response.Content.ReadAsStringAsync()).RootElement;
+
+			return jsonOutput.GetProperty("output")[0].GetProperty("content")[0].GetProperty("text").GetString();
+		} catch (Exception e) {};
+
+		return "Could not generate :(";
+	}
+
+	async Task<string> GetLocationAsync(int intUserID)
+	{
+		try {
+			// Get the user object and preferences
+			TUsers? user = await UserService.GetUserById(intUserID);
+			TUserPreferences? preferences = await UserService.GetUserPreferencesAsync(intUserID);
+
+			// No location set or profile hidden?
+			if (user.decLatitude == null || user.decLongitude == null || preferences.blnShowProfile == false) {
+				return "Hidden";
+			}
+
+			// Find zipcode row using haversine forumula (https://stackoverflow.com/questions/2234204/find-nearest-latitude-longitude-with-an-sql-query)
+			using var context = DbFactory.CreateDbContext();
+			var zipCode = await context
+				.Set<TZipCodes>()
+				.FromSqlRaw(@"
+					SELECT TOP 1 *, SQRT(
+						POWER(69.1 * (decLatitude - {0}), 2) +
+						POWER(69.1 * ({1} - decLongitude) * COS(decLatitude / 57.3), 2)) AS Distance
+					FROM TZipCodes
+					ORDER BY Distance ASC
+					",
+					user.decLatitude, user.decLongitude
+				)
+				.FirstOrDefaultAsync();
+
+			// Get city and state
+			var city = await context
+				.Set<TCities>()
+				.FromSqlRaw(@"
+					SELECT * FROM TCities WHERE intCityID = {0}
+					",
+					zipCode.intCityID
+				)
+				.FirstOrDefaultAsync();
+
+			var state = await context
+				.Set<TStates>()
+				.FromSqlRaw(@"
+					SELECT * FROM TStates WHERE intStateID = {0}
+					",
+					city.intStateID
+				)
+				.FirstOrDefaultAsync();
+			
+			// Format location
+			return city.strCity + ", " + state.strStateCode;	
+		}
+		catch (Exception e){};	
+		return "Hidden";
 	}
 
 	private async void RefreshChat(Object source, ElapsedEventArgs e) {
@@ -192,17 +403,17 @@ else {
 
 		using var context = DbFactory.CreateDbContext();
 		var newChats = await context
-							.Set<TChatMessages>()
-							.FromSqlRaw(@"
-                                SELECT TChatMessages.*
-                                FROM TChatMessages
-                                JOIN TMatches ON TMatches.intMatchID = TChatMessages.intMatchID
-                                AND TMatches.intMatchID = {0}
-                                WHERE intChatMessageID > {1}
-                                ",
-								intMatchID, intLastChatID
-							)
-							.ToListAsync();
+			.Set<TChatMessages>()
+			.FromSqlRaw(@"
+				SELECT TChatMessages.*
+				FROM TChatMessages
+				JOIN TMatches ON TMatches.intMatchID = TChatMessages.intMatchID
+				AND TMatches.intMatchID = {0}
+				WHERE intChatMessageID > {1}
+				",
+				intMatchID, intLastChatID
+			)
+			.ToListAsync();
 
 		// Add new messages to the chat list
 		if (newChats.Count > 0) {

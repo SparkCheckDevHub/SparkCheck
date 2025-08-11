@@ -11,6 +11,7 @@ services:
       ASPNETCORE_ENVIRONMENT: Production
       ConnectionStrings__DefaultConnection: "Server=db,1433;Database=dbSparkCheck;User Id=sa;Password=${SA_PASSWORD};TrustServerCertificate=True;"
       SC_USE_ASTERISK: "${SC_USE_ASTERISK}"
+      SC_OPENAI_KEY: "${SC_OPENAI_KEY}"
     networks:
       - sparkcheck-network
     restart: unless-stopped
