@@ -120,13 +120,13 @@
 else {
 
 	<MudContainer MaxWidth="MaxWidth.False" Class="d-flex flex-column min-vh-100 justify-center align-center px-4">
-		<MudText Typo="Typo.h5" Class="mb-4 text-center">
+		<MudText Typo="Typo.h5" Class="mb-4 text-center spark-text">
 			Come back here after you have found a match.
 		</MudText>
 
 		<MudList T="string" Dense="true">
 			<MudListItem T="string" OnClick="@(() => NavigateTo("/matchqueue"))">
-				<MudIcon Icon="@Icons.Material.Filled.Favorite" Class="me-2" />
+				<MudIcon Icon="@Icons.Material.Filled.Favorite" Class="me-2 spark-text" />
 				Join the Match Queue when you're ready to meet someone special.
 			</MudListItem>
 		</MudList>

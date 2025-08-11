@@ -2,109 +2,269 @@
 @layout MainLayout
 @inherits SparkCheck.Shared.SecureBasePage
 @implements IAsyncDisposable
-<MudContainer MaxWidth="MaxWidth.False" Class="d-flex flex-column min-vh-100 justify-center align-center px-4">
-    @if (!string.IsNullOrEmpty(errorMessage))
-    {
-        <MudAlert Severity="Severity.Error" Elevation="0" Dense="true" Style="margin-bottom: 1rem;">
-            @errorMessage
-        </MudAlert>
-    }
-
-    <MudText Typo="Typo.h5" Class="mb-4 text-center">
-        Find a match now
-    </MudText>
-
-    <MudText Typo="Typo.subtitle1" Class="mb-4 text-center">
-        @($"There are currently {onlineUserCount} users online")
-    </MudText>
-
-    <MudStack Spacing="2" Class="w-full">
-        <MudButton Variant="Variant.Filled" FullWidth="true" Disabled="@(isQueueing)"
-            OnClick="@(() => @StartMatching())">
-            Start Matching...
-        </MudButton>
-
-        <MudButton Variant="Variant.Filled" FullWidth="true" Disabled="@(!isQueueing)"
-            OnClick="@(() => @StopMatching())">
-            Stop
-        </MudButton>
-    </MudStack>
-
-    <MudSpacer />
-    <BottomNavBar />
-</MudContainer>
-
 @inject UserService UserService
 @inject MatchService MatchService
 @inject HttpClient HttpClient
-@code {
-    private int onlineUserCount;
-    private bool isQueueing = false;
-    private String? errorMessage = null;
-    protected override async Task OnInitializedAsync()
-    {
-        onlineUserCount = await UserService.GetOnlineUserCountAsync();
-        if (await MatchService.GetLatestActiveMatchAsync(UserSession.intUserID) != null)
-        {
-            Navigation.NavigateTo("/match");
-        }
-    }
-    public async ValueTask DisposeAsync()
-    {
-        await StopMatching();
-    }
-    private async Task StartMatching()
-    {
-        errorMessage = null;
-        isQueueing = true;
-        StateHasChanged();
 
-        try
-        {
-            var response = await
-            HttpClient.GetAsync($"http://sparkcheck-matcher:9988/enterQueue?intUserID={UserSession.intUserID}");
-            if (response.IsSuccessStatusCode)
-            {
-                var content = await response.Content.ReadAsStringAsync();
-                var json = System.Text.Json.JsonDocument.Parse(content);
-                var status = json.RootElement.GetProperty("status").GetString();
-                switch (status)
-                {
-                    case "success":
-                        Navigation.NavigateTo("/match");
-                        break;
-                    case "error":
-                        errorMessage = json.RootElement.GetProperty("message").GetString();
-                        await StopMatching();
-                        break;
-                    case "stopped":
-                        break;
-                    default:
-                        errorMessage = content;
-                        break;
-                }
+<MudHidden Breakpoint="Breakpoint.MdAndUp">
+<MudStack Spacing="8" AlignItems="AlignItems.Center">
+    @if (!string.IsNullOrEmpty(errorMessage)) {
+	        <MudAlert Severity="Severity.Error" Elevation="0" Dense="true" Style="margin-bottom: 1rem;">
+	            @errorMessage
+	        </MudAlert>
+    }
+
+    <MudText Typo="Typo.h5" Class="mb-4 text-center spark-text">
+        Find a match now
+    </MudText>
+
+    <MudText Typo="Typo.subtitle1" Class="mb-4 text-center spark-text">
+        @($"There are currently {onlineUserCount} users online")
+    </MudText>
+
+        <MudStack Spacing="2" Class="w-full" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.Center">
+            <MudIconButton Style="font-size: 160px !important; background:transparent; box-shadow:none; outline:none;" 
+                               Icon="@Icons.Material.Filled.Favorite"
+                               Class="@HeartCssClass"
+                               DisableRipple="true"
+                               OnClick="ToggleHeart"/>
+
+            @if (pendingAction != QueueAction.None) {
+                <MudText class="spark-text" Typo="Typo.caption">
+                    @PendingMessage
+                </MudText>
+                <MudProgressLinear Value="@((10 - secondsLeft) * 10)" Class="w-64" />
             }
+
+            @if (!string.IsNullOrEmpty(errorMessage)) {
+                <MudAlert Severity="Severity.Error" Dense="true" Elevation="0">@errorMessage</MudAlert>
+            }
+        </MudStack>
+    <MudSpacer />
+</MudStack>
+</MudHidden>
+
+<!-- DESKTOP/TABLET VIEW (MD and up) -->
+<MudHidden Breakpoint="Breakpoint.SmAndDown">
+	<MudContainer MaxWidth="MaxWidth.Medium">
+		<MudStack Spacing="8" AlignItems="AlignItems.Center">
+			<img src="images/logo.png" alt="SparkCheck logo" style="width: 70%;" />
+
+			<MudText Typo="Typo.h6" Align="Align.Center" Class="spark-text">
+				SparkCheck is optimized for mobile devices.
+			</MudText>
+
+			<MudText Typo="Typo.body1" Align="Align.Center" Class="spark-text">
+				For the best experience, please open SparkCheck on your phone and save it to your home screen.
+			</MudText>
+
+			<MudText Typo="Typo.subtitle2" Align="Align.Center" Class="spark-text">
+				© 2025 SparkCheck | Cortanix™
+			</MudText>
+		</MudStack>
+	</MudContainer>
+</MudHidden>
+
+@code {
+    // --- state ---
+    private int onlineUserCount;                  
+    private bool isQueueing = false;
+    private string? errorMessage;
+
+    private enum QueueAction { None, Start, Stop }
+    private QueueAction pendingAction = QueueAction.None;
+    private int secondsLeft = 0;
+    private CancellationTokenSource? pendingCts;
+
+    // --- computed UI text/classes ---
+    private string TooltipText =>
+        pendingAction switch {
+            QueueAction.Start => $"Starting in {secondsLeft}s… Tap to cancel",
+            QueueAction.Stop => $"Stopping…",
+            _ => isQueueing ? "Stop matching" : "Start matching"
+        };
+
+    private string PendingMessage =>
+        pendingAction == QueueAction.Start
+            ? $"Match starting in {secondsLeft} second{(secondsLeft == 1 ? "" : "s")}… Tap again to cancel."
+            : $"Stopping…";
+
+    private string HeartCssClass =>
+        $"gold-heart {(pendingAction == QueueAction.Start ? "countdown" : isQueueing ? "steady" : "")}";
+
+    protected override async Task OnInitializedAsync() {
+        // safe to keep; remove if you don't render it
+        onlineUserCount = await UserService.GetOnlineUserCountAsync();
+
+        var existing = await MatchService.GetLatestActiveMatchAsync(UserSession.intUserID);
+        if (existing != null)
+            Navigation.NavigateTo("/match");
+    }
+
+    public async ValueTask DisposeAsync()   // <- implements IAsyncDisposable
+    {
+        // cancel any pending countdown
+        pendingCts?.Cancel();
+        pendingCts?.Dispose();
+        pendingCts = null;
+
+        // optional: auto-exit queue on leave
+        // if (isQueueing)
+        //     await StopMatchingCore(CancellationToken.None);
+    }
+
+    private async Task ToggleHeart() {
+        if (pendingAction != QueueAction.None) {
+            // cancel grace period
+            pendingCts?.Cancel();
+            pendingAction = QueueAction.None;
+            secondsLeft = 0;
+            StateHasChanged();
+            return;
         }
-        catch (Exception ex)
-        {
-            errorMessage = $"Error starting match: {ex.Message}";
+
+        if (!isQueueing)
+            StartGracePeriod(QueueAction.Start);
+        else
+            await StopMatching(); // stop immediately; animation stops
+    }
+
+    private void StartGracePeriod(QueueAction action) {
+        errorMessage = null;
+        pendingAction = action;
+        secondsLeft = 5;
+
+        pendingCts?.Cancel();
+        pendingCts?.Dispose();
+        pendingCts = new CancellationTokenSource();
+        _ = RunGracePeriodAsync(pendingCts.Token);
+
+        StateHasChanged();
+    }
+
+    private async Task RunGracePeriodAsync(CancellationToken token) {
+        try {
+            while (secondsLeft > 0) {
+                await Task.Delay(1000, token);
+                secondsLeft--;
+                StateHasChanged();
+            }
+
+            if (pendingAction == QueueAction.Start)
+                await StartMatching();
         }
-        finally
-        {
-            isQueueing = false;
+        catch (OperationCanceledException) { /* user canceled */ }
+        finally {
+            pendingAction = QueueAction.None;
+            secondsLeft = 0;
             StateHasChanged();
         }
     }
 
-    private async Task StopMatching()
-    {
-        try
-        {
-            await HttpClient.GetAsync($"http://sparkcheck-matcher:9988/exitQueue?intUserID={UserSession.intUserID}");
+    private async Task StartMatching() {
+        try {
+            var resp = await HttpClient.GetAsync($"http://sparkcheck-matcher:9988/enterQueue?intUserID={UserSession.intUserID}");
+            if (!resp.IsSuccessStatusCode) {
+                errorMessage = $"Matcher error: {(int)resp.StatusCode} {resp.ReasonPhrase}";
+                return;
+            }
+
+            var content = await resp.Content.ReadAsStringAsync();
+            using var json = System.Text.Json.JsonDocument.Parse(content);
+            var status = json.RootElement.TryGetProperty("status", out var s) ? s.GetString() : null;
+
+            if (status == "success") {
+                isQueueing = true;             // keep pulse on
+                Navigation.NavigateTo("/match");
+            }
+            else if (status == "error") {
+                errorMessage = json.RootElement.TryGetProperty("message", out var m) ? m.GetString() : "Unknown error.";
+            }
+            else {
+                errorMessage = "Unexpected matcher response.";
+            }
         }
-        catch (Exception ex)
-        {
+        catch (Exception ex) {
+            errorMessage = $"Error starting match: {ex.Message}";
+        }
+        finally {
+            StateHasChanged();
+        }
+    }
+
+    private async Task StopMatching() {
+        try {
+            var resp = await HttpClient.GetAsync($"http://sparkcheck-matcher:9988/exitQueue?intUserID={UserSession.intUserID}");
+            if (!resp.IsSuccessStatusCode) {
+                errorMessage = $"Matcher error: {(int)resp.StatusCode} {resp.ReasonPhrase}";
+                return;
+            }
+            isQueueing = false;                // pulse off
+        }
+        catch (Exception ex) {
             errorMessage = $"Error stopping match: {ex.Message}";
+        }
+        finally {
+            StateHasChanged();
         }
     }
 }
+@* @code {
+	private int onlineUserCount;
+	private bool isQueueing = false;
+	private String? errorMessage = null;
+	protected override async Task OnInitializedAsync() {
+		onlineUserCount = await UserService.GetOnlineUserCountAsync();
+		if (await MatchService.GetLatestActiveMatchAsync(UserSession.intUserID) != null) {
+			Navigation.NavigateTo("/match");
+		}
+	}
+	public async ValueTask DisposeAsync() {
+		await StopMatching();
+	}
+	private async Task StartMatching() {
+		errorMessage = null;
+		isQueueing = true;
+		StateHasChanged();
+
+		try {
+			var response = await
+			HttpClient.GetAsync($"http://sparkcheck-matcher:9988/enterQueue?intUserID={UserSession.intUserID}");
+			if (response.IsSuccessStatusCode) {
+				var content = await response.Content.ReadAsStringAsync();
+				var json = System.Text.Json.JsonDocument.Parse(content);
+				var status = json.RootElement.GetProperty("status").GetString();
+				switch (status) {
+					case "success":
+						Navigation.NavigateTo("/match");
+						break;
+					case "error":
+						errorMessage = json.RootElement.GetProperty("message").GetString();
+						await StopMatching();
+						break;
+					case "stopped":
+						break;
+					default:
+						errorMessage = content;
+						break;
+				}
+			}
+		}
+		catch (Exception ex) {
+			errorMessage = $"Error starting match: {ex.Message}";
+		}
+		finally {
+			isQueueing = false;
+			StateHasChanged();
+		}
+	}
+
+	private async Task StopMatching() {
+		try {
+			await HttpClient.GetAsync($"http://sparkcheck-matcher:9988/exitQueue?intUserID={UserSession.intUserID}");
+		}
+		catch (Exception ex) {
+			errorMessage = $"Error stopping match: {ex.Message}";
+		}
+	}
+} *@

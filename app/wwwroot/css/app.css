@@ -173,7 +173,6 @@ body {
         box-shadow: 0 0 0 0 rgba(199, 174, 106, 0.6);
     }
 }*/
-/* Apply black outline only to paths inside icons within BottomNavBar */
 
 /*================== Profile.razor Overrides ==================*/
 
@@ -333,3 +332,92 @@ body {
 .chat-footer {
 	padding-top: 8px;
 }
+
+/*================== MatchQueue.razor Overrides ==================*/
+/* Base gold heart styling */
+.gold-heart.mud-icon-button {
+	background: transparent !important;
+	box-shadow: none !important;
+	outline: none !important;
+}
+
+/* Size the actual icon (not the button) */
+.gold-heart .mud-icon-root {
+	font-size: 160px !important;
+	width: 160px !important;
+	height: 160px !important;
+}
+
+/* Base gold styling and soft static glow */
+.gold-heart .mud-icon-root.mud-svg-icon {
+	fill: #C7AE6A !important;
+	color: #C7AE6A !important;
+	filter: drop-shadow(0 0 8px rgba(199,174,106,0.7));
+}
+
+/* Hide the empty clear path some Material icons include */
+.gold-heart .mud-icon-root path[fill="none"]:first-child {
+	display: none;
+}
+
+/* COUNTDOWN: intense double-beat + stronger glow */
+.gold-heart.countdown .mud-icon-root.mud-svg-icon {
+	animation: heartbeatCountdown 1.1s infinite;
+}
+
+/* STEADY (matching on): calmer breath-like pulse */
+.gold-heart.steady .mud-icon-root.mud-svg-icon {
+	animation: steadyGlow 2.2s infinite ease-in-out;
+}
+
+/* Double-beat: lub-dub pattern using scale + glow only (no box-shadow) */
+@keyframes heartbeatCountdown {
+	0% {
+		transform: scale(1);
+		filter: drop-shadow(0 0 10px rgba(199,174,106,0.7));
+	}
+
+	12% {
+		transform: scale(1.14);
+		filter: drop-shadow(0 0 18px rgba(199,174,106,0.95));
+	}
+	/* 1st hit */
+	22% {
+		transform: scale(1.06);
+		filter: drop-shadow(0 0 12px rgba(199,174,106,0.8));
+	}
+
+	32% {
+		transform: scale(1.16);
+		filter: drop-shadow(0 0 22px rgba(199,174,106,1));
+	}
+	/* 2nd hit */
+	45% {
+		transform: scale(1.02);
+		filter: drop-shadow(0 0 10px rgba(199,174,106,0.75));
+	}
+
+	100% {
+		transform: scale(1);
+		filter: drop-shadow(0 0 10px rgba(199,174,106,0.7));
+	}
+}
+
+/* Calm “breathing” pulse */
+@keyframes steadyGlow {
+	0% {
+		transform: scale(1);
+		filter: drop-shadow(0 0 8px rgba(199,174,106,0.6));
+	}
+
+	50% {
+		transform: scale(1.05);
+		filter: drop-shadow(0 0 14px rgba(199,174,106,0.85));
+	}
+
+	100% {
+		transform: scale(1);
+		filter: drop-shadow(0 0 8px rgba(199,174,106,0.6));
+	}
+}
+
