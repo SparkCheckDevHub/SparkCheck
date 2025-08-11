@@ -349,22 +349,25 @@ def matcher_loop():
             with SessionLocal() as db:
                 # Check for users in queue remover
                 with queue_remover_lock:
-                    for user_id in queue_remover:
-                        user = db.query(TUsers).filter(
-                            TUsers.intUserID == user_id
-                        ).first()
-                        if user is None:
-                            continue
-                        logger.info(f"User {user_id} removed from queue")
-                        if user.intUserID in user_updates:
-                            user_updates[user.intUserID][1] = {
-                                "status": "stopped",
-                                "message": "User removed from queue."
-                            }
-                            user_updates[user.intUserID][0].set()
-                        user.blnInQueue = False      
-                    queue_remover = {}          
-                    db.commit()
+                    try:
+                        for user_id in queue_remover:
+                            user = db.query(TUsers).filter(
+                                TUsers.intUserID == user_id
+                            ).first()
+                            if user is None:
+                                continue
+                            logger.info(f"User {user_id} removed from queue")
+                            if user.intUserID in user_updates:
+                                user_updates[user.intUserID][1] = {
+                                    "status": "stopped",
+                                    "message": "User removed from queue."
+                                }
+                                user_updates[user.intUserID][0].set()
+                            user.blnInQueue = False      
+                        queue_remover = {}          
+                        db.commit()
+                    except Exception as e:
+                        info.exception(e)
 
                     # Loop through all queuing users
                     user_map = {}
@@ -380,11 +383,14 @@ def matcher_loop():
                         if not user:
                             continue
                         if user.blnInQueue:
-                            match = find_match(db, user)
-                            
-                            # Remove second user from queue
-                            if match:
-                                user_map[match.intSecondUserID] = None
+                            try:
+                                match = find_match(db, user)
+                                
+                                # Remove second user from queue
+                                if match:
+                                    user_map[match.intSecondUserID] = None
+                            except Exception as e:
+                                info.exception(e)
                     db.commit()
 
         except Exception as e:
