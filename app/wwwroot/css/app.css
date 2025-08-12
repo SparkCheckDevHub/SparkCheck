@@ -342,10 +342,11 @@ body {
 }
 
 /* Size the actual icon (not the button) */
+/* iOS-friendly sizing for Mud icons */
 .gold-heart .mud-icon-root {
-	font-size: 160px !important;
-	width: 160px !important;
-	height: 160px !important;
+	--mud-icon-size: 160px; /* <-- important */
+	width: var(--mud-icon-size);
+	height: var(--mud-icon-size);
 }
 
 /* Base gold styling and soft static glow */
@@ -421,3 +422,20 @@ body {
 	}
 }
 
+.big-heart .mud-icon-root {
+	--mud-icon-size: 160px !important;
+}
+
+@media (max-width: 380px) {
+	.big-heart .mud-icon-root {
+		--mud-icon-size: 160px !important;
+	}
+}
+
+/* Applies to the same element you animate */
+.gold-heart .mud-icon-root.mud-svg-icon {
+	display: inline-block; 
+	transform-origin: center; 
+	transform-box: fill-box;
+	will-change: transform, filter; 
+}
