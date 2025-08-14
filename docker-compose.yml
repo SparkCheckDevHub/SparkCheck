@@ -4,7 +4,7 @@ services:
       context: ./app
     container_name: sparkcheck-app
     ports:
-      - "5980:80"
+      - "127.0.0.1:5980:80"
     depends_on:
       - db
     environment:
@@ -39,7 +39,7 @@ services:
     container_name: sparkcheck-matcher
     command: uvicorn main:app --host 0.0.0.0 --port 9988
     ports:
-      - "9988:9988"
+      - "127.0.0.1:9988:9988"
     networks:
       - sparkcheck-network
     restart: unless-stopped
@@ -53,7 +53,7 @@ services:
         context: ./verification
       container_name: sparkcheck-verification
       ports:
-        - "9977:9977"
+        - "127.0.0.1:9977:9977"
       volumes:
         - ./verification/asterisk/manager.conf:/etc/asterisk/manager.conf
         - ./verification/asterisk/extensions.conf:/etc/asterisk/extensions.conf
